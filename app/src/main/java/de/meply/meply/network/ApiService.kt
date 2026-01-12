@@ -209,7 +209,7 @@ interface ApiService {
      * Get all conversations for the current user
      */
     @GET("conversations/me")
-    fun getConversations(): Call<ConversationsResponse>
+    fun getConversations(): Call<List<Conversation>>
 
     /**
      * Get messages in a specific conversation

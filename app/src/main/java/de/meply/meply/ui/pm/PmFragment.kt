@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import de.meply.meply.R
 import de.meply.meply.data.messages.Conversation
-import de.meply.meply.data.messages.ConversationsResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -76,19 +75,17 @@ class PmFragment : Fragment() {
         emptyState.visibility = View.GONE
 
         val api = ApiClient.retrofit
-        api.getConversations().enqueue(object : Callback<ConversationsResponse> {
+        api.getConversations().enqueue(object : Callback<List<Conversation>> {
             override fun onResponse(
-                call: Call<ConversationsResponse>,
-                response: Response<ConversationsResponse>
+                call: Call<List<Conversation>>,
+                response: Response<List<Conversation>>
             ) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 if (response.isSuccessful) {
-                    val conversationsResponse = response.body()
-                    if (conversationsResponse != null) {
-                        val conversationsList = conversationsResponse.data
-
+                    val conversationsList = response.body()
+                    if (conversationsList != null) {
                         if (conversationsList.isEmpty()) {
                             emptyState.visibility = View.VISIBLE
                             recyclerView.visibility = View.GONE
@@ -110,7 +107,7 @@ class PmFragment : Fragment() {
                 }
             }
 
-            override fun onFailure(call: Call<ConversationsResponse>, t: Throwable) {
+            override fun onFailure(call: Call<List<Conversation>>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
