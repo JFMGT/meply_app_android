@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/background_card"
     app:cardElevation="2dp"
     app:cardCornerRadius="8dp">
 
@@ -59,7 +60,7 @@
                 android:id="@+id/conversationUnreadIndicator"
                 android:layout_width="12dp"
                 android:layout_height="12dp"
-                android:background="@android:color/holo_orange_light"
+                android:background="@color/primary"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
@@ -73,7 +74,7 @@
             android:orientation="vertical"
             android:layout_marginTop="8dp"
             android:padding="8dp"
-            android:background="@color/surface_variant"
+            android:background="@color/background_dark"
             android:visibility="gone"
             tools:visibility="visible">
 

@@ -1,5 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- EINMAL definieren, keine Duplikate -->
-    <style name="Theme.Meply" parent="Theme.MaterialComponents.DayNight.NoActionBar"/>
+    <!-- Main App Theme - Dark theme matching the web application -->
+    <style name="Theme.Meply" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color (yellow/gold) -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/text_on_light</item>
+
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/primary</item>
+        <item name="colorSecondaryVariant">@color/primary_dark</item>
+        <item name="colorOnSecondary">@color/text_on_light</item>
+
+        <!-- Error color -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/text_primary</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/background_card</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+
+        <!-- Window background -->
+        <item name="android:windowBackground">@color/background</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/background_header</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/background_darkest</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_disabled</item>
+    </style>
 </resources>

@@ -4,8 +4,10 @@
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="?attr/colorPrimary"
-    app:navigationIcon="?attr/homeAsUpIndicator">
+    android:background="@color/background_header"
+    app:navigationIcon="?attr/homeAsUpIndicator"
+    app:navigationIconTint="@color/text_primary"
+    app:titleTextColor="@color/text_primary">
 
     <LinearLayout
         android:layout_width="match_parent"
