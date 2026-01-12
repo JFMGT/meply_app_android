@@ -108,7 +108,7 @@ class ConversationActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val messagesResponse = response.body()
                     if (messagesResponse != null) {
-                        val messagesList = messagesResponse.data ?: emptyList()
+                        val messagesList = messagesResponse.messages
                         messageAdapter.updateMessages(messagesList)
 
                         // Scroll to bottom

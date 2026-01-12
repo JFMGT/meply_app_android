@@ -51,7 +51,8 @@ data class LocationReference(
  * Response from GET /conversations/{id}/messages
  */
 data class MessagesResponse(
-    @SerializedName("data") val data: List<Message>
+    @SerializedName("messages") val messages: List<Message>,
+    @SerializedName("conversationClosed") val conversationClosed: Boolean = false
 )
 
 data class Message(
