@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="8dp"
-            android:background="?attr/colorSurface"
+            android:background="@color/white"
             android:elevation="4dp">
 
             <com.google.android.material.textfield.TextInputLayout
