@@ -208,7 +208,7 @@ class CreatePostActivity : AppCompatActivity() {
                 requestFile
             )
 
-            val api = ApiClient.instance
+            val api = ApiClient.retrofit
             api.uploadImage(body, selectedImage.altText, "post")
                 .enqueue(object : Callback<ImageUploadResponse> {
                     override fun onResponse(
@@ -315,7 +315,7 @@ class CreatePostActivity : AppCompatActivity() {
             )
         )
 
-        val api = ApiClient.instance
+        val api = ApiClient.retrofit
         api.createPost(request).enqueue(object : Callback<CreatePostResponse> {
             override fun onResponse(
                 call: Call<CreatePostResponse>,

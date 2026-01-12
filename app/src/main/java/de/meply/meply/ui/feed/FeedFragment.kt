@@ -123,7 +123,7 @@ class FeedFragment : Fragment() {
             progressBar.visibility = View.VISIBLE
         }
 
-        val api = ApiClient.instance
+        val api = ApiClient.retrofit
         val call = api.getFeed(
             limit = 10,
             before = if (reset) null else currentCursor
@@ -175,7 +175,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun toggleLike(post: Post) {
-        val api = ApiClient.instance
+        val api = ApiClient.retrofit
         val request = LikeToggleRequest(
             targetDocumentId = post.documentId,
             targetType = "post"
@@ -266,7 +266,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun reportPost(post: Post, reason: String) {
-        val api = ApiClient.instance
+        val api = ApiClient.retrofit
         val request = ReportPostRequest(
             targetDocumentId = post.documentId,
             targetType = "post",
@@ -315,7 +315,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun deletePost(post: Post) {
-        val api = ApiClient.instance
+        val api = ApiClient.retrofit
 
         api.deletePost(post.documentId).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
