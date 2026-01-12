@@ -16,7 +16,7 @@
     <!-- Very dark background/text color -->
     <color name="background_darkest">#151d26</color>
     <!-- Card/surface background (slightly lighter) -->
-    <color name="background_card">#2a3441</color>
+    <color name="background_card">#ffffff</color>
 
     <!-- ===== TEXT COLORS ===== -->
     <!-- Primary text on dark background -->
