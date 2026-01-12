@@ -28,7 +28,8 @@
         <activity android:name=".HomeActivity"/>
         <activity android:name=".ui.feed.CreatePostActivity" />
         <activity android:name=".ui.feed.ThreadActivity" />
-        <activity android:name=".ui.pm.ConversationActivity" />
+        <activity android:name=".ui.pm.ConversationActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".WebViewActivity" />
     </application>
 
