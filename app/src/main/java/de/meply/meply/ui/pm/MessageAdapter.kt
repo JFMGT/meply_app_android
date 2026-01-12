@@ -59,13 +59,13 @@ class MessageAdapter(
             holder.container.gravity = Gravity.END
             layoutParams.marginStart = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_opposite)
             layoutParams.marginEnd = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_own)
-            holder.card.setCardBackgroundColor(holder.itemView.context.getColor(R.color.purple_200))
+            holder.card.setCardBackgroundColor(holder.itemView.context.getColor(R.color.message_sent_background))
         } else {
             // Partner messages: aligned to the left
             holder.container.gravity = Gravity.START
             layoutParams.marginStart = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_own)
             layoutParams.marginEnd = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_opposite)
-            holder.card.setCardBackgroundColor(holder.itemView.context.getColor(android.R.color.white))
+            holder.card.setCardBackgroundColor(holder.itemView.context.getColor(R.color.message_received_background))
         }
         holder.card.layoutParams = layoutParams
     }

@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import de.meply.meply.R
+import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.messages.Conversation
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
@@ -43,11 +44,11 @@ class PmFragment : Fragment() {
         progressBar = view.findViewById(R.id.pmProgressBar)
         emptyState = view.findViewById(R.id.pmEmptyState)
 
+        // Load current user ID from AuthManager
+        currentUserId = AuthManager.getProfileDocumentId(requireContext())
+
         setupRecyclerView()
         setupSwipeRefresh()
-
-        // Load current user ID (from session/preferences)
-        // For now, we'll get it from the API call
         loadConversations()
 
         return view

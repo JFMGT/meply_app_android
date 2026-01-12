@@ -32,8 +32,13 @@ class LoginActivity : AppCompatActivity() {
             ApiClient.setJwt(jwt)
             Log.d("LoginActivityAuth", "Auto-Login: JWT in ApiClient gesetzt: '$jwt'")
 
-            goToHome("Nutzer")   // Falls du den echten Namen brauchst, kannst du ihn später mit /users/me holen.
-            finish()
+            // Fetch profile documentId if not already saved
+            if (AuthManager.getProfileDocumentId(this) == null) {
+                fetchAndSaveProfileId("Nutzer")
+            } else {
+                goToHome("Nutzer")
+                finish()
+            }
             return
         }
 
@@ -77,12 +82,8 @@ class LoginActivity : AppCompatActivity() {
                         ApiClient.setJwt(jwt)
                         Log.d(TAG, "Manueller Login: Nach ApiClient.setJwt. Aktueller JWT im ApiClient: '${ApiClient.getCurrentJwt()}'")
 
-
-                        Log.d("LoginActivityAuth", "JWT wurde an ApiClient übergeben. Starte HomeActivity.")
-
-                        // ✅ Weiterleiten
-                        goToHome(username)
-                        finish()
+                        // Fetch and save profile documentId
+                        fetchAndSaveProfileId(username)
                     } else {
                         val errMsg = response.errorBody()?.string().orEmpty()
                         Log.e("LoginActivityAuth", "Login API-Fehler: ${response.code()} - $errMsg")
@@ -95,6 +96,33 @@ class LoginActivity : AppCompatActivity() {
                 }
             })
         }
+    }
+
+    private fun fetchAndSaveProfileId(username: String) {
+        ApiClient.retrofit.getCurrentUser().enqueue(object : Callback<ApiService.UserMe> {
+            override fun onResponse(call: Call<ApiService.UserMe>, response: Response<ApiService.UserMe>) {
+                if (response.isSuccessful) {
+                    val user = response.body()
+                    val profileDocumentId = user?.profile?.documentId
+                    if (profileDocumentId != null) {
+                        AuthManager.saveProfileDocumentId(this@LoginActivity, profileDocumentId)
+                        Log.d("LoginActivityAuth", "Profile documentId saved: $profileDocumentId")
+                    }
+                } else {
+                    Log.e("LoginActivityAuth", "Failed to fetch user profile: ${response.code()}")
+                }
+                // Navigate to home regardless of profile fetch result
+                goToHome(username)
+                finish()
+            }
+
+            override fun onFailure(call: Call<ApiService.UserMe>, t: Throwable) {
+                Log.e("LoginActivityAuth", "Error fetching user profile", t)
+                // Navigate to home even if profile fetch fails
+                goToHome(username)
+                finish()
+            }
+        })
     }
 
     private fun goToHome(username: String) {

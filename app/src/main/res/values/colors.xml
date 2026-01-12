@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="splash_background">#FFEB3B</color>
     <color name="surface_variant">#F5F5F5</color>
+    <color name="message_sent_background">#E3F2FD</color>
+    <color name="message_received_background">#F5F5F5</color>
 </resources>

@@ -13,6 +13,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
+import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.messages.*
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
@@ -46,6 +47,9 @@ class ConversationActivity : AppCompatActivity() {
             finish()
             return
         }
+
+        // Load current user ID from AuthManager
+        currentUserId = AuthManager.getProfileDocumentId(this)
 
         initializeViews()
         setupRecyclerView()
@@ -114,15 +118,6 @@ class ConversationActivity : AppCompatActivity() {
                         // Scroll to bottom
                         if (messagesList.isNotEmpty()) {
                             recyclerView.scrollToPosition(messagesList.size - 1)
-                        }
-
-                        // Set current user ID from first own message
-                        if (currentUserId == null) {
-                            // This is a simplification - ideally get from user session
-                            val firstMessage = messagesList.firstOrNull()
-                            if (firstMessage != null) {
-                                currentUserId = firstMessage.author.documentId
-                            }
                         }
 
                         Log.d("ConversationActivity", "Loaded ${messagesList.size} messages")
