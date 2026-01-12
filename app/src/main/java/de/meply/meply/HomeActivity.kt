@@ -15,6 +15,8 @@ import de.meply.meply.ui.feed.FeedFragment
 import de.meply.meply.ui.events.EventsFragment
 import de.meply.meply.ui.pm.PmFragment
 import de.meply.meply.ui.profile.ProfileFragment
+import de.meply.meply.auth.AuthManager
+import de.meply.meply.network.ApiClient
 
 class HomeActivity : AppCompatActivity() {
 
@@ -35,6 +37,12 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        // Ensure JWT is loaded into ApiClient when HomeActivity starts
+        // (in case the process was killed and restarted)
+        AuthManager.getJwt(this)?.let { jwt ->
+            ApiClient.setJwt(jwt)
+        }
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
