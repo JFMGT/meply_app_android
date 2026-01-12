@@ -124,7 +124,7 @@ class PmFragment : Fragment() {
 
     private fun openConversation(conversation: Conversation) {
         val intent = Intent(requireContext(), ConversationActivity::class.java)
-        intent.putExtra("conversationId", conversation.documentId)
+        intent.putExtra("conversationId", conversation.id.toString())
         intent.putExtra("partnerName", getPartnerName(conversation))
         startActivity(intent)
     }
