@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteBase /blog/
+
+# Verhindert Endlosschleifen bei direktem Aufruf
+RewriteRule ^index\.php$ - [L]
+
+# Startseite /blog/ -> index.php
+RewriteRule ^$ index.php [L]
+
+# WICHTIG: Existierende Dateien und Verzeichnisse NICHT umschreiben
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Alles andere als Slug an single.php
+RewriteRule ^([^/]+)/?$ single.php?slug=$1 [L,QSA]

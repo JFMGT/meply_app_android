@@ -1,0 +1,10 @@
+Status: 403
+Response: {"data":null,"error":{"status":403,"name":"ForbiddenError","message":"Forbidden","details":{}}}
+URL: https://admin.meeplemates.de/api/profiles/ivb6kfjxtse2w066mdlrxpof
+Payload:
+{
+    "data": {
+        "scheduledDeletionAt": "2025-11-04T22:17:18+01:00"
+    }
+}
+

@@ -1,0 +1,445 @@
+Array
+(
+)
+Array
+(
+)
+Array
+(
+    [images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => baby.jpg
+                    [1] => board-game-529586_1280.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => baby.jpg
+                    [1] => board-game-529586_1280.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                    [1] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => /tmp/phpv8685sug8cb89ICceFx
+                    [1] => /tmp/phpd0t5hom178uv4Mbdz3p
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                    [1] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 103926
+                    [1] => 252171
+                )
+
+        )
+
+)
+Array
+(
+    [images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => baby.jpg
+                    [1] => board-game-529586_1280.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => baby.jpg
+                    [1] => board-game-529586_1280.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                    [1] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => /tmp/phpgjmsepro526hfVIKomb
+                    [1] => /tmp/phpnao3vutpfccg4A3lIxm
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                    [1] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 103926
+                    [1] => 252171
+                )
+
+        )
+
+)
+Array
+(
+    [images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => baby.jpg
+                    [1] => board-game-529586_1280.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => baby.jpg
+                    [1] => board-game-529586_1280.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                    [1] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => /tmp/php8t3jkoduqbcmaxcvMcH
+                    [1] => /tmp/phpcbfibbrmbsth5h6F5S6
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                    [1] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 103926
+                    [1] => 252171
+                )
+
+        )
+
+)
+Array
+(
+    [images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => baby.jpg
+                    [1] => board-game-529586_1280.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => baby.jpg
+                    [1] => board-game-529586_1280.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                    [1] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => /tmp/phpv4466m8cr5bsf2EBiSP
+                    [1] => /tmp/phppr7oiel47nj95WvjYEy
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                    [1] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 103926
+                    [1] => 252171
+                )
+
+        )
+
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+    [images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => Screenshot 2025-04-03 163402.png
+                )
+
+            [full_path] => Array
+                (
+                    [0] => Screenshot 2025-04-03 163402.png
+                )
+
+            [type] => Array
+                (
+                    [0] => image/png
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => /tmp/php4lt7oop653gn9VrDjKr
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 2980970
+                )
+
+        )
+
+)
+Array
+(
+    [images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => Screenshot 2025-04-03 163402.png
+                )
+
+            [full_path] => Array
+                (
+                    [0] => Screenshot 2025-04-03 163402.png
+                )
+
+            [type] => Array
+                (
+                    [0] => image/png
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => /tmp/phpha7kgea7u5c30GXm9Gz
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 2980970
+                )
+
+        )
+
+)
+Array
+(
+    [images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => baby.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => baby.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => /tmp/php9efogaacom650M1BiOL
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 103926
+                )
+
+        )
+
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)
+Array
+(
+)

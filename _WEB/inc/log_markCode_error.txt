@@ -1,0 +1,6 @@
+❌ Fehler beim Code-Speichern
+Code-ID: 37
+HTTP-Code: 404
+Antwort:
+{"data":null,"error":{"status":404,"name":"NotFoundError","message":"Not Found","details":{}}}
+

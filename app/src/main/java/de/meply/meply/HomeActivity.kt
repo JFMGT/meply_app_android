@@ -1,0 +1,50 @@
+package de.meply.meply
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.fragment.app.Fragment
+import de.meply.meply.ui.feed.FeedFragment
+import de.meply.meply.ui.events.EventsFragment
+import de.meply.meply.ui.pm.PmFragment
+import de.meply.meply.ui.profile.ProfileFragment
+
+class HomeActivity : AppCompatActivity() {
+
+    private val feed by lazy { FeedFragment() }
+    private val events by lazy { EventsFragment() }
+    private val pm by lazy { PmFragment() }
+    private val profile by lazy { ProfileFragment() }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_home)
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host, feed, "feed")
+                .commit()
+        }
+
+        val bottom = findViewById<BottomNavigationView>(R.id.bottomNav)
+        bottom.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_feed    -> switchTo(feed, "feed")
+                R.id.nav_events  -> switchTo(events, "events")
+                R.id.nav_pm      -> switchTo(pm, "pm")
+                R.id.nav_profile -> switchTo(profile, "profile")
+                R.id.nav_more    -> { MoreMenuBottomSheet().show(supportFragmentManager, "more"); true }
+                else -> false
+            }
+        }
+    }
+
+    private fun switchTo(target: Fragment, tag: String): Boolean {
+        if (supportFragmentManager.findFragmentById(R.id.nav_host) !== target) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host, target, tag)
+                .commit()
+        }
+        return true
+    }
+}

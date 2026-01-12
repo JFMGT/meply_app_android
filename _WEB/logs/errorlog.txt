@@ -1,0 +1,108 @@
+[2025-10-27 14:57:16] 33334 50
+[2025-10-27 14:57:16] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=50&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 14:57:16] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 14:57:16] get_nearby_events_data: Anzahl Events nach Datumsfilter: 1
+[2025-10-27 14:57:16] get_nearby_events_data: Anzahl Events nach Limitierung: 1
+[2025-10-27 14:57:36]  100
+[2025-10-27 14:57:36] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 14:57:36] get_nearby_events_data (Events) API Fehler: HTTP 400 - {"data":null,"error":{"status":400,"name":"BadRequestError","message":"PLZ fehlt","details":[]}}
+[2025-10-27 14:57:38]  100
+[2025-10-27 14:57:38] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 14:57:38] get_nearby_events_data (Events) API Fehler: HTTP 400 - {"data":null,"error":{"status":400,"name":"BadRequestError","message":"PLZ fehlt","details":[]}}
+[2025-10-27 15:00:32]  100
+[2025-10-27 15:00:32] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:00:32] get_nearby_events_data (Events) API Fehler: HTTP 400 - {"data":null,"error":{"status":400,"name":"BadRequestError","message":"PLZ fehlt","details":[]}}
+[2025-10-27 15:00:40]  100
+[2025-10-27 15:00:40] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:00:40] get_nearby_events_data (Events) API Fehler: HTTP 400 - {"data":null,"error":{"status":400,"name":"BadRequestError","message":"PLZ fehlt","details":[]}}
+[2025-10-27 15:00:50] 33334 50
+[2025-10-27 15:00:50] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=50&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:00:50] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:00:50] get_nearby_events_data: Anzahl Events nach Datumsfilter: 1
+[2025-10-27 15:00:50] get_nearby_events_data: Anzahl Events nach Limitierung: 1
+[2025-10-27 15:01:27]  100
+[2025-10-27 15:01:27] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:01:27] get_nearby_events_data (Events) API Fehler: HTTP 400 - {"data":null,"error":{"status":400,"name":"BadRequestError","message":"PLZ fehlt","details":[]}}
+[2025-10-27 15:02:00]  100
+[2025-10-27 15:02:00] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:00] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:00] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:00] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:02:01]  100
+[2025-10-27 15:02:01] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:01] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:01] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:01] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:02:07] 33334 111
+[2025-10-27 15:02:07] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=111&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:07] get_nearby_events_data: Anzahl Events von API (/nearby): 6
+[2025-10-27 15:02:07] get_nearby_events_data: Anzahl Events nach Datumsfilter: 4
+[2025-10-27 15:02:07] get_nearby_events_data: Anzahl Events nach Limitierung: 4
+[2025-10-27 15:02:10]  100
+[2025-10-27 15:02:10] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:11] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:11] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:11] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:02:12]  100
+[2025-10-27 15:02:12] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:12] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:12] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:12] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:02:13]  100
+[2025-10-27 15:02:13] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:02:14]  100
+[2025-10-27 15:02:14] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:02:14]  100
+[2025-10-27 15:02:14] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:14] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:02:14]  100
+[2025-10-27 15:02:14] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:15] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:15] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:15] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:02:15]  100
+[2025-10-27 15:02:15] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:02:15] get_nearby_events_data: Anzahl Events von API (/nearby): 2
+[2025-10-27 15:02:15] get_nearby_events_data: Anzahl Events nach Datumsfilter: 0
+[2025-10-27 15:02:15] get_nearby_events_data: Anzahl Events nach Limitierung: 0
+[2025-10-27 15:07:54] 33334 100
+[2025-10-27 15:07:54] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=100&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:07:54] get_nearby_events_data: Anzahl Events von API (/nearby): 4
+[2025-10-27 15:07:54] get_nearby_events_data: Anzahl Events nach Datumsfilter: 3
+[2025-10-27 15:07:54] get_nearby_events_data: Anzahl Events nach Limitierung: 3
+[2025-10-27 15:08:23] 36037 500
+[2025-10-27 15:08:23] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=36037&radius=500&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:08:24] get_nearby_events_data: Anzahl Events von API (/nearby): 36
+[2025-10-27 15:08:24] get_nearby_events_data: Anzahl Events nach Datumsfilter: 16
+[2025-10-27 15:08:24] get_nearby_events_data: Anzahl Events nach Limitierung: 16
+[2025-10-27 15:08:32] 33334 1000000
+[2025-10-27 15:08:32] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=1000000&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:08:32] get_nearby_events_data: Anzahl Events von API (/nearby): 36
+[2025-10-27 15:08:32] get_nearby_events_data: Anzahl Events nach Datumsfilter: 16
+[2025-10-27 15:08:32] get_nearby_events_data: Anzahl Events nach Limitierung: 3
+[2025-10-27 15:18:16] 33334 1000000
+[2025-10-27 15:18:16] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=1000000&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:18:16] get_nearby_events_data: Anzahl Events von API (/nearby): 36
+[2025-10-27 15:18:16] get_nearby_events_data: Anzahl Events nach Datumsfilter: 16
+[2025-10-27 15:18:16] get_nearby_events_data: Anzahl Events nach Limitierung: 3
+[2025-10-27 15:18:25] Login failed for identifier 'MeepleMate': HTTP 400 - {"data":null,"error":{"status":400,"name":"ValidationError","message":"Invalid identifier or password","details":[]}}
+[2025-10-27 15:18:39] 33334 1000000
+[2025-10-27 15:18:39] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=1000000&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:18:39] get_nearby_events_data: Anzahl Events von API (/nearby): 36
+[2025-10-27 15:18:39] get_nearby_events_data: Anzahl Events nach Datumsfilter: 16
+[2025-10-27 15:18:39] get_nearby_events_data: Anzahl Events nach Limitierung: 3
+[2025-10-27 15:18:39] get_nearby_events_data (Like Counts) API Fehler: HTTP 400
+[2025-10-27 15:18:50] 33334 1000000
+[2025-10-27 15:18:50] get_nearby_events_data: API URL: https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=1000000&sort=start_date%3Aasc&populate=%2A&pagination%5BpageSize%5D=250
+[2025-10-27 15:18:51] get_nearby_events_data: Anzahl Events von API (/nearby): 36
+[2025-10-27 15:18:51] get_nearby_events_data: Anzahl Events nach Datumsfilter: 16
+[2025-10-27 15:18:51] get_nearby_events_data: Anzahl Events nach Limitierung: 3
+[2025-10-27 15:18:51] get_nearby_events_data (Like Counts) API Fehler: HTTP 400

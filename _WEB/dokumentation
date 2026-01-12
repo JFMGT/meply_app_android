@@ -1,0 +1,43 @@
+ ssh root@188.245.61.218
+
+
+Benutzer wechseln
+su -strapi
+
+In das dev-strapi verzeichnis wechseln
+cd dev-strapi
+
+DEV Strapi mit Port der nicht 1337 (live) ist starten
+./start-dev (in root)
+
+Nach änderungen an DEV Live neu starten:
+./sync-strapi.sh
+
+pm2 restart strapi-live
+
+CODES FÜR LOGIN ERSTELLEN
+node generate-codes.js
+
+
+
+
+MeepleMeter
+import { grantPoints } from '../../../utils/points';
+
+await grantPoints(strapi, profile.id, 'like'); in der Route
+//strapi übergibt daten
+//profile.id muss gesetzt sein (ct profile)
+//like ist die art. 
+
+Werte werden in
+~/dev-strapi/src/utils$ nano points.ts 
+definiert:
+const pointRules: Record<
+  string,
+  { points: number; expiresInDays?: number }
+> = {
+  like: { points: 1, expiresInDays: 90 },
+  dislike: { points: -1, expiresInDays: 90 },
+  post: { points: 5, expiresInDays: 180 },
+  message: { points: 2 },
+};

@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteBase /map/
+
+# Regel 1: /map/kategorie/slug → /map/single.php?cat=kategorie&location=slug
+# Nur wenn ZWEI Segmente vorhanden sind
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-ZäöüÄÖÜß]+)/([a-zA-Z0-9_-]+)$ single.php?cat=$1&location=$2 [L,QSA]
+
+# Regel 2: /map/kategorie oder /map/kategorie/ → /map/index.php?category=kategorie
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-ZäöüÄÖÜß]+)/?$ index.php?category=$1 [L,QSA]

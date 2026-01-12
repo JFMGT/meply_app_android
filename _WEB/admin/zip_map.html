@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>PLZ Mapping Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+  <style>
+    body { margin: 0; display: flex; height: 100vh; font-family: sans-serif; }
+    #map { width: 70%; height: 100%; }
+    #sidebar { width: 30%; padding: 1em; box-sizing: border-box; background: #f9f9f9; overflow-y: auto; }
+    textarea { width: 100%; height: 80%; font-family: monospace; }
+    h2 { margin-top: 0; }
+    .highlight { fill: green !important; }
+    .neighbor { fill: red !important; }
+    select { margin-bottom: 1em; width: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<div id="sidebar">
+  <h2>PLZ Mapping</h2>
+  <label for="radiusSelect">Radius (km):</label>
+  <select id="radiusSelect">
+    <option value="5">5</option>
+    <option value="10">10</option>
+    <option value="20">20</option>
+    <option value="30">30</option>
+    <option value="60">60</option>
+    <option value="100">100</option>
+    <option value="150">150</option>
+  </select>
+  <p>Aktuelles Gebiet: <strong id="current"></strong></p>
+  <textarea id="jsonOutput"></textarea>
+  <button onclick="saveJSON()">Download JSON</button>
+</div>
+<style>
+  .highlight { fill: green !important; }
+  .neighbor { fill: red !important; }
+  .isolated { stroke: red !important; stroke-width: 3 !important; }
+</style>
+<svg width="0" height="0">
+  <defs>
+    <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <path d="M-1,1 l2,-2
+               M0,8 l8,-8
+               M7,9 l2,-2" stroke="red" stroke-width="1"/>
+    </pattern>
+  </defs>
+</svg>
+<script src="<?= WEBSITE_BASE ?>etc/scripts/leaflet.js"></script>
+<!--<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>-->
+<script>
+const plzMap = {}; // wird dynamisch befüllt
+let selectedPrefix = null;
+let geoLayer;
+let bufferLayer = null;
+
+const map = L.map('map').setView([51, 10.5], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 12,
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+fetch('plz-2stellig.geojson')
+  .then(res => res.json())
+  .then(data => {
+    geoLayer = L.geoJSON(data, {
+      style: feature => ({
+        color: '#666', weight: 1, fillOpacity: 0.4
+      }),
+      onEachFeature: (feature, layer) => {
+        const plz = feature.properties.plz;
+        if (!plzMap[plz]) plzMap[plz] = [plz];
+
+        layer.on('click', (e) => {
+          const radius = parseInt(document.getElementById('radiusSelect').value, 10);
+          const shiftPressed = e.originalEvent.shiftKey;
+
+          if (!selectedPrefix) {
+            selectedPrefix = plz;
+            drawBuffer(feature, radius);
+            if (shiftPressed) {
+              const buffered = turf.buffer(feature, radius, { units: 'kilometers' });
+              geoLayer.eachLayer(other => {
+                const otherPlz = other.feature.properties.plz;
+                if (otherPlz !== plz && turf.booleanIntersects(buffered, other.feature)) {
+                  if (!plzMap[plz].includes(otherPlz)) {
+                    plzMap[plz].push(otherPlz);
+                  }
+                }
+              });
+            }
+          } else if (plz === selectedPrefix) {
+            selectedPrefix = null;
+            removeBuffer();
+          } else {
+            const index = plzMap[selectedPrefix].indexOf(plz);
+            if (index > -1) {
+              plzMap[selectedPrefix].splice(index, 1);
+            } else {
+              plzMap[selectedPrefix].push(plz);
+            }
+          }
+          updateDisplay();
+        });
+      }
+    }).addTo(map);
+
+    updateDisplay();
+  });
+
+function updateDisplay() {
+  document.getElementById('current').textContent = selectedPrefix || 'Bitte wählen';
+
+  geoLayer.eachLayer(layer => {
+    const plz = layer.feature.properties.plz;
+    let fillColor = '#ccc';
+    let className = '';
+    let weight = 1;
+    let color = '#666';
+
+    if (plz === selectedPrefix) {
+      fillColor = 'green';
+    } else if (selectedPrefix && (plzMap[selectedPrefix] || []).includes(plz)) {
+      fillColor = 'red';
+    }
+
+    if (plzMap[plz] && plzMap[plz].length <= 1) {
+      weight = 3;
+      color = 'red';
+    }
+
+    layer.setStyle({ fillColor, weight, color });
+  });
+
+  document.getElementById('jsonOutput').value = JSON.stringify(plzMap, null, 2);
+}
+
+function saveJSON() {
+  const blob = new Blob([JSON.stringify(plzMap, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'plz_mapping.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function drawBuffer(feature, radius) {
+  removeBuffer();
+  const buffered = turf.buffer(feature, radius, { units: 'kilometers' });
+  bufferLayer = L.geoJSON(buffered, {
+    style: {
+      color: 'blue',
+      weight: 2,
+      fillOpacity: 0,
+      dashArray: '5,5'
+    },
+    interactive: false
+  }).addTo(map);
+}
+
+function removeBuffer() {
+  if (bufferLayer) {
+    bufferLayer.remove();
+    bufferLayer = null;
+  }
+}
+</script>
+</body>
+</html>

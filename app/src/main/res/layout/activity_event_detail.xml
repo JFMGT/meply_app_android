@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".ui.events.EventDetailActivity">
+
+    <ProgressBar
+        android:id="@+id/detail_event_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/detail_event_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                tools:text="Event Titel" />
+
+            <TextView
+                android:id="@+id/detail_event_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                tools:text="01.01.2024 - 02.01.2024 | 10:00 - 18:00" />
+
+            <TextView
+                android:id="@+id/detail_event_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="Ort: Musterstadt" />
+
+            <TextView
+                android:id="@+id/detail_event_organizer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="Veranstalter: Musterfirma" />
+
+            <TextView
+                android:id="@+id/detail_event_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                tools:text="Dies ist eine lange Beschreibung des Events mit vielen Details." />
+            <ProgressBar
+                android:id="@+id/detail_meetings_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/detail_meetings_error_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fehler beim Laden der Spieltreffen."
+                android:textColor="@android:color/holo_red_dark"
+                android:visibility="gone" />
+            <!-- Platzieren Sie es dort, wo Fehlermeldungen erscheinen sollen -->
+
+            <TextView
+                android:id="@+id/detail_no_meetings_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Keine Spieltreffen für dieses Event gefunden."
+                android:visibility="gone" />
+            <!-- Fügen Sie hier weitere TextViews für andere Attribute hinzu -->
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
+    

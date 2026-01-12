@@ -1,0 +1,59 @@
+FUNKTIONSÜBERBLICK:
+STARTSEITE + Allgemeines
+--- Starttext im Backend anpassbar machen (Title, Subtitle, Text, Button-URL, Button-Text)
+
+
+Messaging
+-- Darstellung von Nachrichten verschönern
++ Hinweis, wenn eine NAchricht empangen wurde.
+- Nachrichtenseite neu laden, nach senden einer Nachricht.
+
+Feed
++ Eingetragene Bilder mit in Feed darstellen.
+- Benutzer erlauben Sichtbarkeit zu steuern (Member, Public, Friends).
++ Es lassen sich Random Beiträge nicht liken. 
+
+
+Userpage
++ Darstellung anpassen, weitere Infos einbinden? 
+++ User Erlauben Events und Locations zu erstellen
+
+
+
+Events
+
+Karte
++ Anzahl der Mitspielergesuche im Button "Details und Mitspieler" darstellen.
+
+
+
+Location Einzelseite
++
+
+Mitspielerliste
++ Liste der Mitglieder aufbauen
++ Eine Karte integrieren? 
+
+Mitspielergesuche
++ Eine Liste aller Gesuche mit Umgebungssuche und ggf. als Karte? 
+
+Blog
+
+Profil bearbeiten
+-- Darstellung verbessern
++ Sicherheitseinstellung verbergen oder in Darstellung der anderen Seite übernehmen.
+-- Avatar Integration in den Feed.
+
+
+Login
+++ Passwort zurücksetzen Funktion
+-- Passwort im Passwortfeld Sichtbar machen (Augesymbo)
+
+Meetings
+- Wenn letztes Meeting aus Darstellung gelöscht, dann "Keine Meetings gefunden" anzeigen.
+
+
+
+
+
+

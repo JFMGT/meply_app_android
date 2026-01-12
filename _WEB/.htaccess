@@ -1,0 +1,4 @@
+RewriteEngine On
+
+# /user/kartenkathi → /user/index.php?slug=kartenkathi
+RewriteRule ^user/([a-zA-Z0-9_-]+)$ /user/index.php?slug=$1 [L,QSA]

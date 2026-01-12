@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /events/
+
+# Leite alle /events/slug auf single.php, außer index.php oder echte Dateien
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)$ single.php?slug=$1 [L,QSA]

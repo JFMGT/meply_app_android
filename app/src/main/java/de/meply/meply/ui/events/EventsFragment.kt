@@ -1,0 +1,115 @@
+package de.meply.meply.ui.events
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import de.meply.meply.R
+import de.meply.meply.data.events.EventItem
+import de.meply.meply.data.events.StrapiListResponse
+import de.meply.meply.network.ApiClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import de.meply.meply.ui.events.EventDetailActivity
+class EventsFragment : Fragment() {
+
+    private val DEFAULT_ZIP = "33334"
+    private val DEFAULT_RADIUS_KM = 100000.0
+
+    private lateinit var recycler: RecyclerView
+    private lateinit var progress: ProgressBar
+    private lateinit var empty: TextView
+    private val adapter = EventsAdapter { item -> onEventClicked(item) }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        val v = inflater.inflate(R.layout.fragment_events, container, false)
+        recycler = v.findViewById(R.id.recyclerEvents)
+        progress = v.findViewById(R.id.progress)
+        empty    = v.findViewById(R.id.emptyView)
+
+        recycler.layoutManager = LinearLayoutManager(requireContext())
+        recycler.adapter = adapter
+
+        loadEvents(zip = DEFAULT_ZIP, radiusKm = DEFAULT_RADIUS_KM)
+        return v
+    }
+
+    private fun loadEvents(zip: String, radiusKm: Double) {
+        showLoading(true)
+        val call = ApiClient.retrofit.getNearbyEvents(
+            zip = zip,
+            radius = radiusKm,
+            sort = "start_date:asc",
+            page = 1,
+            pageSize = 25
+        )
+        call.enqueue(object : Callback<StrapiListResponse<EventItem>> {
+            override fun onResponse(
+                call: Call<StrapiListResponse<EventItem>>,
+                response: Response<StrapiListResponse<EventItem>>
+            ) {
+                showLoading(false)
+                if (response.isSuccessful) {
+                    val items = (response.body()?.data ?: emptyList()).filter { ev ->
+                        // Nur Events ab heute
+                        val todayMidnight = Calendar.getInstance().apply {
+                            set(Calendar.HOUR_OF_DAY, 0)
+                            set(Calendar.MINUTE, 0)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }.timeInMillis
+                        val start = parseIso(ev.attributes.startDate)
+                        val end   = parseIso(ev.attributes.endDate)
+                        (end != null && end >= todayMidnight) || (start != null && start >= todayMidnight)
+                    }
+
+                    if (items.isEmpty()) {
+                        empty.text = "Keine Events gefunden."
+                        empty.visibility = View.VISIBLE
+                        adapter.submit(emptyList())
+                    } else {
+                        empty.visibility = View.GONE
+                        adapter.submit(items)
+                    }
+                } else {
+                    empty.text = "Laden fehlgeschlagen (${response.code()})"
+                    empty.visibility = View.VISIBLE
+                }
+            }
+
+            override fun onFailure(call: Call<StrapiListResponse<EventItem>>, t: Throwable) {
+                showLoading(false)
+                empty.text = "Netzwerkfehler: ${t.message}"
+                empty.visibility = View.VISIBLE
+            }
+        })
+    }
+
+    private fun parseIso(s: String?): Long? {
+        if (s.isNullOrBlank()) return null
+        return runCatching {
+            SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(s)?.time
+        }.getOrNull()
+    }
+
+    private fun onEventClicked(item: EventItem) {
+        val eventId = item.attributes.documentId
+            ?: item.id.toString()
+
+        EventDetailActivity.start(requireContext(), eventId)
+    }
+
+    private fun showLoading(show: Boolean) {
+        progress.visibility = if (show) View.VISIBLE else View.GONE
+        if (show) empty.visibility = View.GONE
+    }
+}

@@ -1,0 +1,8 @@
+Array
+(
+    [zip] => 33334
+    [radius] => 1000000
+    [limit] => 3
+    [apiUrl] => https://admin.meeplemates.de/api/events/nearby?zip=33334&radius=1000000&sort=start_date%3Aasc
+    [events_found] => 3
+)
