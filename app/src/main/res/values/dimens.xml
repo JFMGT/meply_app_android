@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Message margins for chat bubbles -->
+    <dimen name="message_margin_own">8dp</dimen>
+    <dimen name="message_margin_opposite">48dp</dimen>
+</resources>
