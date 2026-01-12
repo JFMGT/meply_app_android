@@ -126,6 +126,8 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showProfile(profile: ProfileItem) {
+        Log.d("ProfileFragment", "Loading profile: ${profile.attributes}")
+
         editUsername.setText(profile.attributes?.username ?: "")
         editBirthDate.setText(profile.attributes?.birthDate ?: "")
         editPostal.setText(profile.attributes?.postalCode ?: "")
@@ -134,19 +136,30 @@ class ProfileFragment : Fragment() {
         editBggProfile.setText(profile.attributes?.boardgamegeekProfile ?: "")
         editBgaUsername.setText(profile.attributes?.boardGameArenaUsername ?: "")
 
-        // Set gender spinner
-        val gender = profile.attributes?.gender ?: "Keine Angabe"
-        val genderIndex = genderOptions.indexOf(gender)
+        // Set gender spinner - convert from API format (English) to UI format (German)
+        val genderApi = profile.attributes?.gender ?: "none"
+        val genderDisplay = when (genderApi) {
+            "none" -> "Keine Angabe"
+            "female" -> "Weiblich"
+            "male" -> "Männlich"
+            "diverse" -> "Divers"
+            "other" -> "anderes"
+            else -> "Keine Angabe"
+        }
+        val genderIndex = genderOptions.indexOf(genderDisplay)
         if (genderIndex >= 0) {
             spinnerGender.setSelection(genderIndex)
         }
 
         // Set checkboxes
-        // followPrivacy is "open" or "request", checkbox means "open" (users can follow without confirmation)
-        checkboxFollowPrivacy.isChecked = profile.attributes?.followPrivacy == "open"
+        // Use usersCanFollow if available, fallback to followPrivacy
+        val privacySetting = profile.attributes?.usersCanFollow ?: profile.attributes?.followPrivacy
+        checkboxFollowPrivacy.isChecked = privacySetting == "open"
         checkboxShowInUserList.isChecked = profile.attributes?.showInUserList ?: false
         checkboxAllowProfileView.isChecked = profile.attributes?.allowProfileView ?: false
         checkboxShowRatings.isChecked = profile.attributes?.showBoardGameRatings ?: false
+
+        Log.d("ProfileFragment", "Privacy setting: $privacySetting, checked: ${checkboxFollowPrivacy.isChecked}")
     }
 
     private fun saveProfile() {
@@ -165,14 +178,31 @@ class ProfileFragment : Fragment() {
         // Update with new values from form
         updateMap?.set("username", editUsername.text.toString())
         updateMap?.set("birthDate", editBirthDate.text.toString().ifEmpty { null })
-        updateMap?.set("gender", spinnerGender.selectedItem.toString())
+
+        // Convert gender from German UI text to API format (English)
+        val genderDisplay = spinnerGender.selectedItem.toString()
+        val genderApi = when (genderDisplay) {
+            "Keine Angabe" -> "none"
+            "Weiblich" -> "female"
+            "Männlich" -> "male"
+            "Divers" -> "diverse"
+            "anderes" -> "other"
+            else -> "none"
+        }
+        updateMap?.set("gender", genderApi)
+
         updateMap?.set("postalCode", editPostal.text.toString())
         updateMap?.set("city", editCity.text.toString())
         updateMap?.set("searchRadius", editRadius.text.toString().toIntOrNull())
         updateMap?.set("boardgamegeekProfile", editBggProfile.text.toString().ifEmpty { null })
         updateMap?.set("boardGameArenaUsername", editBgaUsername.text.toString().ifEmpty { null })
-        // followPrivacy must be "open" or "request", not boolean
-        updateMap?.set("followPrivacy", if (checkboxFollowPrivacy.isChecked) "open" else "request")
+
+        // usersCanFollow must be "open" or "request", not boolean
+        val privacyValue = if (checkboxFollowPrivacy.isChecked) "open" else "request"
+        updateMap?.set("usersCanFollow", privacyValue)
+        // Also set followPrivacy for backwards compatibility
+        updateMap?.set("followPrivacy", privacyValue)
+
         updateMap?.set("showInUserList", checkboxShowInUserList.isChecked)
         updateMap?.set("allowProfileView", checkboxAllowProfileView.isChecked)
         updateMap?.set("showBoardGameRatings", checkboxShowRatings.isChecked)
@@ -275,6 +305,7 @@ fun de.meply.meply.data.profile.ProfileAttributes.toMutableMap(): MutableMap<Str
         "boardgamegeekProfile" to this.boardgamegeekProfile,
         "boardGameArenaUsername" to this.boardGameArenaUsername,
         "showInUserList" to this.showInUserList,
+        "usersCanFollow" to this.usersCanFollow,
         "followPrivacy" to this.followPrivacy,
         "allowProfileView" to this.allowProfileView,
         "showBoardGameRatings" to this.showBoardGameRatings,

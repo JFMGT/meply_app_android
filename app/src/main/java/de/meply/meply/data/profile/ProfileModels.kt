@@ -14,7 +14,8 @@ data class ProfileAttributes(
     val boardgamegeekProfile: String?,
     val boardGameArenaUsername: String?,
     val showInUserList: Boolean?,
-    val followPrivacy: String?,             // "open" | "request"
+    val followPrivacy: String?,             // "open" | "request" (deprecated, use usersCanFollow)
+    val usersCanFollow: String?,            // "open" | "request" (current field name)
     val allowProfileView: Boolean?,
     val showBoardGameRatings: Boolean?,
 
