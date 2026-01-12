@@ -99,8 +99,12 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun fetchAndSaveProfileId(username: String) {
-        ApiClient.retrofit.getCurrentUser().enqueue(object : Callback<ApiService.UserMe> {
-            override fun onResponse(call: Call<ApiService.UserMe>, response: Response<ApiService.UserMe>) {
+        val call = ApiClient.retrofit.getCurrentUser()
+        call.enqueue(object : Callback<de.meply.meply.network.ApiService.UserMe> {
+            override fun onResponse(
+                call: Call<de.meply.meply.network.ApiService.UserMe>,
+                response: Response<de.meply.meply.network.ApiService.UserMe>
+            ) {
                 if (response.isSuccessful) {
                     val user = response.body()
                     val profileDocumentId = user?.profile?.documentId
@@ -116,7 +120,10 @@ class LoginActivity : AppCompatActivity() {
                 finish()
             }
 
-            override fun onFailure(call: Call<ApiService.UserMe>, t: Throwable) {
+            override fun onFailure(
+                call: Call<de.meply.meply.network.ApiService.UserMe>,
+                t: Throwable
+            ) {
                 Log.e("LoginActivityAuth", "Error fetching user profile", t)
                 // Navigate to home even if profile fetch fails
                 goToHome(username)
