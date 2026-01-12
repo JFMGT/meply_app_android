@@ -188,7 +188,7 @@ interface ApiService {
      * Delete a post
      * @param documentId The document ID of the post to delete
      */
-    @DELETE("feed/{documentId}")
+    @DELETE("post-delete/{documentId}")
     fun deletePost(
         @Path("documentId") documentId: String
     ): Call<Void>
