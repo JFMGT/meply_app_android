@@ -11,9 +11,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
+import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
 import de.meply.meply.data.feed.*
 import de.meply.meply.network.ApiClient
@@ -27,9 +26,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
-class CreatePostActivity : AppCompatActivity() {
+class CreatePostActivity : BaseDetailActivity() {
 
-    private lateinit var toolbar: MaterialToolbar
     private lateinit var contentInput: TextInputEditText
     private lateinit var visibilityRadioGroup: RadioGroup
     private lateinit var selectImagesButton: Button
@@ -64,21 +62,14 @@ class CreatePostActivity : AppCompatActivity() {
     }
 
     private fun initializeViews() {
-        toolbar = findViewById(R.id.toolbar)
+        setupDetailToolbar()
+
         contentInput = findViewById(R.id.postContentInput)
         visibilityRadioGroup = findViewById(R.id.visibilityRadioGroup)
         selectImagesButton = findViewById(R.id.selectImagesButton)
         submitButton = findViewById(R.id.submitPostButton)
         progressBar = findViewById(R.id.createPostProgressBar)
         imagesContainer = findViewById(R.id.selectedImagesContainer)
-
-        toolbar.setNavigationOnClickListener {
-            finish()
-        }
-
-        if (parentDocumentId != null) {
-            toolbar.title = "Antworten"
-        }
     }
 
     private fun setupListeners() {
