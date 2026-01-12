@@ -19,6 +19,11 @@ import de.meply.meply.data.profile.ProfileResponse
 import de.meply.meply.data.profile.UpdateProfileRequest
 import retrofit2.http.PUT
 import retrofit2.http.PATCH
+import de.meply.meply.data.feed.*
+import okhttp3.MultipartBody
+import retrofit2.http.DELETE
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 
 interface ApiService {
     @POST("auth/local")
@@ -124,5 +129,68 @@ interface ApiService {
         @Query("filters[\$and][0][\$or][1][date][\$gte]") dateIsGte: String // Hier kommt das heutige Datum rein
     ): Call<StrapiListResponse<MeetingData>>
 
+    // ===== FEED ENDPOINTS =====
+
+    /**
+     * Get feed posts with pagination
+     * @param limit Number of posts to fetch (1-50)
+     * @param before Cursor for pagination (ISO 8601 timestamp)
+     * @param since For newer posts
+     * @param author Filter by author ID (optional)
+     */
+    @GET("feed")
+    fun getFeed(
+        @Query("limit") limit: Int = 10,
+        @Query("before") before: String? = null,
+        @Query("since") since: String? = null,
+        @Query("author") author: String? = null
+    ): Call<FeedResponse>
+
+    /**
+     * Create a new post
+     */
+    @POST("posts")
+    fun createPost(
+        @Body request: CreatePostRequest
+    ): Call<CreatePostResponse>
+
+    /**
+     * Upload image for post
+     * @param file Image file as MultipartBody.Part
+     * @param alt Alternative text for accessibility
+     * @param purpose Purpose of upload (e.g., "post")
+     */
+    @Multipart
+    @POST("user-uploads/upload")
+    fun uploadImage(
+        @Part file: MultipartBody.Part,
+        @Part("alt") alt: String,
+        @Part("purpose") purpose: String
+    ): Call<ImageUploadResponse>
+
+    /**
+     * Toggle like on a post
+     */
+    @POST("likes/toggle")
+    fun toggleLike(
+        @Body request: LikeToggleRequest
+    ): Call<LikeToggleResponse>
+
+    /**
+     * Report a post
+     */
+    @POST("post-report")
+    fun reportPost(
+        @Body request: ReportPostRequest
+    ): Call<ReportPostResponse>
+
+    /**
+     * Delete a post
+     * @param documentId The document ID of the post to delete
+     */
+    @DELETE("posts/{documentId}")
+    fun deletePost(
+        @Path("documentId") documentId: String
+    ): Call<Void>
 
 }

@@ -1,11 +1,356 @@
 package de.meply.meply.ui.feed
+
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
-import android.widget.TextView
+import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
+import de.meply.meply.R
+import de.meply.meply.data.feed.*
+import de.meply.meply.network.ApiClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class FeedFragment : Fragment() {
-    override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
-        return TextView(requireContext()).apply { text = "Feed" }
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var progressBar: ProgressBar
+    private lateinit var fabCreatePost: FloatingActionButton
+    private lateinit var feedAdapter: FeedAdapter
+
+    private val posts = mutableListOf<Post>()
+    private var currentCursor: String? = null
+    private var hasMore = true
+    private var isLoading = false
+
+    private val createPostLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Refresh feed when a new post is created
+            loadFeed(reset = true)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.fragment_feed, container, false)
+
+        recyclerView = view.findViewById(R.id.feedRecyclerView)
+        swipeRefresh = view.findViewById(R.id.feedSwipeRefresh)
+        progressBar = view.findViewById(R.id.feedProgressBar)
+        fabCreatePost = view.findViewById(R.id.fabCreatePost)
+
+        setupRecyclerView()
+        setupSwipeRefresh()
+        setupFab()
+
+        // Initial load
+        loadFeed(reset = true)
+
+        return view
+    }
+
+    private fun setupRecyclerView() {
+        feedAdapter = FeedAdapter(
+            posts = posts,
+            onLikeClick = { post -> toggleLike(post) },
+            onReplyClick = { post -> showReplyDialog(post) },
+            onShowRepliesClick = { post -> showThread(post) },
+            onOptionsClick = { post, view -> showOptionsMenu(post, view) },
+            onImageClick = { images, position -> showImageGallery(images, position) }
+        )
+
+        val layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = feedAdapter
+
+        // Infinite scroll
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                if (!isLoading && hasMore) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
+                        && firstVisibleItemPosition >= 0
+                    ) {
+                        loadFeed(reset = false)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun setupSwipeRefresh() {
+        swipeRefresh.setOnRefreshListener {
+            loadFeed(reset = true)
+        }
+    }
+
+    private fun setupFab() {
+        fabCreatePost.setOnClickListener {
+            val intent = Intent(requireContext(), CreatePostActivity::class.java)
+            createPostLauncher.launch(intent)
+        }
+    }
+
+    private fun loadFeed(reset: Boolean) {
+        if (isLoading) return
+        isLoading = true
+
+        if (reset) {
+            currentCursor = null
+            hasMore = true
+            progressBar.visibility = View.VISIBLE
+        }
+
+        val api = ApiClient.instance
+        val call = api.getFeed(
+            limit = 10,
+            before = if (reset) null else currentCursor
+        )
+
+        call.enqueue(object : Callback<FeedResponse> {
+            override fun onResponse(call: Call<FeedResponse>, response: Response<FeedResponse>) {
+                isLoading = false
+                progressBar.visibility = View.GONE
+                swipeRefresh.isRefreshing = false
+
+                if (response.isSuccessful) {
+                    val feedResponse = response.body()
+                    if (feedResponse != null) {
+                        if (reset) {
+                            feedAdapter.updatePosts(feedResponse.feed)
+                        } else {
+                            feedAdapter.addPosts(feedResponse.feed)
+                        }
+
+                        currentCursor = feedResponse.cursor?.oldestCreatedAt
+                        hasMore = feedResponse.hasMore
+
+                        Log.d("FeedFragment", "Loaded ${feedResponse.feed.size} posts. HasMore: $hasMore")
+                    }
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Fehler beim Laden: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e("FeedFragment", "Error loading feed: ${response.code()} - ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<FeedResponse>, t: Throwable) {
+                isLoading = false
+                progressBar.visibility = View.GONE
+                swipeRefresh.isRefreshing = false
+
+                Toast.makeText(
+                    requireContext(),
+                    "Netzwerkfehler: ${t.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                Log.e("FeedFragment", "Network error loading feed", t)
+            }
+        })
+    }
+
+    private fun toggleLike(post: Post) {
+        val api = ApiClient.instance
+        val request = LikeToggleRequest(
+            targetDocumentId = post.documentId,
+            targetType = "post"
+        )
+
+        api.toggleLike(request).enqueue(object : Callback<LikeToggleResponse> {
+            override fun onResponse(
+                call: Call<LikeToggleResponse>,
+                response: Response<LikeToggleResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val likeResponse = response.body()
+                    if (likeResponse != null) {
+                        // Update post in adapter
+                        val updatedPost = post.copy(
+                            liked = likeResponse.status == "liked",
+                            likeCount = likeResponse.likeCount
+                        )
+                        feedAdapter.updatePost(updatedPost)
+                    }
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Fehler beim Liken",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
+                Toast.makeText(
+                    requireContext(),
+                    "Netzwerkfehler",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
+    }
+
+    private fun showReplyDialog(post: Post) {
+        val intent = Intent(requireContext(), CreatePostActivity::class.java)
+        intent.putExtra("parentDocumentId", post.documentId)
+        createPostLauncher.launch(intent)
+    }
+
+    private fun showThread(post: Post) {
+        // TODO: Open thread view activity/fragment
+        Toast.makeText(requireContext(), "Thread view (coming soon)", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showOptionsMenu(post: Post, anchorView: View) {
+        // Check if current user is the post author
+        // For now, we'll show both options. Later, we can get current user from session
+        val options = mutableListOf<String>()
+
+        // Always allow reporting
+        options.add("Melden")
+
+        // TODO: Only show delete if user is post author
+        // For now, add it to all posts
+        options.add("Löschen")
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Optionen")
+            .setItems(options.toTypedArray()) { _, which ->
+                when (options[which]) {
+                    "Melden" -> showReportDialog(post)
+                    "Löschen" -> confirmDelete(post)
+                }
+            }
+            .show()
+    }
+
+    private fun showReportDialog(post: Post) {
+        val input = TextInputEditText(requireContext())
+        input.hint = "Grund für die Meldung (optional)"
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Post melden")
+            .setMessage("Möchtest du diesen Post melden?")
+            .setView(input)
+            .setPositiveButton("Melden") { _, _ ->
+                val reason = input.text?.toString() ?: "standard"
+                reportPost(post, reason)
+            }
+            .setNegativeButton("Abbrechen", null)
+            .show()
+    }
+
+    private fun reportPost(post: Post, reason: String) {
+        val api = ApiClient.instance
+        val request = ReportPostRequest(
+            targetDocumentId = post.documentId,
+            targetType = "post",
+            reason = reason
+        )
+
+        api.reportPost(request).enqueue(object : Callback<ReportPostResponse> {
+            override fun onResponse(
+                call: Call<ReportPostResponse>,
+                response: Response<ReportPostResponse>
+            ) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Post wurde gemeldet",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Fehler beim Melden",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ReportPostResponse>, t: Throwable) {
+                Toast.makeText(
+                    requireContext(),
+                    "Netzwerkfehler",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
+    }
+
+    private fun confirmDelete(post: Post) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Post löschen")
+            .setMessage("Möchtest du diesen Post wirklich löschen?")
+            .setPositiveButton("Löschen") { _, _ ->
+                deletePost(post)
+            }
+            .setNegativeButton("Abbrechen", null)
+            .show()
+    }
+
+    private fun deletePost(post: Post) {
+        val api = ApiClient.instance
+
+        api.deletePost(post.documentId).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    feedAdapter.removePost(post.documentId)
+                    Toast.makeText(
+                        requireContext(),
+                        "Post gelöscht",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Fehler beim Löschen",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(
+                    requireContext(),
+                    "Netzwerkfehler",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
+    }
+
+    private fun showImageGallery(images: List<String>, startPosition: Int) {
+        // TODO: Implement image gallery view (fullscreen with swipe)
+        Toast.makeText(
+            requireContext(),
+            "Image ${startPosition + 1} of ${images.size}",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }
