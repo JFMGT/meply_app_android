@@ -102,8 +102,6 @@ class FeedFragment : Fragment() {
         }
     }
 
-    }
-
     private fun loadFeed(reset: Boolean) {
         if (isLoading) return
         isLoading = true
@@ -212,21 +210,6 @@ class FeedFragment : Fragment() {
         createPostLauncher.launch(intent)
     }
 
-    private fun showThread(post: Post) {
-        val intent = Intent(requireContext(), ThreadActivity::class.java)
-        intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
-    }
-    private fun showThread(post: Post) {
-        val intent = Intent(requireContext(), ThreadActivity::class.java)
-        intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
-    }
-    private fun showThread(post: Post) {
-        val intent = Intent(requireContext(), ThreadActivity::class.java)
-        intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
-    }
     private fun showThread(post: Post) {
         val intent = Intent(requireContext(), ThreadActivity::class.java)
         intent.putExtra("documentId", post.documentId)
