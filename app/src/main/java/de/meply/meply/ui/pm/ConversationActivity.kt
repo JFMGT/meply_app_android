@@ -176,16 +176,36 @@ class ConversationActivity : BaseDetailActivity() {
                 if (response.isSuccessful) {
                     val sendResponse = response.body()
                     if (sendResponse != null) {
-                        // Add message to list
-                        messageAdapter.addMessage(sendResponse.data)
+                        try {
+                            // Add message to list
+                            messageAdapter.addMessage(sendResponse.data)
 
-                        // Scroll to bottom
-                        recyclerView.scrollToPosition(messages.size - 1)
+                            // Scroll to bottom
+                            recyclerView.scrollToPosition(messages.size - 1)
 
-                        // Clear input
-                        messageInput.text?.clear()
+                            // Clear input
+                            messageInput.text?.clear()
 
-                        Log.d("ConversationActivity", "Message sent successfully")
+                            Log.d("ConversationActivity", "Message sent successfully, staying in activity")
+                        } catch (e: Exception) {
+                            Log.e("ConversationActivity", "Error adding message to list", e)
+                            Toast.makeText(
+                                this@ConversationActivity,
+                                "Fehler beim Anzeigen der Nachricht: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            // Reload messages to be safe
+                            loadMessages()
+                        }
+                    } else {
+                        Log.w("ConversationActivity", "Send response body is null")
+                        Toast.makeText(
+                            this@ConversationActivity,
+                            "Nachricht gesendet, aber Antwort leer",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        // Reload messages to show the new message
+                        loadMessages()
                     }
                 } else {
                     Toast.makeText(
