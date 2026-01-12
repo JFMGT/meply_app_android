@@ -20,6 +20,7 @@ import de.meply.meply.data.profile.UpdateProfileRequest
 import retrofit2.http.PUT
 import retrofit2.http.PATCH
 import de.meply.meply.data.feed.*
+import de.meply.meply.data.messages.*
 import okhttp3.MultipartBody
 import retrofit2.http.DELETE
 import retrofit2.http.Multipart
@@ -201,5 +202,48 @@ interface ApiService {
     fun getPostThread(
         @Path("documentId") documentId: String
     ): Call<Post>
+
+    // ===== PRIVATE MESSAGES ENDPOINTS =====
+
+    /**
+     * Get all conversations for the current user
+     */
+    @GET("conversations/me")
+    fun getConversations(): Call<ConversationsResponse>
+
+    /**
+     * Get messages in a specific conversation
+     * @param conversationId The conversation document ID
+     */
+    @GET("conversations/{conversationId}/messages")
+    fun getMessages(
+        @Path("conversationId") conversationId: String
+    ): Call<MessagesResponse>
+
+    /**
+     * Send a message in an existing conversation
+     */
+    @POST("messages")
+    fun sendMessage(
+        @Body request: SendMessageRequest
+    ): Call<SendMessageResponse>
+
+    /**
+     * Create a new conversation with a message
+     */
+    @POST("conversations/create")
+    fun createConversation(
+        @Body request: CreateConversationRequest
+    ): Call<SendMessageResponse>
+
+    /**
+     * Delete a conversation
+     * @param conversationId The conversation document ID
+     */
+    @DELETE("conversations/{conversationId}")
+    fun deleteConversation(
+        @Path("conversationId") conversationId: String
+    ): Call<Void>
+
 
 }
