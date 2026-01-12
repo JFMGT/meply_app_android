@@ -1,7 +1,9 @@
 package de.meply.meply
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.fragment.app.Fragment
@@ -17,6 +19,15 @@ class HomeActivity : AppCompatActivity() {
     private val events by lazy { EventsFragment() }
     private val pm by lazy { PmFragment() }
     private val profile by lazy { ProfileFragment() }
+
+    private val createPostLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Refresh feed when a new post is created
+            (supportFragmentManager.findFragmentByTag("feed") as? FeedFragment)?.refreshFeed()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +46,7 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_events  -> switchTo(events, "events")
                 R.id.nav_create  -> {
                     val intent = Intent(this, CreatePostActivity::class.java)
-                    startActivity(intent)
+                    createPostLauncher.launch(intent)
                     false // Don't select this item
                 }
                 R.id.nav_pm      -> switchTo(pm, "pm")

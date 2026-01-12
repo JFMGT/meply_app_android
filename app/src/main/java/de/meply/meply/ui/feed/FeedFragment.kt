@@ -101,6 +101,13 @@ class FeedFragment : Fragment() {
             loadFeed(reset = true)
         }
     }
+    /**
+     * Public method to refresh the feed from outside (e.g., HomeActivity)
+     */
+    fun refreshFeed() {
+        loadFeed(reset = true)
+    }
+
 
     private fun loadFeed(reset: Boolean) {
         if (isLoading) return
