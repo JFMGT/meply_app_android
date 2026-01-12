@@ -1,9 +1,11 @@
 package de.meply.meply
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.fragment.app.Fragment
+import de.meply.meply.ui.feed.CreatePostActivity
 import de.meply.meply.ui.feed.FeedFragment
 import de.meply.meply.ui.events.EventsFragment
 import de.meply.meply.ui.pm.PmFragment
@@ -31,8 +33,12 @@ class HomeActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_feed    -> switchTo(feed, "feed")
                 R.id.nav_events  -> switchTo(events, "events")
+                R.id.nav_create  -> {
+                    val intent = Intent(this, CreatePostActivity::class.java)
+                    startActivity(intent)
+                    false // Don't select this item
+                }
                 R.id.nav_pm      -> switchTo(pm, "pm")
-                R.id.nav_profile -> switchTo(profile, "profile")
                 R.id.nav_more    -> { MoreMenuBottomSheet().show(supportFragmentManager, "more"); true }
                 else -> false
             }
@@ -46,5 +52,9 @@ class HomeActivity : AppCompatActivity() {
                 .commit()
         }
         return true
+    }
+
+    fun navigateToProfile() {
+        switchTo(profile, "profile")
     }
 }

@@ -4,14 +4,15 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
@@ -21,146 +22,110 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class FeedFragment : Fragment() {
+class ThreadActivity : AppCompatActivity() {
 
+    private lateinit var toolbar: MaterialToolbar
     private lateinit var recyclerView: RecyclerView
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var progressBar: ProgressBar
-    private lateinit var feedAdapter: FeedAdapter
+    private lateinit var threadAdapter: ThreadAdapter
 
-    private val posts = mutableListOf<Post>()
-    private var currentCursor: String? = null
-    private var hasMore = true
-    private var isLoading = false
+    private var documentId: String? = null
+    private var rootPost: Post? = null
 
     private val createPostLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // Refresh feed when a new post is created
-            loadFeed(reset = true)
+            // Refresh thread when a new reply is created
+            loadThread()
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val view = inflater.inflate(R.layout.fragment_feed, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_thread)
 
-        recyclerView = view.findViewById(R.id.feedRecyclerView)
-        swipeRefresh = view.findViewById(R.id.feedSwipeRefresh)
-        progressBar = view.findViewById(R.id.feedProgressBar)
+        documentId = intent.getStringExtra("documentId")
+        if (documentId == null) {
+            Toast.makeText(this, "Fehler: Post-ID fehlt", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
+        initializeViews()
         setupRecyclerView()
         setupSwipeRefresh()
 
-        // Initial load
-        loadFeed(reset = true)
+        loadThread()
+    }
 
-        return view
+    private fun initializeViews() {
+        toolbar = findViewById(R.id.toolbar)
+        recyclerView = findViewById(R.id.threadRecyclerView)
+        swipeRefresh = findViewById(R.id.threadSwipeRefresh)
+        progressBar = findViewById(R.id.threadProgressBar)
+
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
     }
 
     private fun setupRecyclerView() {
-        feedAdapter = FeedAdapter(
-            posts = posts,
+        threadAdapter = ThreadAdapter(
+            posts = mutableListOf(),
             onLikeClick = { post -> toggleLike(post) },
             onReplyClick = { post -> showReplyDialog(post) },
-            onShowRepliesClick = { post -> showThread(post) },
             onOptionsClick = { post, view -> showOptionsMenu(post, view) },
             onImageClick = { images, position -> showImageGallery(images, position) }
         )
 
-        val layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = feedAdapter
-
-        // Infinite scroll
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-
-                if (!isLoading && hasMore) {
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
-                        && firstVisibleItemPosition >= 0
-                    ) {
-                        loadFeed(reset = false)
-                    }
-                }
-            }
-        })
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = threadAdapter
     }
 
     private fun setupSwipeRefresh() {
         swipeRefresh.setOnRefreshListener {
-            loadFeed(reset = true)
+            loadThread()
         }
     }
 
-    }
-
-    private fun loadFeed(reset: Boolean) {
-        if (isLoading) return
-        isLoading = true
-
-        if (reset) {
-            currentCursor = null
-            hasMore = true
-            progressBar.visibility = View.VISIBLE
-        }
+    private fun loadThread() {
+        progressBar.visibility = View.VISIBLE
 
         val api = ApiClient.retrofit
-        val call = api.getFeed(
-            limit = 10,
-            before = if (reset) null else currentCursor
-        )
-
-        call.enqueue(object : Callback<FeedResponse> {
-            override fun onResponse(call: Call<FeedResponse>, response: Response<FeedResponse>) {
-                isLoading = false
+        api.getPostThread(documentId!!).enqueue(object : Callback<Post> {
+            override fun onResponse(call: Call<Post>, response: Response<Post>) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 if (response.isSuccessful) {
-                    val feedResponse = response.body()
-                    if (feedResponse != null) {
-                        if (reset) {
-                            feedAdapter.updatePosts(feedResponse.feed)
-                        } else {
-                            feedAdapter.addPosts(feedResponse.feed)
-                        }
-
-                        currentCursor = feedResponse.cursor?.oldestCreatedAt
-                        hasMore = feedResponse.hasMore
-
-                        Log.d("FeedFragment", "Loaded ${feedResponse.feed.size} posts. HasMore: $hasMore")
+                    val post = response.body()
+                    if (post != null) {
+                        rootPost = post
+                        threadAdapter.updateThread(post)
+                        Log.d("ThreadActivity", "Thread loaded successfully")
                     }
                 } else {
                     Toast.makeText(
-                        requireContext(),
+                        this@ThreadActivity,
                         "Fehler beim Laden: ${response.code()}",
                         Toast.LENGTH_SHORT
                     ).show()
-                    Log.e("FeedFragment", "Error loading feed: ${response.code()} - ${response.message()}")
+                    Log.e("ThreadActivity", "Error loading thread: ${response.code()} - ${response.message()}")
                 }
             }
 
-            override fun onFailure(call: Call<FeedResponse>, t: Throwable) {
-                isLoading = false
+            override fun onFailure(call: Call<Post>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 Toast.makeText(
-                    requireContext(),
+                    this@ThreadActivity,
                     "Netzwerkfehler: ${t.message}",
                     Toast.LENGTH_SHORT
                 ).show()
-                Log.e("FeedFragment", "Network error loading feed", t)
+                Log.e("ThreadActivity", "Network error loading thread", t)
             }
         })
     }
@@ -180,16 +145,15 @@ class FeedFragment : Fragment() {
                 if (response.isSuccessful) {
                     val likeResponse = response.body()
                     if (likeResponse != null) {
-                        // Update post in adapter
                         val updatedPost = post.copy(
                             liked = likeResponse.status == "liked",
                             likeCount = likeResponse.likeCount
                         )
-                        feedAdapter.updatePost(updatedPost)
+                        threadAdapter.updatePost(updatedPost)
                     }
                 } else {
                     Toast.makeText(
-                        requireContext(),
+                        this@ThreadActivity,
                         "Fehler beim Liken",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -198,7 +162,7 @@ class FeedFragment : Fragment() {
 
             override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
                 Toast.makeText(
-                    requireContext(),
+                    this@ThreadActivity,
                     "Netzwerkfehler",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -207,45 +171,17 @@ class FeedFragment : Fragment() {
     }
 
     private fun showReplyDialog(post: Post) {
-        val intent = Intent(requireContext(), CreatePostActivity::class.java)
+        val intent = Intent(this, CreatePostActivity::class.java)
         intent.putExtra("parentDocumentId", post.documentId)
         createPostLauncher.launch(intent)
     }
 
-    private fun showThread(post: Post) {
-        val intent = Intent(requireContext(), ThreadActivity::class.java)
-        intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
-    }
-    private fun showThread(post: Post) {
-        val intent = Intent(requireContext(), ThreadActivity::class.java)
-        intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
-    }
-    private fun showThread(post: Post) {
-        val intent = Intent(requireContext(), ThreadActivity::class.java)
-        intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
-    }
-    private fun showThread(post: Post) {
-        val intent = Intent(requireContext(), ThreadActivity::class.java)
-        intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
-    }
-
     private fun showOptionsMenu(post: Post, anchorView: View) {
-        // Check if current user is the post author
-        // For now, we'll show both options. Later, we can get current user from session
         val options = mutableListOf<String>()
-
-        // Always allow reporting
         options.add("Melden")
-
-        // TODO: Only show delete if user is post author
-        // For now, add it to all posts
         options.add("Löschen")
 
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(this)
             .setTitle("Optionen")
             .setItems(options.toTypedArray()) { _, which ->
                 when (options[which]) {
@@ -257,10 +193,10 @@ class FeedFragment : Fragment() {
     }
 
     private fun showReportDialog(post: Post) {
-        val input = TextInputEditText(requireContext())
+        val input = TextInputEditText(this)
         input.hint = "Grund für die Meldung (optional)"
 
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(this)
             .setTitle("Post melden")
             .setMessage("Möchtest du diesen Post melden?")
             .setView(input)
@@ -287,13 +223,13 @@ class FeedFragment : Fragment() {
             ) {
                 if (response.isSuccessful && response.body()?.success == true) {
                     Toast.makeText(
-                        requireContext(),
+                        this@ThreadActivity,
                         "Post wurde gemeldet",
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
                     Toast.makeText(
-                        requireContext(),
+                        this@ThreadActivity,
                         "Fehler beim Melden",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -302,7 +238,7 @@ class FeedFragment : Fragment() {
 
             override fun onFailure(call: Call<ReportPostResponse>, t: Throwable) {
                 Toast.makeText(
-                    requireContext(),
+                    this@ThreadActivity,
                     "Netzwerkfehler",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -311,7 +247,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun confirmDelete(post: Post) {
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(this)
             .setTitle("Post löschen")
             .setMessage("Möchtest du diesen Post wirklich löschen?")
             .setPositiveButton("Löschen") { _, _ ->
@@ -327,15 +263,20 @@ class FeedFragment : Fragment() {
         api.deletePost(post.documentId).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
-                    feedAdapter.removePost(post.documentId)
                     Toast.makeText(
-                        requireContext(),
+                        this@ThreadActivity,
                         "Post gelöscht",
                         Toast.LENGTH_SHORT
                     ).show()
+                    // If root post was deleted, go back
+                    if (post.documentId == documentId) {
+                        finish()
+                    } else {
+                        loadThread() // Refresh to show updated thread
+                    }
                 } else {
                     Toast.makeText(
-                        requireContext(),
+                        this@ThreadActivity,
                         "Fehler beim Löschen",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -344,7 +285,7 @@ class FeedFragment : Fragment() {
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Toast.makeText(
-                    requireContext(),
+                    this@ThreadActivity,
                     "Netzwerkfehler",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -353,9 +294,8 @@ class FeedFragment : Fragment() {
     }
 
     private fun showImageGallery(images: List<String>, startPosition: Int) {
-        // TODO: Implement image gallery view (fullscreen with swipe)
         Toast.makeText(
-            requireContext(),
+            this,
             "Image ${startPosition + 1} of ${images.size}",
             Toast.LENGTH_SHORT
         ).show()

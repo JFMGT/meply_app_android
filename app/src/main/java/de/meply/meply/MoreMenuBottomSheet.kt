@@ -14,6 +14,12 @@ class MoreMenuBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val v = inflater.inflate(R.layout.bottom_sheet_more, container, false)
 
+        v.findViewById<TextView>(R.id.item_profile).setOnClickListener {
+            // Navigate to Profile Fragment
+            val activity = requireActivity() as? HomeActivity
+            activity?.navigateToProfile()
+            dismiss()
+        }
         v.findViewById<TextView>(R.id.item_map).setOnClickListener {
             // TODO: Map öffnen
             dismiss()

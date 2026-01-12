@@ -193,4 +193,13 @@ interface ApiService {
         @Path("documentId") documentId: String
     ): Call<Void>
 
+    /**
+     * Get post thread (post + all replies)
+     * @param documentId The document ID of the post
+     */
+    @GET("post-tree/{documentId}")
+    fun getPostThread(
+        @Path("documentId") documentId: String
+    ): Call<Post>
+
 }

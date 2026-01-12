@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <TextView android:id="@+id/item_profile"  android:text="Profil"                  android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <TextView android:id="@+id/item_map"      android:visibility="gone"     android:text="Karte (FOLGT)"           android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <TextView android:id="@+id/item_users"    android:visibility="gone"     android:text="Benutzerliste (FOLGT)"   android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <TextView android:id="@+id/item_fav"      android:visibility="gone"     android:text="Lieblingsspiele (FOLGT)" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>

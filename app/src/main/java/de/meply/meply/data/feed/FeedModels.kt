@@ -31,7 +31,8 @@ data class Post(
     @SerializedName("replyCount") val replyCount: Int = 0,
     @SerializedName("author") val author: PostAuthor,
     @SerializedName("image") val image: List<PostImage>? = null,
-    @SerializedName("parent") val parent: PostParent? = null
+    @SerializedName("parent") val parent: PostParent? = null,
+    @SerializedName("children") val children: List<Post>? = null // For thread view
 )
 
 data class PostAuthor(
