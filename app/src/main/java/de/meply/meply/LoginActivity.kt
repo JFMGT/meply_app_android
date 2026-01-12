@@ -27,7 +27,11 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // ✅ Auto-Login: JWT vorhanden? Direkt weiter.
-        AuthManager.getJwt(this)?.let {
+        AuthManager.getJwt(this)?.let { jwt ->
+            // ✅ JWT auch im ApiClient setzen für API-Calls
+            ApiClient.setJwt(jwt)
+            Log.d("LoginActivityAuth", "Auto-Login: JWT in ApiClient gesetzt: '$jwt'")
+
             goToHome("Nutzer")   // Falls du den echten Namen brauchst, kannst du ihn später mit /users/me holen.
             finish()
             return
