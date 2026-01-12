@@ -323,7 +323,7 @@ class CreatePostActivity : AppCompatActivity() {
             ) {
                 setLoading(false)
 
-                if (response.isSuccessful && response.body()?.status in 200..201) {
+                if (response.isSuccessful) {
                     Toast.makeText(
                         this@CreatePostActivity,
                         "Beitrag erstellt!",
