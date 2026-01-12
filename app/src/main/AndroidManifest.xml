@@ -29,6 +29,7 @@
         <activity android:name=".ui.feed.CreatePostActivity" />
         <activity android:name=".ui.feed.ThreadActivity" />
         <activity android:name=".ui.pm.ConversationActivity" />
+        <activity android:name=".WebViewActivity" />
     </application>
 
 </manifest>

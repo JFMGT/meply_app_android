@@ -3,8 +3,11 @@ package de.meply.meply
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
+import android.widget.PopupMenu
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.fragment.app.Fragment
 import de.meply.meply.ui.feed.CreatePostActivity
@@ -39,6 +42,67 @@ class HomeActivity : AppCompatActivity() {
                 .commit()
         }
 
+        setupToolbar()
+        setupBottomNavigation()
+    }
+
+    private fun setupToolbar() {
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        val userIcon = findViewById<ImageView>(R.id.toolbarUserIcon)
+
+        // Burger menu click
+        toolbar.setNavigationOnClickListener {
+            showDrawerMenu(toolbar)
+        }
+
+        // User icon click
+        userIcon.setOnClickListener {
+            showUserMenu(userIcon)
+        }
+    }
+
+    private fun showDrawerMenu(anchor: MaterialToolbar) {
+        val popup = PopupMenu(this, anchor)
+        popup.menuInflater.inflate(R.menu.drawer_menu, popup.menu)
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.menu_impressum -> {
+                    openWebView("https://dev.meply.de/pages/impressum/", "Impressum")
+                    true
+                }
+                R.id.menu_datenschutz -> {
+                    openWebView("https://dev.meply.de/pages/datenschutzerklaerung/", "Datenschutzerklärung")
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+    private fun showUserMenu(anchor: ImageView) {
+        val popup = PopupMenu(this, anchor)
+        popup.menuInflater.inflate(R.menu.user_menu, popup.menu)
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.menu_profile -> {
+                    navigateToProfile()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+    private fun openWebView(url: String, title: String) {
+        val intent = Intent(this, WebViewActivity::class.java)
+        intent.putExtra("url", url)
+        intent.putExtra("title", title)
+        startActivity(intent)
+    }
+
+    private fun setupBottomNavigation() {
         val bottom = findViewById<BottomNavigationView>(R.id.bottomNav)
         bottom.setOnItemSelectedListener { item ->
             when (item.itemId) {
