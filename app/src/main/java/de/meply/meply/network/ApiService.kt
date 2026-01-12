@@ -218,7 +218,7 @@ interface ApiService {
     @GET("conversations/{conversationId}/messages")
     fun getMessages(
         @Path("conversationId") conversationId: String
-    ): Call<MessagesResponse>
+    ): Call<List<Message>>
 
     /**
      * Send a message in an existing conversation

@@ -97,34 +97,34 @@ class ConversationActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
 
         val api = ApiClient.retrofit
-        api.getMessages(conversationId!!).enqueue(object : Callback<MessagesResponse> {
+        api.getMessages(conversationId!!).enqueue(object : Callback<List<Message>> {
             override fun onResponse(
-                call: Call<MessagesResponse>,
-                response: Response<MessagesResponse>
+                call: Call<List<Message>>,
+                response: Response<List<Message>>
             ) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 if (response.isSuccessful) {
-                    val messagesResponse = response.body()
-                    if (messagesResponse != null) {
-                        messageAdapter.updateMessages(messagesResponse.data)
+                    val messagesList = response.body()
+                    if (messagesList != null) {
+                        messageAdapter.updateMessages(messagesList)
 
                         // Scroll to bottom
-                        if (messagesResponse.data.isNotEmpty()) {
-                            recyclerView.scrollToPosition(messagesResponse.data.size - 1)
+                        if (messagesList.isNotEmpty()) {
+                            recyclerView.scrollToPosition(messagesList.size - 1)
                         }
 
                         // Set current user ID from first own message
                         if (currentUserId == null) {
                             // This is a simplification - ideally get from user session
-                            val firstMessage = messagesResponse.data.firstOrNull()
+                            val firstMessage = messagesList.firstOrNull()
                             if (firstMessage != null) {
                                 currentUserId = firstMessage.author.documentId
                             }
                         }
 
-                        Log.d("ConversationActivity", "Loaded ${messagesResponse.data.size} messages")
+                        Log.d("ConversationActivity", "Loaded ${messagesList.size} messages")
                     }
                 } else {
                     Toast.makeText(
@@ -136,7 +136,7 @@ class ConversationActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<MessagesResponse>, t: Throwable) {
+            override fun onFailure(call: Call<List<Message>>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
