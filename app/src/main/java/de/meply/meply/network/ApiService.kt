@@ -245,5 +245,13 @@ interface ApiService {
         @Path("conversationId") conversationId: String
     ): Call<Void>
 
+    // ===== INVITE CODES ENDPOINTS =====
+
+    /**
+     * Get or create invite codes for the current user
+     */
+    @POST("registration-codes/my-invite-codes")
+    fun getMyInviteCodes(): Call<de.meply.meply.data.profile.InviteCodesResponse>
+
 
 }
