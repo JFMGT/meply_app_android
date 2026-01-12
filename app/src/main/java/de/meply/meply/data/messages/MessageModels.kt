@@ -75,20 +75,8 @@ data class MessageAuthor(
  * Request for POST /messages (reply to existing conversation)
  */
 data class SendMessageRequest(
-    @SerializedName("data") val data: SendMessageData
-)
-
-data class SendMessageData(
-    @SerializedName("content") val content: String,
-    @SerializedName("conversation") val conversation: ConversationConnect
-)
-
-data class ConversationConnect(
-    @SerializedName("connect") val connect: ConversationId
-)
-
-data class ConversationId(
-    @SerializedName("documentId") val documentId: String
+    @SerializedName("conversationId") val conversationId: String,
+    @SerializedName("message") val message: String
 )
 
 /**

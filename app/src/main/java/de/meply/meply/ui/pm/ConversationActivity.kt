@@ -160,12 +160,8 @@ class ConversationActivity : BaseDetailActivity() {
         progressBar.visibility = View.VISIBLE
 
         val request = SendMessageRequest(
-            data = SendMessageData(
-                content = messageText,
-                conversation = ConversationConnect(
-                    connect = ConversationId(conversationId!!)
-                )
-            )
+            conversationId = conversationId!!,
+            message = messageText
         )
 
         val api = ApiClient.retrofit
