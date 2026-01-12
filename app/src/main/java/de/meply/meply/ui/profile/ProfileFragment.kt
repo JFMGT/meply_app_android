@@ -142,7 +142,8 @@ class ProfileFragment : Fragment() {
         }
 
         // Set checkboxes
-        checkboxFollowPrivacy.isChecked = profile.attributes?.followPrivacy ?: false
+        // followPrivacy is "open" or "request", checkbox means "open" (users can follow without confirmation)
+        checkboxFollowPrivacy.isChecked = profile.attributes?.followPrivacy == "open"
         checkboxShowInUserList.isChecked = profile.attributes?.showInUserList ?: false
         checkboxAllowProfileView.isChecked = profile.attributes?.allowProfileView ?: false
         checkboxShowRatings.isChecked = profile.attributes?.showBoardGameRatings ?: false
@@ -170,7 +171,8 @@ class ProfileFragment : Fragment() {
         updateMap?.set("searchRadius", editRadius.text.toString().toIntOrNull())
         updateMap?.set("boardgamegeekProfile", editBggProfile.text.toString().ifEmpty { null })
         updateMap?.set("boardGameArenaUsername", editBgaUsername.text.toString().ifEmpty { null })
-        updateMap?.set("followPrivacy", checkboxFollowPrivacy.isChecked)
+        // followPrivacy must be "open" or "request", not boolean
+        updateMap?.set("followPrivacy", if (checkboxFollowPrivacy.isChecked) "open" else "request")
         updateMap?.set("showInUserList", checkboxShowInUserList.isChecked)
         updateMap?.set("allowProfileView", checkboxAllowProfileView.isChecked)
         updateMap?.set("showBoardGameRatings", checkboxShowRatings.isChecked)
