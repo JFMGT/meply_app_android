@@ -8,13 +8,13 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
 import de.meply.meply.data.feed.*
 import de.meply.meply.network.ApiClient
@@ -22,7 +22,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ThreadActivity : AppCompatActivity() {
+class ThreadActivity : BaseDetailActivity() {
 
     private lateinit var toolbar: MaterialToolbar
     private lateinit var recyclerView: RecyclerView
@@ -66,9 +66,8 @@ class ThreadActivity : AppCompatActivity() {
         swipeRefresh = findViewById(R.id.threadSwipeRefresh)
         progressBar = findViewById(R.id.threadProgressBar)
 
-        toolbar.setNavigationOnClickListener {
-            finish()
-        }
+        // Setup toolbar with back button and user menu
+        setupDetailToolbar()
     }
 
     private fun setupRecyclerView() {

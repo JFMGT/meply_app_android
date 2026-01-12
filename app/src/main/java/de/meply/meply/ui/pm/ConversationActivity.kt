@@ -6,12 +6,12 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
+import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.messages.*
@@ -20,7 +20,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ConversationActivity : AppCompatActivity() {
+class ConversationActivity : BaseDetailActivity() {
 
     private lateinit var toolbar: MaterialToolbar
     private lateinit var recyclerView: RecyclerView
@@ -67,10 +67,8 @@ class ConversationActivity : AppCompatActivity() {
         messageInput = findViewById(R.id.messageInput)
         sendButton = findViewById(R.id.sendButton)
 
-        toolbar.title = partnerName ?: "Konversation"
-        toolbar.setNavigationOnClickListener {
-            finish()
-        }
+        // Setup toolbar with back button and user menu
+        setupDetailToolbar()
     }
 
     private fun setupRecyclerView() {

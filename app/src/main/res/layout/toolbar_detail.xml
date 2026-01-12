@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="?attr/colorPrimary"
+    app:navigationIcon="?attr/homeAsUpIndicator">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Logo in der Mitte -->
+        <ImageView
+            android:id="@+id/toolbarLogo"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:contentDescription="Meply Logo"
+            android:src="@mipmap/ic_launcher" />
+
+        <!-- User Icon rechts -->
+        <ImageView
+            android:id="@+id/toolbarUserIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="User Menu"
+            android:src="@android:drawable/ic_menu_myplaces"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+</com.google.android.material.appbar.MaterialToolbar>

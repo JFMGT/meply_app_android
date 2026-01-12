@@ -2,7 +2,6 @@ package de.meply.meply.ui.events
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,6 +9,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.Gson // NEUER IMPORT
+import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
 // import de.meply.meply.data.events.EventAttributes // Nicht direkt verwendet, kann weg, wenn nicht anderweitig gebraucht
 // import de.meply.meply.data.events.EventItem // Nicht direkt verwendet, kann weg
@@ -24,7 +24,7 @@ import java.util.Date // NEUER IMPORT für getTodayDateString
 import java.util.Locale
 import de.meply.meply.data.events.FlatEventData
 
-class EventDetailActivity : AppCompatActivity() {
+class EventDetailActivity : BaseDetailActivity() {
 
     private var eventSlugOrId: String? = null
     private lateinit var titleTextView: TextView
@@ -59,6 +59,9 @@ class EventDetailActivity : AppCompatActivity() {
         meetingsErrorTextView = findViewById(R.id.detail_meetings_error_textview) // Beispiel-ID
         noMeetingsTextView = findViewById(R.id.detail_no_meetings_textview) // Beispiel-ID
         // recyclerViewMeetings = findViewById(R.id.recycler_view_meetings) // Beispiel-ID
+
+        // Setup toolbar with back button and user menu
+        setupDetailToolbar()
 
         eventSlugOrId = intent.getStringExtra(EXTRA_EVENT_SLUG_OR_ID)
 
