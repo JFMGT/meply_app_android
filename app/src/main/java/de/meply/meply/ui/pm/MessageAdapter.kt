@@ -55,17 +55,27 @@ class MessageAdapter(
         // Alignment and styling based on sender
         val layoutParams = holder.card.layoutParams as LinearLayout.LayoutParams
         if (isOwnMessage) {
-            // Own messages: aligned to the right
+            // Own messages: aligned to the right, yellow background, dark text
             holder.container.gravity = Gravity.END
             layoutParams.marginStart = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_opposite)
             layoutParams.marginEnd = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_own)
             holder.card.setCardBackgroundColor(holder.itemView.context.getColor(R.color.message_sent_background))
+
+            // Dark text on yellow background
+            holder.author.setTextColor(holder.itemView.context.getColor(R.color.text_on_light))
+            holder.content.setTextColor(holder.itemView.context.getColor(R.color.text_on_light))
+            holder.time.setTextColor(holder.itemView.context.getColor(R.color.text_disabled))
         } else {
-            // Partner messages: aligned to the left
+            // Partner messages: aligned to the left, dark background, white text
             holder.container.gravity = Gravity.START
             layoutParams.marginStart = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_own)
             layoutParams.marginEnd = holder.itemView.context.resources.getDimensionPixelSize(R.dimen.message_margin_opposite)
             holder.card.setCardBackgroundColor(holder.itemView.context.getColor(R.color.message_received_background))
+
+            // White text on dark background
+            holder.author.setTextColor(holder.itemView.context.getColor(R.color.text_primary))
+            holder.content.setTextColor(holder.itemView.context.getColor(R.color.text_primary))
+            holder.time.setTextColor(holder.itemView.context.getColor(R.color.text_secondary))
         }
         holder.card.layoutParams = layoutParams
     }
