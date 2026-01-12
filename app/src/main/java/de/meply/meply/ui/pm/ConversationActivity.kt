@@ -97,17 +97,18 @@ class ConversationActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
 
         val api = ApiClient.retrofit
-        api.getMessages(conversationId!!).enqueue(object : Callback<List<Message>> {
+        api.getMessages(conversationId!!).enqueue(object : Callback<MessagesResponse> {
             override fun onResponse(
-                call: Call<List<Message>>,
-                response: Response<List<Message>>
+                call: Call<MessagesResponse>,
+                response: Response<MessagesResponse>
             ) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 if (response.isSuccessful) {
-                    val messagesList = response.body()
-                    if (messagesList != null) {
+                    val messagesResponse = response.body()
+                    if (messagesResponse != null) {
+                        val messagesList = messagesResponse.data
                         messageAdapter.updateMessages(messagesList)
 
                         // Scroll to bottom
@@ -136,7 +137,7 @@ class ConversationActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<List<Message>>, t: Throwable) {
+            override fun onFailure(call: Call<MessagesResponse>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
