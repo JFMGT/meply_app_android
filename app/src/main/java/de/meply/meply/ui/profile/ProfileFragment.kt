@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import androidx.exifinterface.media.ExifInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -459,6 +461,47 @@ class ProfileFragment : Fragment() {
         pickImage.launch("image/*")
     }
 
+    /**
+     * Fix image orientation based on EXIF data
+     * Camera photos often have incorrect orientation that needs to be corrected
+     */
+    private fun fixImageOrientation(uri: Uri, bitmap: Bitmap): Bitmap {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val exif = inputStream?.use { ExifInterface(it) }
+
+            val orientation = exif?.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            ) ?: ExifInterface.ORIENTATION_NORMAL
+
+            val rotationDegrees = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                else -> 0f
+            }
+
+            return if (rotationDegrees != 0f) {
+                val matrix = Matrix()
+                matrix.postRotate(rotationDegrees)
+                val rotatedBitmap = Bitmap.createBitmap(
+                    bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
+                )
+                // Recycle old bitmap if it's different from the new one
+                if (rotatedBitmap != bitmap) {
+                    bitmap.recycle()
+                }
+                rotatedBitmap
+            } else {
+                bitmap
+            }
+        } catch (e: Exception) {
+            Log.e("ProfileFragment", "Error fixing image orientation", e)
+            return bitmap
+        }
+    }
+
     private fun uploadAvatar(uri: Uri) {
         showLoading(true)
 
@@ -473,10 +516,13 @@ class ProfileFragment : Fragment() {
                 }
             }
 
-            // Compress image if needed
-            val bitmap = requireContext().contentResolver.openInputStream(uri)?.use { stream ->
+            // Load and rotate bitmap based on EXIF orientation
+            var bitmap = requireContext().contentResolver.openInputStream(uri)?.use { stream ->
                 BitmapFactory.decodeStream(stream)
             } ?: throw IllegalStateException("Could not open input stream for URI")
+
+            // Fix orientation based on EXIF data
+            bitmap = fixImageOrientation(uri, bitmap)
 
             val compressedFile = File(requireContext().cacheDir, "avatar_compressed_${System.currentTimeMillis()}.jpg")
             FileOutputStream(compressedFile).use { out ->
