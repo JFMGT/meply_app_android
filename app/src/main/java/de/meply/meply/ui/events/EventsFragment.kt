@@ -47,6 +47,7 @@ class EventsFragment : Fragment() {
     private var currentZip: String? = null
     private var currentRadius: Double? = null
     private var isFilterExpanded = false
+    private var hasUserSetFilter = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val v = inflater.inflate(R.layout.fragment_events, container, false)
@@ -110,6 +111,10 @@ class EventsFragment : Fragment() {
         // Load events with default or saved values
         val initialZip = if (!savedZip.isNullOrEmpty()) savedZip else DEFAULT_ZIP
         val initialRadius = if (savedRadius > 0) savedRadius.toDouble() else DEFAULT_RADIUS_KM
+
+        // Check if user has previously set a filter
+        hasUserSetFilter = !savedZip.isNullOrEmpty() && savedRadius > 0
+
         currentZip = initialZip
         currentRadius = initialRadius
         updateFilterSummary()
@@ -130,9 +135,8 @@ class EventsFragment : Fragment() {
     }
 
     private fun updateFilterSummary() {
-        val summaryText = if (currentZip != null && currentRadius != null &&
-                              currentZip != DEFAULT_ZIP && currentRadius != DEFAULT_RADIUS_KM) {
-            "Events ${currentRadius?.toInt()} km rund um ${currentZip}"
+        val summaryText = if (hasUserSetFilter && currentZip != null && currentRadius != null) {
+            "Events im Umkreis von ${currentRadius?.toInt()} km rund um ${currentZip}"
         } else {
             "Events in deiner Nähe"
         }
@@ -162,6 +166,7 @@ class EventsFragment : Fragment() {
         // Update current filter values
         currentZip = zip
         currentRadius = radius
+        hasUserSetFilter = true
 
         // Hide keyboard and collapse filter
         hideKeyboard()
