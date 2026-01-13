@@ -87,11 +87,21 @@ interface ApiService {
 
 
 
-    @GET("users/me?populate=profile")
-    fun getCurrentUser(): Call<UserMe>
+    @GET("users/me")
+    fun getCurrentUser(
+        @Query(value = "populate[profile][populate]", encoded = true) profilePopulate: String = "*"
+    ): Call<UserMe>
+
+    @GET("profiles/me")
+    fun getMyProfile(): Call<ProfileResponse<ProfileItem>>
 
     @GET("profiles/{id}")
     fun getProfile(@Path("id") profileId: String): Call<ProfileResponse<ProfileItem>>
+
+    @PUT("profiles/me")
+    fun updateMyProfile(
+        @Body update: UpdateProfileRequest
+    ): Call<ProfileResponse<ProfileItem>>
 
     @PUT("profiles/{id}")
     fun updateProfile(

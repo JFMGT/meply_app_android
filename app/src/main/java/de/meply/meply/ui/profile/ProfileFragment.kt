@@ -96,31 +96,37 @@ class ProfileFragment : Fragment() {
     private fun loadProfile() {
         showLoading(true)
 
-        ApiClient.retrofit.getCurrentUser()
-            .enqueue(object : Callback<ApiService.UserMe> {
+        ApiClient.retrofit.getMyProfile()
+            .enqueue(object : Callback<ProfileResponse<ProfileItem>> {
                 override fun onResponse(
-                    call: Call<ApiService.UserMe>,
-                    response: Response<ApiService.UserMe>
+                    call: Call<ProfileResponse<ProfileItem>>,
+                    response: Response<ProfileResponse<ProfileItem>>
                 ) {
                     showLoading(false)
                     if (response.isSuccessful) {
-                        val user = response.body()
-                        val profile = user?.profile
+                        val profileResponse = response.body()
+                        Log.d("ProfileFragment", "Profile response: $profileResponse")
+                        val profile = profileResponse?.data
                         if (profile != null) {
-                            currentProfileId = profile.documentId
-                            loadedProfile = ProfileItem(profile.id, profile.attributes)
+                            Log.d("ProfileFragment", "Profile ID: ${profile.id}")
+                            Log.d("ProfileFragment", "Profile attributes: ${profile.attributes}")
+                            currentProfileId = profile.id
+                            loadedProfile = profile
                             showProfile(loadedProfile!!)
                         } else {
+                            Log.e("ProfileFragment", "Profile data is null in response")
                             Toast.makeText(requireContext(), "Kein Profil gefunden", Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        Toast.makeText(requireContext(), "Fehler ${response.code()} beim Laden des Users", Toast.LENGTH_SHORT).show()
+                        Log.e("ProfileFragment", "Error loading profile: ${response.code()}")
+                        Toast.makeText(requireContext(), "Fehler ${response.code()} beim Laden des Profils", Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                override fun onFailure(call: Call<ApiService.UserMe>, t: Throwable) {
+                override fun onFailure(call: Call<ProfileResponse<ProfileItem>>, t: Throwable) {
                     showLoading(false)
                     Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("ProfileFragment", "Network error loading profile", t)
                 }
             })
     }
@@ -163,9 +169,8 @@ class ProfileFragment : Fragment() {
     }
 
     private fun saveProfile() {
-        val profileId = currentProfileId
         val existing = loadedProfile
-        if (profileId.isNullOrBlank() || existing == null) {
+        if (existing == null) {
             Toast.makeText(requireContext(), "Kein Profil geladen", Toast.LENGTH_SHORT).show()
             return
         }
@@ -209,7 +214,7 @@ class ProfileFragment : Fragment() {
 
         val request = UpdateProfileRequest(updateMap)
 
-        ApiClient.retrofit.updateProfile(profileId, request)
+        ApiClient.retrofit.updateMyProfile(request)
             .enqueue(object : Callback<ProfileResponse<ProfileItem>> {
                 override fun onResponse(
                     call: Call<ProfileResponse<ProfileItem>>,
