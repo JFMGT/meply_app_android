@@ -87,11 +87,15 @@ class FeedFragment : Fragment() {
                 val visibleItemCount = layoutManager.childCount
                 val totalItemCount = layoutManager.itemCount
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
 
-                if (!isLoading && hasMore) {
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3
-                        && firstVisibleItemPosition >= 0
+                Log.d("FeedScroll", "Scroll detected: visible=$visibleItemCount, total=$totalItemCount, first=$firstVisibleItemPosition, last=$lastVisibleItemPosition, isLoading=$isLoading, hasMore=$hasMore")
+
+                if (!isLoading && hasMore && dy > 0) {
+                    if ((lastVisibleItemPosition + 3) >= totalItemCount
+                        && totalItemCount > 0
                     ) {
+                        Log.d("FeedScroll", "Triggering load more. Cursor: $currentCursor")
                         loadFeed(reset = false)
                     }
                 }
@@ -113,7 +117,10 @@ class FeedFragment : Fragment() {
 
 
     private fun loadFeed(reset: Boolean) {
-        if (isLoading) return
+        if (isLoading) {
+            Log.d("FeedFragment", "Already loading, skipping")
+            return
+        }
         isLoading = true
 
         if (reset) {
@@ -121,9 +128,11 @@ class FeedFragment : Fragment() {
             hasMore = true
             progressBar.visibility = View.VISIBLE
             loadMoreProgressBar.visibility = View.GONE
+            Log.d("FeedFragment", "Loading feed (reset)")
         } else {
             // Loading more posts
             loadMoreProgressBar.visibility = View.VISIBLE
+            Log.d("FeedFragment", "Loading more posts with cursor: $currentCursor")
         }
 
         val api = ApiClient.retrofit
@@ -131,6 +140,7 @@ class FeedFragment : Fragment() {
             limit = 10,
             before = if (reset) null else currentCursor
         )
+        Log.d("FeedFragment", "API call created with before=${if (reset) "null" else currentCursor}")
 
         call.enqueue(object : Callback<FeedResponse> {
             override fun onResponse(call: Call<FeedResponse>, response: Response<FeedResponse>) {
@@ -142,6 +152,8 @@ class FeedFragment : Fragment() {
                 if (response.isSuccessful) {
                     val feedResponse = response.body()
                     if (feedResponse != null) {
+                        Log.d("FeedFragment", "Response received: ${feedResponse.feed.size} posts, hasMore=${feedResponse.hasMore}, cursor=${feedResponse.cursor?.oldestCreatedAt}")
+
                         if (reset) {
                             feedAdapter.updatePosts(feedResponse.feed)
                         } else {
@@ -151,7 +163,9 @@ class FeedFragment : Fragment() {
                         currentCursor = feedResponse.cursor?.oldestCreatedAt
                         hasMore = feedResponse.hasMore
 
-                        Log.d("FeedFragment", "Loaded ${feedResponse.feed.size} posts. HasMore: $hasMore")
+                        Log.d("FeedFragment", "State after load: currentCursor=$currentCursor, hasMore=$hasMore, totalPosts=${posts.size}")
+                    } else {
+                        Log.e("FeedFragment", "Response body is null")
                     }
                 } else {
                     Toast.makeText(
