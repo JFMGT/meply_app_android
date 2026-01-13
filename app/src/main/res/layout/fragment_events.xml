@@ -6,11 +6,36 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Filter Card -->
+    <!-- Filter Summary (Collapsed State) -->
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/filter_summary_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp">
+
+        <TextView
+            android:id="@+id/filter_summary_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Events in deiner Nähe"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:drawableEnd="@android:drawable/arrow_down_float"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Filter Card (Expanded State) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/filter_expanded_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:visibility="gone"
         app:cardBackgroundColor="#FFFFFF"
         app:cardCornerRadius="8dp"
         app:cardElevation="2dp">
@@ -41,8 +66,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    app:expandedHintEnabled="true"
                     android:hint="PLZ"
+                    app:hintEnabled="true"
+                    app:hintAnimationEnabled="false"
+                    app:expandedHintEnabled="false"
                     app:hintTextColor="@color/text_secondary"
                     app:boxBackgroundMode="outline"
                     app:boxStrokeColor="@color/primary" >
@@ -53,6 +80,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:maxLength="5"
+                        android:imeOptions="actionDone"
                         android:textColor="@color/text_disabled"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -62,6 +90,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="Radius (km)"
+                    app:hintEnabled="true"
+                    app:hintAnimationEnabled="false"
+                    app:expandedHintEnabled="false"
                     app:hintTextColor="@color/text_disabled"
                     app:boxBackgroundMode="outline"
                     app:boxStrokeColor="@color/primary"
@@ -72,6 +103,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
+                        android:imeOptions="actionDone"
                         android:textColor="@color/text_disabled" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>

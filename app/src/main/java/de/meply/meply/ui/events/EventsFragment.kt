@@ -2,9 +2,12 @@ package de.meply.meply.ui.events
 
 import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -12,6 +15,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
 import de.meply.meply.data.events.EventItem
@@ -32,16 +36,26 @@ class EventsFragment : Fragment() {
     private lateinit var recycler: RecyclerView
     private lateinit var progress: ProgressBar
     private lateinit var empty: TextView
+    private lateinit var filterSummaryCard: MaterialCardView
+    private lateinit var filterSummaryText: TextView
+    private lateinit var filterExpandedCard: MaterialCardView
     private lateinit var editZip: TextInputEditText
     private lateinit var editRadius: TextInputEditText
     private lateinit var btnSearch: Button
     private val adapter = EventsAdapter { item -> onEventClicked(item) }
+
+    private var currentZip: String? = null
+    private var currentRadius: Double? = null
+    private var isFilterExpanded = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val v = inflater.inflate(R.layout.fragment_events, container, false)
         recycler = v.findViewById(R.id.recyclerEvents)
         progress = v.findViewById(R.id.progress)
         empty    = v.findViewById(R.id.emptyView)
+        filterSummaryCard = v.findViewById(R.id.filter_summary_card)
+        filterSummaryText = v.findViewById(R.id.filter_summary_text)
+        filterExpandedCard = v.findViewById(R.id.filter_expanded_card)
         editZip = v.findViewById(R.id.edit_zip)
         editRadius = v.findViewById(R.id.edit_radius)
         btnSearch = v.findViewById(R.id.btn_search)
@@ -62,17 +76,72 @@ class EventsFragment : Fragment() {
             editRadius.setText(savedRadius.toString())
         }
 
+        // Set up filter toggle
+        filterSummaryCard.setOnClickListener {
+            toggleFilter()
+        }
+
         // Set up search button
         btnSearch.setOnClickListener {
             performSearch()
         }
 
+        // Set up Enter key handling for both input fields
+        editZip.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                (event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER)) {
+                hideKeyboard()
+                true
+            } else {
+                false
+            }
+        }
+
+        editRadius.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                (event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER)) {
+                hideKeyboard()
+                true
+            } else {
+                false
+            }
+        }
+
         // Load events with default or saved values
         val initialZip = if (!savedZip.isNullOrEmpty()) savedZip else DEFAULT_ZIP
         val initialRadius = if (savedRadius > 0) savedRadius.toDouble() else DEFAULT_RADIUS_KM
+        currentZip = initialZip
+        currentRadius = initialRadius
+        updateFilterSummary()
         loadEvents(zip = initialZip, radiusKm = initialRadius)
 
         return v
+    }
+
+    private fun toggleFilter() {
+        isFilterExpanded = !isFilterExpanded
+        if (isFilterExpanded) {
+            filterSummaryCard.visibility = View.GONE
+            filterExpandedCard.visibility = View.VISIBLE
+        } else {
+            filterExpandedCard.visibility = View.GONE
+            filterSummaryCard.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateFilterSummary() {
+        val summaryText = if (currentZip != null && currentRadius != null &&
+                              currentZip != DEFAULT_ZIP && currentRadius != DEFAULT_RADIUS_KM) {
+            "Events ${currentRadius?.toInt()} km rund um ${currentZip}"
+        } else {
+            "Events in deiner Nähe"
+        }
+        filterSummaryText.text = summaryText
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 
     private fun performSearch() {
@@ -90,6 +159,18 @@ class EventsFragment : Fragment() {
             return
         }
 
+        // Update current filter values
+        currentZip = zip
+        currentRadius = radius
+
+        // Hide keyboard and collapse filter
+        hideKeyboard()
+        isFilterExpanded = false
+        filterExpandedCard.visibility = View.GONE
+        filterSummaryCard.visibility = View.VISIBLE
+        updateFilterSummary()
+
+        // Load events with new filter
         loadEvents(zip = zip, radiusKm = radius)
     }
 
