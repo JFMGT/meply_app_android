@@ -1,5 +1,6 @@
 package de.meply.meply.network
 
+import com.google.gson.annotations.SerializedName
 import de.meply.meply.data.events.EventItem
 import de.meply.meply.data.events.StrapiListResponse
 import de.meply.meply.data.events.StrapiSingleResponse
@@ -52,16 +53,16 @@ interface ApiService {
 
     // User-Model
     data class UserMe(
-        val id: Int,
-        val username: String,
-        val email: String,
-        val profile: ProfileWrapper?
+        @SerializedName("id") val id: Int,
+        @SerializedName("username") val username: String,
+        @SerializedName("email") val email: String,
+        @SerializedName("profile") val profile: ProfileWrapper?
     )
 
     data class ProfileWrapper(
-        val id: String,
-        val documentId: String,
-        val attributes: de.meply.meply.data.profile.ProfileAttributes?
+        @SerializedName("id") val id: String,
+        @SerializedName("documentId") val documentId: String,
+        @SerializedName("attributes") val attributes: de.meply.meply.data.profile.ProfileAttributes?
     )
     data class ProfileData(
         val id: Int,
@@ -86,11 +87,21 @@ interface ApiService {
 
 
 
-    @GET("users/me?populate=profile")
-    fun getCurrentUser(): Call<UserMe>
+    @GET("users/me")
+    fun getCurrentUser(
+        @Query(value = "populate[profile][populate]", encoded = true) profilePopulate: String = "*"
+    ): Call<UserMe>
+
+    @GET("profiles/me")
+    fun getMyProfile(): Call<ProfileResponse<de.meply.meply.data.profile.ProfileMeData>>
 
     @GET("profiles/{id}")
     fun getProfile(@Path("id") profileId: String): Call<ProfileResponse<ProfileItem>>
+
+    @PUT("profiles/me")
+    fun updateMyProfile(
+        @Body update: UpdateProfileRequest
+    ): Call<ProfileResponse<de.meply.meply.data.profile.ProfileMeData>>
 
     @PUT("profiles/{id}")
     fun updateProfile(

@@ -13,6 +13,7 @@ import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
 import de.meply.meply.data.profile.InviteCodesResponse
 import de.meply.meply.data.profile.ProfileItem
+import de.meply.meply.data.profile.ProfileMeData
 import de.meply.meply.data.profile.ProfileResponse
 import de.meply.meply.data.profile.UpdateProfileRequest
 import de.meply.meply.network.ApiClient
@@ -96,36 +97,46 @@ class ProfileFragment : Fragment() {
     private fun loadProfile() {
         showLoading(true)
 
-        ApiClient.retrofit.getCurrentUser()
-            .enqueue(object : Callback<ApiService.UserMe> {
+        ApiClient.retrofit.getMyProfile()
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
                 override fun onResponse(
-                    call: Call<ApiService.UserMe>,
-                    response: Response<ApiService.UserMe>
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
                 ) {
                     showLoading(false)
                     if (response.isSuccessful) {
-                        val user = response.body()
-                        val profile = user?.profile
-                        if (profile != null) {
-                            currentProfileId = profile.documentId
-                            loadedProfile = ProfileItem(profile.id, profile.attributes)
+                        val profileResponse = response.body()
+                        Log.d("ProfileFragment", "Profile response: $profileResponse")
+                        val profileMeData = profileResponse?.data
+                        if (profileMeData != null) {
+                            Log.d("ProfileFragment", "Profile ID: ${profileMeData.id}")
+                            Log.d("ProfileFragment", "Profile fields: username=${profileMeData.username}, city=${profileMeData.city}")
+                            // Convert ProfileMeData to ProfileItem for use in the fragment
+                            currentProfileId = profileMeData.id.toString()
+                            loadedProfile = profileMeData.toProfileItem()
+                            Log.d("ProfileFragment", "Converted ProfileItem attributes: ${loadedProfile?.attributes}")
                             showProfile(loadedProfile!!)
                         } else {
+                            Log.e("ProfileFragment", "Profile data is null in response")
                             Toast.makeText(requireContext(), "Kein Profil gefunden", Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        Toast.makeText(requireContext(), "Fehler ${response.code()} beim Laden des Users", Toast.LENGTH_SHORT).show()
+                        Log.e("ProfileFragment", "Error loading profile: ${response.code()}")
+                        Toast.makeText(requireContext(), "Fehler ${response.code()} beim Laden des Profils", Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                override fun onFailure(call: Call<ApiService.UserMe>, t: Throwable) {
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
                     showLoading(false)
                     Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("ProfileFragment", "Network error loading profile", t)
                 }
             })
     }
 
     private fun showProfile(profile: ProfileItem) {
+        Log.d("ProfileFragment", "Loading profile: ${profile.attributes}")
+
         editUsername.setText(profile.attributes?.username ?: "")
         editBirthDate.setText(profile.attributes?.birthDate ?: "")
         editPostal.setText(profile.attributes?.postalCode ?: "")
@@ -134,25 +145,35 @@ class ProfileFragment : Fragment() {
         editBggProfile.setText(profile.attributes?.boardgamegeekProfile ?: "")
         editBgaUsername.setText(profile.attributes?.boardGameArenaUsername ?: "")
 
-        // Set gender spinner
-        val gender = profile.attributes?.gender ?: "Keine Angabe"
-        val genderIndex = genderOptions.indexOf(gender)
+        // Set gender spinner - convert from API format (English) to UI format (German)
+        val genderApi = profile.attributes?.gender ?: "none"
+        val genderDisplay = when (genderApi) {
+            "none" -> "Keine Angabe"
+            "female" -> "Weiblich"
+            "male" -> "Männlich"
+            "diverse" -> "Divers"
+            "other" -> "anderes"
+            else -> "Keine Angabe"
+        }
+        val genderIndex = genderOptions.indexOf(genderDisplay)
         if (genderIndex >= 0) {
             spinnerGender.setSelection(genderIndex)
         }
 
         // Set checkboxes
-        // followPrivacy is "open" or "request", checkbox means "open" (users can follow without confirmation)
-        checkboxFollowPrivacy.isChecked = profile.attributes?.followPrivacy == "open"
+        // Use usersCanFollow if available, fallback to followPrivacy
+        val privacySetting = profile.attributes?.usersCanFollow ?: profile.attributes?.followPrivacy
+        checkboxFollowPrivacy.isChecked = privacySetting == "open"
         checkboxShowInUserList.isChecked = profile.attributes?.showInUserList ?: false
         checkboxAllowProfileView.isChecked = profile.attributes?.allowProfileView ?: false
         checkboxShowRatings.isChecked = profile.attributes?.showBoardGameRatings ?: false
+
+        Log.d("ProfileFragment", "Privacy setting: $privacySetting, checked: ${checkboxFollowPrivacy.isChecked}")
     }
 
     private fun saveProfile() {
-        val profileId = currentProfileId
         val existing = loadedProfile
-        if (profileId.isNullOrBlank() || existing == null) {
+        if (existing == null) {
             Toast.makeText(requireContext(), "Kein Profil geladen", Toast.LENGTH_SHORT).show()
             return
         }
@@ -165,32 +186,50 @@ class ProfileFragment : Fragment() {
         // Update with new values from form
         updateMap?.set("username", editUsername.text.toString())
         updateMap?.set("birthDate", editBirthDate.text.toString().ifEmpty { null })
-        updateMap?.set("gender", spinnerGender.selectedItem.toString())
+
+        // Convert gender from German UI text to API format (English)
+        val genderDisplay = spinnerGender.selectedItem.toString()
+        val genderApi = when (genderDisplay) {
+            "Keine Angabe" -> "none"
+            "Weiblich" -> "female"
+            "Männlich" -> "male"
+            "Divers" -> "diverse"
+            "anderes" -> "other"
+            else -> "none"
+        }
+        updateMap?.set("gender", genderApi)
+
         updateMap?.set("postalCode", editPostal.text.toString())
         updateMap?.set("city", editCity.text.toString())
         updateMap?.set("searchRadius", editRadius.text.toString().toIntOrNull())
         updateMap?.set("boardgamegeekProfile", editBggProfile.text.toString().ifEmpty { null })
         updateMap?.set("boardGameArenaUsername", editBgaUsername.text.toString().ifEmpty { null })
-        // followPrivacy must be "open" or "request", not boolean
-        updateMap?.set("followPrivacy", if (checkboxFollowPrivacy.isChecked) "open" else "request")
+
+        // usersCanFollow must be "open" or "request", not boolean
+        val privacyValue = if (checkboxFollowPrivacy.isChecked) "open" else "request"
+        updateMap?.set("usersCanFollow", privacyValue)
+        // Also set followPrivacy for backwards compatibility
+        updateMap?.set("followPrivacy", privacyValue)
+
         updateMap?.set("showInUserList", checkboxShowInUserList.isChecked)
         updateMap?.set("allowProfileView", checkboxAllowProfileView.isChecked)
         updateMap?.set("showBoardGameRatings", checkboxShowRatings.isChecked)
 
         val request = UpdateProfileRequest(updateMap)
 
-        ApiClient.retrofit.updateProfile(profileId, request)
-            .enqueue(object : Callback<ProfileResponse<ProfileItem>> {
+        ApiClient.retrofit.updateMyProfile(request)
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
                 override fun onResponse(
-                    call: Call<ProfileResponse<ProfileItem>>,
-                    response: Response<ProfileResponse<ProfileItem>>
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
                 ) {
                     showLoading(false)
                     if (response.isSuccessful) {
                         Toast.makeText(requireContext(), "Profil gespeichert", Toast.LENGTH_SHORT).show()
-                        response.body()?.data?.let {
-                            loadedProfile = it
-                            showProfile(it)
+                        response.body()?.data?.let { profileMeData ->
+                            // Convert ProfileMeData to ProfileItem
+                            loadedProfile = profileMeData.toProfileItem()
+                            showProfile(loadedProfile!!)
                         }
                     } else {
                         Toast.makeText(requireContext(), "Fehler ${response.code()} beim Speichern", Toast.LENGTH_SHORT).show()
@@ -198,7 +237,7 @@ class ProfileFragment : Fragment() {
                     }
                 }
 
-                override fun onFailure(call: Call<ProfileResponse<ProfileItem>>, t: Throwable) {
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
                     showLoading(false)
                     Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
                     Log.e("ProfileFragment", "Network error saving profile", t)
@@ -256,6 +295,7 @@ fun ApiService.ProfileData.toAttributes(): de.meply.meply.data.profile.ProfileAt
         boardGameArenaUsername = this.boardGameArenaUsername,
         showInUserList = this.showInUserList,
         followPrivacy = this.followPrivacy,
+        usersCanFollow = null,  // Not available in ProfileData, will be fetched separately
         allowProfileView = this.allowProfileView,
         showBoardGameRatings = this.showBoardGameRatings,
         latitude = this.latitude,
@@ -275,6 +315,7 @@ fun de.meply.meply.data.profile.ProfileAttributes.toMutableMap(): MutableMap<Str
         "boardgamegeekProfile" to this.boardgamegeekProfile,
         "boardGameArenaUsername" to this.boardGameArenaUsername,
         "showInUserList" to this.showInUserList,
+        "usersCanFollow" to this.usersCanFollow,
         "followPrivacy" to this.followPrivacy,
         "allowProfileView" to this.allowProfileView,
         "showBoardGameRatings" to this.showBoardGameRatings,
