@@ -26,6 +26,7 @@ class FeedFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var progressBar: ProgressBar
+    private lateinit var loadMoreProgressBar: ProgressBar
     private lateinit var feedAdapter: FeedAdapter
 
     private val posts = mutableListOf<Post>()
@@ -52,6 +53,7 @@ class FeedFragment : Fragment() {
         recyclerView = view.findViewById(R.id.feedRecyclerView)
         swipeRefresh = view.findViewById(R.id.feedSwipeRefresh)
         progressBar = view.findViewById(R.id.feedProgressBar)
+        loadMoreProgressBar = view.findViewById(R.id.feedLoadMoreProgressBar)
 
         setupRecyclerView()
         setupSwipeRefresh()
@@ -118,6 +120,10 @@ class FeedFragment : Fragment() {
             currentCursor = null
             hasMore = true
             progressBar.visibility = View.VISIBLE
+            loadMoreProgressBar.visibility = View.GONE
+        } else {
+            // Loading more posts
+            loadMoreProgressBar.visibility = View.VISIBLE
         }
 
         val api = ApiClient.retrofit
@@ -130,6 +136,7 @@ class FeedFragment : Fragment() {
             override fun onResponse(call: Call<FeedResponse>, response: Response<FeedResponse>) {
                 isLoading = false
                 progressBar.visibility = View.GONE
+                loadMoreProgressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 if (response.isSuccessful) {
@@ -159,6 +166,7 @@ class FeedFragment : Fragment() {
             override fun onFailure(call: Call<FeedResponse>, t: Throwable) {
                 isLoading = false
                 progressBar.visibility = View.GONE
+                loadMoreProgressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 Toast.makeText(
