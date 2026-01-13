@@ -472,7 +472,7 @@ class ProfileFragment : Fragment() {
             val body = MultipartBody.Part.createFormData("files", compressedFile.name, requestFile)
 
             // Upload to API
-            ApiClient.retrofit.uploadImage(body)
+            ApiClient.retrofit.uploadImage(body, "Profilbild", "avatar")
                 .enqueue(object : Callback<ImageUploadResponse> {
                     override fun onResponse(
                         call: Call<ImageUploadResponse>,
