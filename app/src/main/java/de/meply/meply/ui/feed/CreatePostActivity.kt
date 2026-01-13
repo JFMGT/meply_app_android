@@ -153,7 +153,6 @@ class CreatePostActivity : BaseDetailActivity() {
         }
 
         val visibility = when (visibilityRadioGroup.checkedRadioButtonId) {
-            R.id.visibilityPublic -> "public"
             R.id.visibilityFollower -> "follower"
             else -> "members"
         }

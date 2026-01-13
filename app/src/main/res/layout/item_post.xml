@@ -60,7 +60,7 @@
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Post Options"
-                android:src="@android:drawable/ic_menu_more" />
+                android:src="@drawable/ic_more_vert" />
         </LinearLayout>
 
         <!-- Post Content -->

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Main App Theme - Dark theme matching the web application -->
     <style name="Theme.Meply" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color (yellow/gold) -->
@@ -37,5 +37,6 @@
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_disabled</item>
+        <item name="colorOnPrimary" tools:ignore="DuplicateDefinition">@color/text_on_light</item>
     </style>
 </resources>
