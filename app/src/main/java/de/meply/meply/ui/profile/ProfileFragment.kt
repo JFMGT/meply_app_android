@@ -386,7 +386,7 @@ class ProfileFragment : Fragment() {
             arrayOf("Foto aufnehmen", "Aus Galerie wählen", "Abbrechen")
         }
 
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Meply_AlertDialog)
             .setTitle("Profilbild ändern")
             .setItems(options) { _, which ->
                 when (options[which]) {
@@ -558,7 +558,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun confirmDeleteAvatar() {
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Meply_AlertDialog)
             .setTitle("Profilbild löschen")
             .setMessage("Möchtest du dein Profilbild wirklich löschen?")
             .setPositiveButton("Löschen") { _, _ ->
