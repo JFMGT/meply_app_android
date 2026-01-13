@@ -1,26 +1,31 @@
 package de.meply.meply.ui.events
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import com.google.gson.Gson // NEUER IMPORT
+import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
-// import de.meply.meply.data.events.EventAttributes // Nicht direkt verwendet, kann weg, wenn nicht anderweitig gebraucht
-// import de.meply.meply.data.events.EventItem // Nicht direkt verwendet, kann weg
-import de.meply.meply.data.events.StrapiListResponse // Wird wiederverwendet
-import de.meply.meply.data.meetings.MeetingData // NEUER IMPORT
+import de.meply.meply.data.events.StrapiListResponse
+import de.meply.meply.data.meetings.MeetingData
+import de.meply.meply.data.messages.CreateConversationRequest
+import de.meply.meply.data.messages.SendMessageResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
-import java.util.Date // NEUER IMPORT für getTodayDateString
+import java.util.Date
 import java.util.Locale
 import de.meply.meply.data.events.FlatEventData
 
@@ -34,13 +39,14 @@ class EventDetailActivity : BaseDetailActivity() {
     private lateinit var organizerTextView: TextView
     private lateinit var progressBar: ProgressBar
 
-    // NEU: Für Meetings - fügen Sie diese IDs zu Ihrer activity_event_detail.xml hinzu
+    // Meetings UI elements
     private lateinit var meetingsProgressBar: ProgressBar
     private lateinit var meetingsErrorTextView: TextView
     private lateinit var noMeetingsTextView: TextView
-    // private lateinit var recyclerViewMeetings: RecyclerView // Vorerst auskommentiert, bis Adapter etc. da ist
+    private lateinit var meetingsRecycler: RecyclerView
+    private lateinit var meetingsAdapter: MeetingsAdapter
 
-    private var currentEventDocumentId: String? = null // Hinzugefügt für die documentId
+    private var currentEventDocumentId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,12 +59,16 @@ class EventDetailActivity : BaseDetailActivity() {
         organizerTextView = findViewById(R.id.detail_event_organizer)
         progressBar = findViewById(R.id.detail_event_progress_bar)
 
-        // NEU: UI-Elemente für Meetings initialisieren
-        // Stellen Sie sicher, dass Sie diese IDs in Ihrer activity_event_detail.xml haben!
-        meetingsProgressBar = findViewById(R.id.detail_meetings_progress_bar) // Beispiel-ID
-        meetingsErrorTextView = findViewById(R.id.detail_meetings_error_textview) // Beispiel-ID
-        noMeetingsTextView = findViewById(R.id.detail_no_meetings_textview) // Beispiel-ID
-        // recyclerViewMeetings = findViewById(R.id.recycler_view_meetings) // Beispiel-ID
+        // Initialize meetings UI elements
+        meetingsProgressBar = findViewById(R.id.detail_meetings_progress_bar)
+        meetingsErrorTextView = findViewById(R.id.detail_meetings_error_textview)
+        noMeetingsTextView = findViewById(R.id.detail_no_meetings_textview)
+        meetingsRecycler = findViewById(R.id.detail_meetings_recycler)
+
+        // Setup meetings RecyclerView and adapter
+        meetingsAdapter = MeetingsAdapter { meeting -> onContactMeeting(meeting) }
+        meetingsRecycler.layoutManager = LinearLayoutManager(this)
+        meetingsRecycler.adapter = meetingsAdapter
 
         // Setup toolbar with back button and user menu
         setupDetailToolbar()
@@ -130,7 +140,7 @@ class EventDetailActivity : BaseDetailActivity() {
         if (isLoading) {
             meetingsErrorTextView.visibility = View.GONE
             noMeetingsTextView.visibility = View.GONE
-            // recyclerViewMeetings.visibility = View.GONE
+            meetingsRecycler.visibility = View.GONE
         }
         Log.d("EventDetailActivity", "showMeetingsLoading: $isLoading")
     }
@@ -139,19 +149,14 @@ class EventDetailActivity : BaseDetailActivity() {
         if (meetings.isEmpty()) {
             Log.i("EventDetailActivity", "No meetings to display.")
             noMeetingsTextView.visibility = View.VISIBLE
-            // recyclerViewMeetings.visibility = View.GONE
+            meetingsRecycler.visibility = View.GONE
             meetingsErrorTextView.visibility = View.GONE
         } else {
             Log.i("EventDetailActivity", "Displaying ${meetings.size} meetings.")
             noMeetingsTextView.visibility = View.GONE
-            // recyclerViewMeetings.visibility = View.VISIBLE // Vorerst auskommentiert
+            meetingsRecycler.visibility = View.VISIBLE
             meetingsErrorTextView.visibility = View.GONE
-            // TODO: Übergebe 'meetings' an deinen Adapter
-            // meetingsAdapter.submitList(meetings)
-            meetings.forEach { meeting ->
-                // ACHTUNG: Die Felder 'title' und 'date' müssen in Ihrer MeetingData-Klasse existieren!
-                Log.d("EventDetailActivity_MeetingItem", "Meeting: Title: ${meeting.title}, Simple Date: ${meeting.date}")
-            }
+            meetingsAdapter.submitList(meetings)
         }
     }
 
@@ -159,7 +164,7 @@ class EventDetailActivity : BaseDetailActivity() {
         meetingsErrorTextView.text = message
         meetingsErrorTextView.visibility = View.VISIBLE
         noMeetingsTextView.visibility = View.GONE
-        // recyclerViewMeetings.visibility = View.GONE
+        meetingsRecycler.visibility = View.GONE
         Log.e("EventDetailActivity", "showMeetingsError: $message")
     }
 
@@ -295,6 +300,81 @@ class EventDetailActivity : BaseDetailActivity() {
         dateTextView.visibility = View.GONE
         locationTextView.visibility = View.GONE
         organizerTextView.visibility = View.GONE
+    }
+
+    private fun onContactMeeting(meeting: MeetingData) {
+        val authorDocumentId = meeting.author?.documentId
+        val authorName = meeting.author?.username ?: "diesem Nutzer"
+
+        if (authorDocumentId.isNullOrBlank()) {
+            Toast.makeText(this, "Autor-ID nicht verfügbar", Toast.LENGTH_SHORT).show()
+            Log.e("EventDetailActivity", "Cannot contact meeting author: documentId is null")
+            return
+        }
+
+        // Create dialog to ask for message
+        val messageInput = EditText(this)
+        messageInput.hint = "Deine Nachricht"
+        messageInput.maxLines = 5
+
+        AlertDialog.Builder(this)
+            .setTitle("Nachricht an $authorName")
+            .setMessage("Schreibe eine Nachricht zum Spieltreffen \"${meeting.title ?: "Spieltreffen"}\"")
+            .setView(messageInput)
+            .setPositiveButton("Senden") { _, _ ->
+                val messageText = messageInput.text.toString().trim()
+                if (messageText.isEmpty()) {
+                    Toast.makeText(this, "Bitte eine Nachricht eingeben", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (messageText.length > 500) {
+                    Toast.makeText(this, "Nachricht zu lang (max. 500 Zeichen)", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                sendMessageToAuthor(authorDocumentId, messageText, meeting.documentId, authorName)
+            }
+            .setNegativeButton("Abbrechen", null)
+            .show()
+    }
+
+    private fun sendMessageToAuthor(recipientId: String, message: String, meetingReference: String?, recipientName: String) {
+        val request = CreateConversationRequest(
+            recipient = recipientId,
+            message = message,
+            reference = meetingReference
+        )
+
+        ApiClient.retrofit.createConversation(request).enqueue(object : Callback<SendMessageResponse> {
+            override fun onResponse(
+                call: Call<SendMessageResponse>,
+                response: Response<SendMessageResponse>
+            ) {
+                if (response.isSuccessful) {
+                    Toast.makeText(
+                        this@EventDetailActivity,
+                        "Nachricht an $recipientName gesendet!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.d("EventDetailActivity", "Message sent successfully to $recipientName")
+                } else {
+                    Toast.makeText(
+                        this@EventDetailActivity,
+                        "Fehler beim Senden: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e("EventDetailActivity", "Error sending message: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<SendMessageResponse>, t: Throwable) {
+                Toast.makeText(
+                    this@EventDetailActivity,
+                    "Netzwerkfehler: ${t.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                Log.e("EventDetailActivity", "Network error sending message", t)
+            }
+        })
     }
 
     companion object {
