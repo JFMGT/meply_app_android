@@ -8,6 +8,7 @@ object AuthManager {
     private const val PREFS_FILE_NAME = "auth_prefs" // Zurück zum alten Namen oder ein neuer
     private const val KEY_JWT = "jwt"
     private const val KEY_PROFILE_DOCUMENT_ID = "profile_document_id"
+    private const val KEY_USER_DOCUMENT_ID = "user_document_id"
 
     // Hilfsmethode, um die Standard-SharedPreferences zu bekommen
     private fun getSharedPreferences(context: Context): SharedPreferences {
@@ -36,6 +37,18 @@ object AuthManager {
     fun getProfileDocumentId(context: Context): String? {
         return getSharedPreferences(context)
             .getString(KEY_PROFILE_DOCUMENT_ID, null)
+    }
+
+    fun saveUserDocumentId(context: Context, documentId: String) {
+        getSharedPreferences(context)
+            .edit()
+            .putString(KEY_USER_DOCUMENT_ID, documentId)
+            .apply()
+    }
+
+    fun getUserDocumentId(context: Context): String? {
+        return getSharedPreferences(context)
+            .getString(KEY_USER_DOCUMENT_ID, null)
     }
 
     fun clear(context: Context) {

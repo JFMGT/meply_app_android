@@ -54,6 +54,7 @@ interface ApiService {
     // User-Model
     data class UserMe(
         @SerializedName("id") val id: Int,
+        @SerializedName("documentId") val documentId: String?,
         @SerializedName("username") val username: String,
         @SerializedName("email") val email: String,
         @SerializedName("profile") val profile: ProfileWrapper?
