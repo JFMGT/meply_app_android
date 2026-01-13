@@ -71,7 +71,7 @@
                                 android:id="@+id/profile_username"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/text_primary"
+                                android:textColor="@color/text_disabled"
                                 android:textSize="22sp"
                                 android:textStyle="bold"
                                 tools:text="MaxMustermann" />
@@ -144,7 +144,7 @@
                                 android:id="@+id/match_score"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/text_primary"
+                                android:textColor="@color/text_disabled"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 tools:text="75%" />
@@ -168,7 +168,7 @@
                                 android:id="@+id/shared_count"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/text_primary"
+                                android:textColor="@color/text_disabled"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 tools:text="12" />
@@ -192,7 +192,7 @@
                                 android:id="@+id/distance"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/text_primary"
+                                android:textColor="@color/text_disabled"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 tools:text="15 km" />
@@ -342,7 +342,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Spiele die ihr beide mögt:"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/text_disabled"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
