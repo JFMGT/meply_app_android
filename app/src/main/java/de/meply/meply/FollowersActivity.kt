@@ -78,11 +78,13 @@ class FollowersActivity : BaseDetailActivity() {
     }
 
     private fun loadFollowerLists() {
-        val currentUserId = AuthManager.getProfileDocumentId(this)
+        val currentUserId = AuthManager.getUserDocumentId(this)
         if (currentUserId == null) {
             Toast.makeText(this, "Fehler: Benutzer nicht gefunden", Toast.LENGTH_SHORT).show()
+            Log.e("FollowersActivity", "User documentId is null - check if it's saved on login")
             return
         }
+        Log.d("FollowersActivity", "Loading follower lists for user: $currentUserId")
 
         progressBar.visibility = View.VISIBLE
 
