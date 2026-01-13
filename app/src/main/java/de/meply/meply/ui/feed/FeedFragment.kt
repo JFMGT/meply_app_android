@@ -15,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
+import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.feed.*
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
@@ -249,17 +250,22 @@ class FeedFragment : Fragment() {
 
     private fun showOptionsMenu(post: Post, anchorView: View) {
         // Check if current user is the post author
-        // For now, we'll show both options. Later, we can get current user from session
+        val currentUserId = AuthManager.getProfileDocumentId(requireContext())
+        val isOwnPost = currentUserId != null && currentUserId == post.authorDocumentId
+
         val options = mutableListOf<String>()
 
-        // Always allow reporting
-        options.add("Melden")
+        // Show "Melden" only for posts by other users
+        if (!isOwnPost) {
+            options.add("Melden")
+        }
 
-        // TODO: Only show delete if user is post author
-        // For now, add it to all posts
-        options.add("Löschen")
+        // Show "Löschen" only for own posts
+        if (isOwnPost) {
+            options.add("Löschen")
+        }
 
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Meply_AlertDialog)
             .setTitle("Optionen")
             .setItems(options.toTypedArray()) { _, which ->
                 when (options[which]) {
@@ -274,7 +280,7 @@ class FeedFragment : Fragment() {
         val input = TextInputEditText(requireContext())
         input.hint = "Grund für die Meldung (optional)"
 
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Meply_AlertDialog)
             .setTitle("Post melden")
             .setMessage("Möchtest du diesen Post melden?")
             .setView(input)
@@ -325,7 +331,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun confirmDelete(post: Post) {
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Meply_AlertDialog)
             .setTitle("Post löschen")
             .setMessage("Möchtest du diesen Post wirklich löschen?")
             .setPositiveButton("Löschen") { _, _ ->

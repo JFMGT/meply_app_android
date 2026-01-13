@@ -16,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
+import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.feed.*
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
@@ -176,11 +177,23 @@ class ThreadActivity : BaseDetailActivity() {
     }
 
     private fun showOptionsMenu(post: Post, anchorView: View) {
-        val options = mutableListOf<String>()
-        options.add("Melden")
-        options.add("Löschen")
+        // Check if current user is the post author
+        val currentUserId = AuthManager.getProfileDocumentId(this)
+        val isOwnPost = currentUserId != null && currentUserId == post.authorDocumentId
 
-        MaterialAlertDialogBuilder(this)
+        val options = mutableListOf<String>()
+
+        // Show "Melden" only for posts by other users
+        if (!isOwnPost) {
+            options.add("Melden")
+        }
+
+        // Show "Löschen" only for own posts
+        if (isOwnPost) {
+            options.add("Löschen")
+        }
+
+        MaterialAlertDialogBuilder(this, R.style.Theme_Meply_AlertDialog)
             .setTitle("Optionen")
             .setItems(options.toTypedArray()) { _, which ->
                 when (options[which]) {
@@ -195,7 +208,7 @@ class ThreadActivity : BaseDetailActivity() {
         val input = TextInputEditText(this)
         input.hint = "Grund für die Meldung (optional)"
 
-        MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(this, R.style.Theme_Meply_AlertDialog)
             .setTitle("Post melden")
             .setMessage("Möchtest du diesen Post melden?")
             .setView(input)
@@ -246,7 +259,7 @@ class ThreadActivity : BaseDetailActivity() {
     }
 
     private fun confirmDelete(post: Post) {
-        MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(this, R.style.Theme_Meply_AlertDialog)
             .setTitle("Post löschen")
             .setMessage("Möchtest du diesen Post wirklich löschen?")
             .setPositiveButton("Löschen") { _, _ ->
