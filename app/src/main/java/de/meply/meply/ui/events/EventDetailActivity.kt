@@ -66,7 +66,10 @@ class EventDetailActivity : BaseDetailActivity() {
         meetingsRecycler = findViewById(R.id.detail_meetings_recycler)
 
         // Setup meetings RecyclerView and adapter
-        meetingsAdapter = MeetingsAdapter { meeting -> onContactMeeting(meeting) }
+        meetingsAdapter = MeetingsAdapter(
+            onContactClick = { meeting -> onContactMeeting(meeting) },
+            onAuthorClick = { userSlug -> openUserProfile(userSlug) }
+        )
         meetingsRecycler.layoutManager = LinearLayoutManager(this)
         meetingsRecycler.adapter = meetingsAdapter
 
@@ -375,6 +378,10 @@ class EventDetailActivity : BaseDetailActivity() {
                 Log.e("EventDetailActivity", "Network error sending message", t)
             }
         })
+    }
+
+    private fun openUserProfile(userSlug: String) {
+        de.meply.meply.ui.profile.UserProfileActivity.start(this, userSlug)
     }
 
     companion object {

@@ -21,6 +21,7 @@ class FeedAdapter(
     private val onShowRepliesClick: (Post) -> Unit,
     private val onOptionsClick: (Post, View) -> Unit,
     private val onImageClick: (List<String>, Int) -> Unit,
+    private val onAuthorClick: ((String) -> Unit)? = null,
     private val imageBaseUrl: String = "https://admin.meeplemates.de"
 ) : RecyclerView.Adapter<FeedAdapter.PostViewHolder>() {
 
@@ -51,6 +52,19 @@ class FeedAdapter(
 
         // Username
         holder.username.text = post.author.username
+
+        // Make username clickable if callback is provided
+        val authorUserslug = post.author.userslug
+        if (onAuthorClick != null && !authorUserslug.isNullOrEmpty()) {
+            holder.username.setTextColor(context.getColor(android.R.color.holo_blue_dark))
+            holder.username.setOnClickListener {
+                onAuthorClick.invoke(authorUserslug)
+            }
+        } else {
+            // Reset to default if no callback
+            holder.username.setTextColor(context.getColor(R.color.text_primary))
+            holder.username.setOnClickListener(null)
+        }
 
         // Avatar
         val avatarUrl = post.author.avatar?.firstOrNull()?.formats?.thumbnail?.url

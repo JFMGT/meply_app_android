@@ -112,6 +112,17 @@ class LoginActivity : AppCompatActivity() {
                         AuthManager.saveProfileDocumentId(this@LoginActivity, profileDocumentId)
                         Log.d("LoginActivityAuth", "Profile documentId saved: $profileDocumentId")
                     }
+                    // Save numeric profile ID
+                    val profileId = user?.profile?.id?.toIntOrNull()
+                    if (profileId != null) {
+                        AuthManager.saveProfileId(this@LoginActivity, profileId)
+                        Log.d("LoginActivityAuth", "Profile ID saved: $profileId")
+                    }
+                    val userDocumentId = user?.documentId
+                    if (userDocumentId != null) {
+                        AuthManager.saveUserDocumentId(this@LoginActivity, userDocumentId)
+                        Log.d("LoginActivityAuth", "User documentId saved: $userDocumentId")
+                    }
                 } else {
                     Log.e("LoginActivityAuth", "Failed to fetch user profile: ${response.code()}")
                 }

@@ -32,6 +32,7 @@
         <activity android:name=".ui.pm.ConversationActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".WebViewActivity" />
+        <activity android:name=".ui.profile.UserProfileActivity" />
     </application>
 
 </manifest>

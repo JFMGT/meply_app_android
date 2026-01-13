@@ -54,6 +54,7 @@ interface ApiService {
     // User-Model
     data class UserMe(
         @SerializedName("id") val id: Int,
+        @SerializedName("documentId") val documentId: String?,
         @SerializedName("username") val username: String,
         @SerializedName("email") val email: String,
         @SerializedName("profile") val profile: ProfileWrapper?
@@ -263,6 +264,68 @@ interface ApiService {
      */
     @POST("registration-codes/my-invite-codes")
     fun getMyInviteCodes(): Call<de.meply.meply.data.profile.InviteCodesResponse>
+
+    // ===== USER PROFILE ENDPOINTS =====
+
+    /**
+     * Get user profile by username/slug
+     * @param slug The username or slug of the user
+     */
+    @GET("profiles/slug/{slug}")
+    fun getUserProfileBySlug(
+        @Path("slug") slug: String
+    ): Call<de.meply.meply.data.profile.UserProfileResponse>
+
+    /**
+     * Get matching score between two users
+     * @param profileA The profile ID of user A
+     * @param profileB The profile ID of user B
+     */
+    @GET("match/{profileA}/{profileB}")
+    fun getMatchScore(
+        @Path("profileA") profileA: String,
+        @Path("profileB") profileB: String
+    ): Call<de.meply.meply.data.profile.MatchScoreResponse>
+
+    /**
+     * Get shared highly rated board games between two users
+     * @param profileA The profile ID of user A
+     * @param profileB The profile ID of user B
+     */
+    @GET("boardgames/shared-highly-rated/{profileA}/{profileB}")
+    fun getSharedHighlyRatedGames(
+        @Path("profileA") profileA: String,
+        @Path("profileB") profileB: String
+    ): Call<List<de.meply.meply.data.profile.SharedGame>>
+
+    /**
+     * Check follow status between two users
+     * @param userA The user document ID of user A
+     * @param userB The user document ID of user B
+     */
+    @GET("followers/followedby/{userA}/{userB}")
+    fun checkFollowStatus(
+        @Path("userA") userA: String,
+        @Path("userB") userB: String
+    ): Call<de.meply.meply.data.profile.FollowStatusResponse>
+
+    /**
+     * Follow a user
+     * @param request The follow request with userToFollow document ID
+     */
+    @POST("followers")
+    fun followUser(
+        @Body request: de.meply.meply.data.profile.FollowUserRequest
+    ): Call<de.meply.meply.data.profile.FollowActionResponse>
+
+    /**
+     * Unfollow a user
+     * @param request The unfollow request with userToUnfollow document ID
+     */
+    @POST("followers/unfollow")
+    fun unfollowUser(
+        @Body request: de.meply.meply.data.profile.UnfollowUserRequest
+    ): Call<de.meply.meply.data.profile.FollowActionResponse>
 
 
 }
