@@ -31,7 +31,14 @@ data class FollowRelation(
 )
 
 /**
- * Response from follow list API
+ * Response from /followers/followedby API
+ */
+data class FollowedByResponse(
+    @SerializedName("users") val users: List<FollowRelation>?
+)
+
+/**
+ * Response from follow list API (aggregated from multiple calls)
  */
 data class FollowListResponse(
     @SerializedName("pending") val pending: MutableList<FollowRelation>,

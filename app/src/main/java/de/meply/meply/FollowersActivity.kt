@@ -108,18 +108,22 @@ class FollowersActivity : BaseDetailActivity() {
 
         // 1. Load pending requests (all -> currentUser with status=pending)
         ApiClient.retrofit.getFollowersByStatus("all", currentUserId, "pending")
-            .enqueue(object : Callback<List<FollowRelation>> {
+            .enqueue(object : Callback<FollowedByResponse> {
                 override fun onResponse(
-                    call: Call<List<FollowRelation>>,
-                    response: Response<List<FollowRelation>>
+                    call: Call<FollowedByResponse>,
+                    response: Response<FollowedByResponse>
                 ) {
                     if (response.isSuccessful) {
-                        listsData.pending.addAll(response.body() ?: emptyList())
+                        val users = response.body()?.users ?: emptyList()
+                        listsData.pending.addAll(users)
+                        Log.d("FollowersActivity", "Loaded ${users.size} pending requests")
+                    } else {
+                        Log.e("FollowersActivity", "Error loading pending: ${response.code()} - ${response.message()}")
                     }
                     checkComplete()
                 }
 
-                override fun onFailure(call: Call<List<FollowRelation>>, t: Throwable) {
+                override fun onFailure(call: Call<FollowedByResponse>, t: Throwable) {
                     Log.e("FollowersActivity", "Error loading pending", t)
                     checkComplete()
                 }
@@ -127,18 +131,22 @@ class FollowersActivity : BaseDetailActivity() {
 
         // 2. Load followers (all -> currentUser with status=accepted)
         ApiClient.retrofit.getFollowersByStatus("all", currentUserId, "accepted")
-            .enqueue(object : Callback<List<FollowRelation>> {
+            .enqueue(object : Callback<FollowedByResponse> {
                 override fun onResponse(
-                    call: Call<List<FollowRelation>>,
-                    response: Response<List<FollowRelation>>
+                    call: Call<FollowedByResponse>,
+                    response: Response<FollowedByResponse>
                 ) {
                     if (response.isSuccessful) {
-                        listsData.followers.addAll(response.body() ?: emptyList())
+                        val users = response.body()?.users ?: emptyList()
+                        listsData.followers.addAll(users)
+                        Log.d("FollowersActivity", "Loaded ${users.size} followers")
+                    } else {
+                        Log.e("FollowersActivity", "Error loading followers: ${response.code()} - ${response.message()}")
                     }
                     checkComplete()
                 }
 
-                override fun onFailure(call: Call<List<FollowRelation>>, t: Throwable) {
+                override fun onFailure(call: Call<FollowedByResponse>, t: Throwable) {
                     Log.e("FollowersActivity", "Error loading followers", t)
                     checkComplete()
                 }
@@ -146,18 +154,22 @@ class FollowersActivity : BaseDetailActivity() {
 
         // 3. Load following (currentUser -> all with status=accepted)
         ApiClient.retrofit.getFollowersByStatus(currentUserId, "all", "accepted")
-            .enqueue(object : Callback<List<FollowRelation>> {
+            .enqueue(object : Callback<FollowedByResponse> {
                 override fun onResponse(
-                    call: Call<List<FollowRelation>>,
-                    response: Response<List<FollowRelation>>
+                    call: Call<FollowedByResponse>,
+                    response: Response<FollowedByResponse>
                 ) {
                     if (response.isSuccessful) {
-                        listsData.following.addAll(response.body() ?: emptyList())
+                        val users = response.body()?.users ?: emptyList()
+                        listsData.following.addAll(users)
+                        Log.d("FollowersActivity", "Loaded ${users.size} following")
+                    } else {
+                        Log.e("FollowersActivity", "Error loading following: ${response.code()} - ${response.message()}")
                     }
                     checkComplete()
                 }
 
-                override fun onFailure(call: Call<List<FollowRelation>>, t: Throwable) {
+                override fun onFailure(call: Call<FollowedByResponse>, t: Throwable) {
                     Log.e("FollowersActivity", "Error loading following", t)
                     checkComplete()
                 }
@@ -165,18 +177,22 @@ class FollowersActivity : BaseDetailActivity() {
 
         // 4. Load blocked (all -> currentUser with status=declined)
         ApiClient.retrofit.getFollowersByStatus("all", currentUserId, "declined")
-            .enqueue(object : Callback<List<FollowRelation>> {
+            .enqueue(object : Callback<FollowedByResponse> {
                 override fun onResponse(
-                    call: Call<List<FollowRelation>>,
-                    response: Response<List<FollowRelation>>
+                    call: Call<FollowedByResponse>,
+                    response: Response<FollowedByResponse>
                 ) {
                     if (response.isSuccessful) {
-                        listsData.blocked.addAll(response.body() ?: emptyList())
+                        val users = response.body()?.users ?: emptyList()
+                        listsData.blocked.addAll(users)
+                        Log.d("FollowersActivity", "Loaded ${users.size} blocked")
+                    } else {
+                        Log.e("FollowersActivity", "Error loading blocked: ${response.code()} - ${response.message()}")
                     }
                     checkComplete()
                 }
 
-                override fun onFailure(call: Call<List<FollowRelation>>, t: Throwable) {
+                override fun onFailure(call: Call<FollowedByResponse>, t: Throwable) {
                     Log.e("FollowersActivity", "Error loading blocked", t)
                     checkComplete()
                 }
@@ -258,8 +274,15 @@ class FollowersActivity : BaseDetailActivity() {
         followId: String,
         userDocumentId: String? = null
     ): View {
+        val parentLayout = when (type) {
+            ListType.PENDING -> pendingList
+            ListType.FOLLOWERS -> followersList
+            ListType.FOLLOWING -> followingList
+            ListType.BLOCKED -> blockedList
+        }
+
         val itemView = LayoutInflater.from(this)
-            .inflate(R.layout.list_item_follower, null, false)
+            .inflate(R.layout.list_item_follower, parentLayout, false)
 
         val avatar = itemView.findViewById<ImageView>(R.id.userAvatar)
         val username = itemView.findViewById<TextView>(R.id.username)

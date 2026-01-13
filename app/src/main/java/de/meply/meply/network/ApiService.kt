@@ -363,7 +363,7 @@ interface ApiService {
         @Path("userA") userA: String,
         @Path("userB") userB: String,
         @Query("status") status: String
-    ): Call<List<de.meply.meply.data.follower.FollowRelation>>
+    ): Call<de.meply.meply.data.follower.FollowedByResponse>
 
     /**
      * Manage a follow request (accept, decline, remove)
