@@ -22,6 +22,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
 import de.meply.meply.data.feed.ImageUploadResponse
+import de.meply.meply.data.feed.StrapiUploadResponse
 import de.meply.meply.data.profile.InviteCodesResponse
 import de.meply.meply.data.profile.ProfileItem
 import de.meply.meply.data.profile.ProfileMeData
@@ -471,20 +472,15 @@ class ProfileFragment : Fragment() {
             val requestFile = compressedFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
             val body = MultipartBody.Part.createFormData("files", compressedFile.name, requestFile)
 
-            // Create text parts for alt, purpose, and folder
-            val altPart = okhttp3.RequestBody.Companion.create("text/plain".toMediaTypeOrNull(), "Profilbild")
-            val purposePart = okhttp3.RequestBody.Companion.create("text/plain".toMediaTypeOrNull(), "avatar")
-            val folderPart = okhttp3.RequestBody.Companion.create("text/plain".toMediaTypeOrNull(), "API Uploads")
-
-            // Upload to API
-            ApiClient.retrofit.uploadImage(body, altPart, purposePart, folderPart)
-                .enqueue(object : Callback<ImageUploadResponse> {
+            // Upload to API using standard Strapi upload endpoint
+            ApiClient.retrofit.uploadFile(body)
+                .enqueue(object : Callback<List<StrapiUploadResponse>> {
                     override fun onResponse(
-                        call: Call<ImageUploadResponse>,
-                        response: Response<ImageUploadResponse>
+                        call: Call<List<StrapiUploadResponse>>,
+                        response: Response<List<StrapiUploadResponse>>
                     ) {
                         if (response.isSuccessful) {
-                            val uploadId = response.body()?.uploads?.firstOrNull()?.uploadId
+                            val uploadId = response.body()?.firstOrNull()?.id
                             if (uploadId != null) {
                                 currentAvatarUploadId = uploadId
                                 updateProfileAvatar(uploadId)
@@ -502,10 +498,11 @@ class ProfileFragment : Fragment() {
                         compressedFile.delete()
                     }
 
-                    override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
+                    override fun onFailure(call: Call<List<StrapiUploadResponse>>, t: Throwable) {
                         showLoading(false)
                         Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
                         file.delete()
+                        compressedFile.delete()
                     }
                 })
         } catch (e: Exception) {

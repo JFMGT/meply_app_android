@@ -185,6 +185,17 @@ interface ApiService {
     ): Call<ImageUploadResponse>
 
     /**
+     * Simple Strapi file upload (used for avatars)
+     * Uses the standard Strapi upload endpoint
+     * @param file Image file as MultipartBody.Part
+     */
+    @Multipart
+    @POST("upload")
+    fun uploadFile(
+        @Part file: MultipartBody.Part
+    ): Call<List<StrapiUploadResponse>>
+
+    /**
      * Toggle like on a post
      */
     @POST("likes/toggle")

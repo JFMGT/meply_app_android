@@ -151,6 +151,15 @@ data class ImageUploadItem(
 )
 
 /**
+ * Standard Strapi upload response (from /upload endpoint)
+ */
+data class StrapiUploadResponse(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String?,
+    @SerializedName("url") val url: String?
+)
+
+/**
  * Generic error response
  */
 data class ErrorResponse(
