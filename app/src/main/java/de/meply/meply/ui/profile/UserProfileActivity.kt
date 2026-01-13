@@ -71,7 +71,7 @@ class UserProfileActivity : BaseDetailActivity() {
     private var userSlug: String? = null
     private var profileData: UserProfileData? = null
     private var currentUserId: String? = null
-    private var currentUserProfileId: String? = null
+    private var currentUserProfileId: Int? = null
     private var isFollowing: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,7 +87,7 @@ class UserProfileActivity : BaseDetailActivity() {
 
         // Get current user IDs
         currentUserId = AuthManager.getUserDocumentId(this)
-        currentUserProfileId = AuthManager.getProfileDocumentId(this)
+        currentUserProfileId = AuthManager.getProfileId(this)
 
         initializeViews()
         setupDetailToolbar()
@@ -306,14 +306,14 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun loadMatchScore() {
-        if (currentUserProfileId.isNullOrEmpty()) {
+        if (currentUserProfileId == null) {
             Log.e(TAG, "Current user profile ID is null")
             return
         }
 
-        val profileId = profileData?.id?.toString() ?: return
+        val profileId = profileData?.id ?: return
 
-        ApiClient.retrofit.getMatchScore(currentUserProfileId!!, profileId)
+        ApiClient.retrofit.getMatchScore(currentUserProfileId!!.toString(), profileId.toString())
             .enqueue(object : Callback<MatchScoreResponse> {
                 override fun onResponse(
                     call: Call<MatchScoreResponse>,
@@ -384,14 +384,14 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun loadSharedGames() {
-        if (currentUserProfileId.isNullOrEmpty()) return
-        val profileId = profileData?.id?.toString() ?: return
+        if (currentUserProfileId == null) return
+        val profileId = profileData?.id ?: return
 
         sharedGamesProgress.visibility = View.VISIBLE
         sharedGamesMessage.visibility = View.GONE
         sharedGamesRecycler.visibility = View.GONE
 
-        ApiClient.retrofit.getSharedHighlyRatedGames(currentUserProfileId!!, profileId)
+        ApiClient.retrofit.getSharedHighlyRatedGames(currentUserProfileId!!.toString(), profileId.toString())
             .enqueue(object : Callback<List<SharedGame>> {
                 override fun onResponse(
                     call: Call<List<SharedGame>>,
