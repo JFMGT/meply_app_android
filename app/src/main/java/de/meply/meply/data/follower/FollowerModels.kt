@@ -34,10 +34,10 @@ data class FollowRelation(
  * Response from follow list API
  */
 data class FollowListResponse(
-    @SerializedName("pending") val pending: List<FollowRelation>,
-    @SerializedName("followers") val followers: List<FollowRelation>,
-    @SerializedName("following") val following: List<FollowRelation>,
-    @SerializedName("blocked") val blocked: List<FollowRelation>
+    @SerializedName("pending") val pending: MutableList<FollowRelation>,
+    @SerializedName("followers") val followers: MutableList<FollowRelation>,
+    @SerializedName("following") val following: MutableList<FollowRelation>,
+    @SerializedName("blocked") val blocked: MutableList<FollowRelation>
 )
 
 /**

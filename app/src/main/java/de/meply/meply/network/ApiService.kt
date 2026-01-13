@@ -353,10 +353,17 @@ interface ApiService {
     // ===== FOLLOWER MANAGEMENT ENDPOINTS =====
 
     /**
-     * Get all follower lists (pending, followers, following, blocked)
+     * Get followers by status
+     * @param userA The user document ID or "all"
+     * @param userB The user document ID or "all"
+     * @param status The status filter: "pending", "accepted", "declined"
      */
-    @GET("followers/list")
-    fun getFollowerLists(): Call<de.meply.meply.data.follower.FollowListResponse>
+    @GET("followers/followedby/{userA}/{userB}")
+    fun getFollowersByStatus(
+        @Path("userA") userA: String,
+        @Path("userB") userB: String,
+        @Query("status") status: String
+    ): Call<List<de.meply.meply.data.follower.FollowRelation>>
 
     /**
      * Manage a follow request (accept, decline, remove)

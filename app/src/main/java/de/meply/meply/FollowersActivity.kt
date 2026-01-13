@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.follower.*
 import de.meply.meply.network.ApiClient
 import de.meply.meply.utils.AvatarUtils
@@ -77,42 +78,107 @@ class FollowersActivity : BaseDetailActivity() {
     }
 
     private fun loadFollowerLists() {
+        val currentUserId = AuthManager.getProfileDocumentId(this)
+        if (currentUserId == null) {
+            Toast.makeText(this, "Fehler: Benutzer nicht gefunden", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         progressBar.visibility = View.VISIBLE
 
-        ApiClient.retrofit.getFollowerLists()
-            .enqueue(object : Callback<FollowListResponse> {
-                override fun onResponse(
-                    call: Call<FollowListResponse>,
-                    response: Response<FollowListResponse>
-                ) {
-                    progressBar.visibility = View.GONE
-                    swipeRefresh.isRefreshing = false
+        // Create a data holder to collect all 4 responses
+        val listsData = FollowListResponse(
+            pending = mutableListOf(),
+            followers = mutableListOf(),
+            following = mutableListOf(),
+            blocked = mutableListOf()
+        )
+        var completedCalls = 0
+        val totalCalls = 4
 
+        // Helper function to check if all calls are done
+        fun checkComplete() {
+            completedCalls++
+            if (completedCalls >= totalCalls) {
+                progressBar.visibility = View.GONE
+                swipeRefresh.isRefreshing = false
+                renderLists(listsData)
+            }
+        }
+
+        // 1. Load pending requests (all -> currentUser with status=pending)
+        ApiClient.retrofit.getFollowersByStatus("all", currentUserId, "pending")
+            .enqueue(object : Callback<List<FollowRelation>> {
+                override fun onResponse(
+                    call: Call<List<FollowRelation>>,
+                    response: Response<List<FollowRelation>>
+                ) {
                     if (response.isSuccessful) {
-                        val data = response.body()
-                        if (data != null) {
-                            renderLists(data)
-                        }
-                    } else {
-                        Toast.makeText(
-                            this@FollowersActivity,
-                            "Fehler beim Laden: ${response.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        Log.e("FollowersActivity", "Error: ${response.code()} - ${response.message()}")
+                        listsData.pending.addAll(response.body() ?: emptyList())
                     }
+                    checkComplete()
                 }
 
-                override fun onFailure(call: Call<FollowListResponse>, t: Throwable) {
-                    progressBar.visibility = View.GONE
-                    swipeRefresh.isRefreshing = false
+                override fun onFailure(call: Call<List<FollowRelation>>, t: Throwable) {
+                    Log.e("FollowersActivity", "Error loading pending", t)
+                    checkComplete()
+                }
+            })
 
-                    Toast.makeText(
-                        this@FollowersActivity,
-                        "Netzwerkfehler: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    Log.e("FollowersActivity", "Network error", t)
+        // 2. Load followers (all -> currentUser with status=accepted)
+        ApiClient.retrofit.getFollowersByStatus("all", currentUserId, "accepted")
+            .enqueue(object : Callback<List<FollowRelation>> {
+                override fun onResponse(
+                    call: Call<List<FollowRelation>>,
+                    response: Response<List<FollowRelation>>
+                ) {
+                    if (response.isSuccessful) {
+                        listsData.followers.addAll(response.body() ?: emptyList())
+                    }
+                    checkComplete()
+                }
+
+                override fun onFailure(call: Call<List<FollowRelation>>, t: Throwable) {
+                    Log.e("FollowersActivity", "Error loading followers", t)
+                    checkComplete()
+                }
+            })
+
+        // 3. Load following (currentUser -> all with status=accepted)
+        ApiClient.retrofit.getFollowersByStatus(currentUserId, "all", "accepted")
+            .enqueue(object : Callback<List<FollowRelation>> {
+                override fun onResponse(
+                    call: Call<List<FollowRelation>>,
+                    response: Response<List<FollowRelation>>
+                ) {
+                    if (response.isSuccessful) {
+                        listsData.following.addAll(response.body() ?: emptyList())
+                    }
+                    checkComplete()
+                }
+
+                override fun onFailure(call: Call<List<FollowRelation>>, t: Throwable) {
+                    Log.e("FollowersActivity", "Error loading following", t)
+                    checkComplete()
+                }
+            })
+
+        // 4. Load blocked (all -> currentUser with status=declined)
+        ApiClient.retrofit.getFollowersByStatus("all", currentUserId, "declined")
+            .enqueue(object : Callback<List<FollowRelation>> {
+                override fun onResponse(
+                    call: Call<List<FollowRelation>>,
+                    response: Response<List<FollowRelation>>
+                ) {
+                    if (response.isSuccessful) {
+                        listsData.blocked.addAll(response.body() ?: emptyList())
+                    }
+                    checkComplete()
+                }
+
+                override fun onFailure(call: Call<List<FollowRelation>>, t: Throwable) {
+                    Log.e("FollowersActivity", "Error loading blocked", t)
+                    checkComplete()
                 }
             })
     }
