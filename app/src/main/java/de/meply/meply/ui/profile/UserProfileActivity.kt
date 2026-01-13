@@ -27,6 +27,7 @@ import de.meply.meply.data.messages.SendMessageResponse
 import de.meply.meply.data.profile.*
 import de.meply.meply.network.ApiClient
 import de.meply.meply.ui.events.MeetingsAdapter
+import de.meply.meply.utils.AvatarUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -265,20 +266,24 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun loadAvatar(profile: UserProfileData) {
-        val avatarUrl = if (!profile.avatar.isNullOrEmpty()) {
-            ApiClient.STRAPI_IMAGE_BASE + profile.avatar[0].url
+        if (!profile.avatar.isNullOrEmpty()) {
+            // User has uploaded avatar
+            val avatarUrl = ApiClient.STRAPI_IMAGE_BASE + profile.avatar[0].url
+            Glide.with(this)
+                .load(avatarUrl)
+                .placeholder(R.drawable.rounded_corner_background)
+                .error(R.drawable.rounded_corner_background)
+                .into(profileAvatar)
         } else {
-            // Generate default avatar based on user ID
-            val hash = profile.id.hashCode()
-            val index = (Math.abs(hash) % 8) + 1
-            "file:///android_asset/avatar$index.png"
+            // Generate default avatar based on userId (matching PHP implementation)
+            val userId = profile.userDocumentId ?: profile.documentId ?: "default"
+            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+            Glide.with(this)
+                .load(defaultAvatarUrl)
+                .placeholder(R.drawable.rounded_corner_background)
+                .error(R.drawable.rounded_corner_background)
+                .into(profileAvatar)
         }
-
-        Glide.with(this)
-            .load(avatarUrl)
-            .placeholder(R.drawable.rounded_corner_background)
-            .error(R.drawable.rounded_corner_background)
-            .into(profileAvatar)
     }
 
     private fun setupExternalProfiles(profile: UserProfileData) {
