@@ -38,5 +38,18 @@
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_disabled</item>
         <item name="colorOnPrimary" tools:ignore="DuplicateDefinition">@color/text_on_light</item>
+
+        <!-- AlertDialog styling -->
+        <item name="alertDialogTheme">@style/Theme.Meply.AlertDialog</item>
+    </style>
+
+    <!-- Alert Dialog Theme - Dark background with light text -->
+    <style name="Theme.Meply.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="android:background">@color/background_card</item>
+        <item name="backgroundTint">@color/background_card</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorSurface">@color/background_card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
     </style>
 </resources>
