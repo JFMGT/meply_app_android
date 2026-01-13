@@ -198,8 +198,18 @@ class CreatePostActivity : BaseDetailActivity() {
                 requestFile
             )
 
+            // Create text parts for alt and purpose
+            val altPart = okhttp3.RequestBody.Companion.create(
+                "text/plain".toMediaTypeOrNull(),
+                selectedImage.altText
+            )
+            val purposePart = okhttp3.RequestBody.Companion.create(
+                "text/plain".toMediaTypeOrNull(),
+                "post"
+            )
+
             val api = ApiClient.retrofit
-            api.uploadImage(body, selectedImage.altText, "post")
+            api.uploadImage(body, altPart, purposePart)
                 .enqueue(object : Callback<ImageUploadResponse> {
                     override fun onResponse(
                         call: Call<ImageUploadResponse>,

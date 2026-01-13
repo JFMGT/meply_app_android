@@ -171,14 +171,16 @@ interface ApiService {
      * Upload image for post
      * @param file Image file as MultipartBody.Part
      * @param alt Alternative text for accessibility
-     * @param purpose Purpose of upload (e.g., "post")
+     * @param purpose Purpose of upload (e.g., "post", "avatar")
+     * @param folder Optional folder path (e.g., "API Uploads")
      */
     @Multipart
     @POST("user-uploads/upload")
     fun uploadImage(
         @Part file: MultipartBody.Part,
-        @Part("alt") alt: String,
-        @Part("purpose") purpose: String
+        @Part("alt") alt: RequestBody,
+        @Part("purpose") purpose: RequestBody,
+        @Part("folder") folder: RequestBody? = null
     ): Call<ImageUploadResponse>
 
     /**

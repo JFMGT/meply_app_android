@@ -471,8 +471,13 @@ class ProfileFragment : Fragment() {
             val requestFile = compressedFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
             val body = MultipartBody.Part.createFormData("files", compressedFile.name, requestFile)
 
+            // Create text parts for alt, purpose, and folder
+            val altPart = okhttp3.RequestBody.Companion.create("text/plain".toMediaTypeOrNull(), "Profilbild")
+            val purposePart = okhttp3.RequestBody.Companion.create("text/plain".toMediaTypeOrNull(), "avatar")
+            val folderPart = okhttp3.RequestBody.Companion.create("text/plain".toMediaTypeOrNull(), "API Uploads")
+
             // Upload to API
-            ApiClient.retrofit.uploadImage(body, "Profilbild", "avatar")
+            ApiClient.retrofit.uploadImage(body, altPart, purposePart, folderPart)
                 .enqueue(object : Callback<ImageUploadResponse> {
                     override fun onResponse(
                         call: Call<ImageUploadResponse>,
