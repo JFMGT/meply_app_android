@@ -4,5 +4,4 @@
     <item android:id="@+id/nav_events"  android:title="Events"   android:icon="@drawable/ic_event"/>
     <item android:id="@+id/nav_create"  android:title="Erstellen" android:icon="@android:drawable/ic_input_add"/>
     <item android:id="@+id/nav_pm"      android:title="PM"       android:icon="@drawable/ic_mail"/>
-    <item android:id="@+id/nav_more"    android:title="Mehr"     android:icon="@drawable/ic_more"/>
 </menu>

@@ -350,5 +350,33 @@ interface ApiService {
         @Body request: de.meply.meply.data.profile.UnfollowUserRequest
     ): Call<de.meply.meply.data.profile.FollowActionResponse>
 
+    // ===== FOLLOWER MANAGEMENT ENDPOINTS =====
+
+    /**
+     * Get all follower lists (pending, followers, following, blocked)
+     */
+    @GET("followers/list")
+    fun getFollowerLists(): Call<de.meply.meply.data.follower.FollowListResponse>
+
+    /**
+     * Manage a follow request (accept, decline, remove)
+     * @param followId The document ID of the follow relationship
+     * @param request The action to perform (accepted, declined, remove)
+     */
+    @PATCH("followers/manage/{followId}")
+    fun manageFollow(
+        @Path("followId") followId: String,
+        @Body request: de.meply.meply.data.follower.FollowManageRequest
+    ): Call<de.meply.meply.data.follower.FollowManageResponse>
+
+    /**
+     * Toggle follow status (follow/unfollow)
+     * @param request The user document ID to toggle follow
+     */
+    @POST("followers/toggle")
+    fun toggleFollow(
+        @Body request: de.meply.meply.data.follower.FollowToggleRequest
+    ): Call<de.meply.meply.data.follower.FollowToggleResponse>
+
 
 }

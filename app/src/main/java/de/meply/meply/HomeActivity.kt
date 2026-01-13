@@ -97,10 +97,30 @@ class HomeActivity : AppCompatActivity() {
                     navigateToProfile()
                     true
                 }
+                R.id.menu_followers -> {
+                    openFollowers()
+                    true
+                }
+                R.id.menu_logout -> {
+                    logout()
+                    true
+                }
                 else -> false
             }
         }
         popup.show()
+    }
+
+    private fun openFollowers() {
+        val intent = Intent(this, FollowersActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun logout() {
+        AuthManager.clear(this)
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
     }
 
     private fun openWebView(url: String, title: String) {
@@ -122,7 +142,6 @@ class HomeActivity : AppCompatActivity() {
                     false // Don't select this item
                 }
                 R.id.nav_pm      -> switchTo(pm, "pm")
-                R.id.nav_more    -> { MoreMenuBottomSheet().show(supportFragmentManager, "more"); true }
                 else -> false
             }
         }
