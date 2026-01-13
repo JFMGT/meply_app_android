@@ -5,7 +5,10 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -459,7 +462,14 @@ class ProfileFragment : Fragment() {
             }
 
             // Compress image if needed
-            val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
+                ImageDecoder.decodeBitmap(source)
+            } else {
+                @Suppress("DEPRECATION")
+                MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+            }
+
             val compressedFile = File(requireContext().cacheDir, "avatar_compressed_${System.currentTimeMillis()}.jpg")
             FileOutputStream(compressedFile).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out)
