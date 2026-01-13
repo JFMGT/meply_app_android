@@ -351,7 +351,7 @@ class ProfileFragment : Fragment() {
 
                         if (!avatarUrl.isNullOrEmpty()) {
                             // User has uploaded avatar - load it
-                            val fullUrl = "https://dev.meply.de$avatarUrl"
+                            val fullUrl = "${ApiClient.STRAPI_IMAGE_BASE}$avatarUrl"
                             currentAvatarUploadId = profileData?.avatar?.firstOrNull()?.id
 
                             Glide.with(this@ProfileFragment)
