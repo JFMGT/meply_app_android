@@ -12,7 +12,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class MeetingsAdapter(
-    private val onContactClick: (MeetingData) -> Unit
+    private val onContactClick: (MeetingData) -> Unit,
+    private val onAuthorClick: ((String) -> Unit)? = null
 ) : RecyclerView.Adapter<MeetingsAdapter.MeetingViewHolder>() {
 
     private var meetings: List<MeetingData> = emptyList()
@@ -25,7 +26,7 @@ class MeetingsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MeetingViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_meeting, parent, false)
-        return MeetingViewHolder(view, onContactClick)
+        return MeetingViewHolder(view, onContactClick, onAuthorClick)
     }
 
     override fun onBindViewHolder(holder: MeetingViewHolder, position: Int) {
@@ -36,7 +37,8 @@ class MeetingsAdapter(
 
     class MeetingViewHolder(
         itemView: View,
-        private val onContactClick: (MeetingData) -> Unit
+        private val onContactClick: (MeetingData) -> Unit,
+        private val onAuthorClick: ((String) -> Unit)?
     ) : RecyclerView.ViewHolder(itemView) {
 
         private val titleText: TextView = itemView.findViewById(R.id.meeting_title)
@@ -62,6 +64,15 @@ class MeetingsAdapter(
                 "Von: $authorName • $authorCity"
             } else {
                 "Von: $authorName"
+            }
+
+            // Make author name clickable if callback is provided
+            val authorUserslug = meeting.author?.userSlug
+            if (onAuthorClick != null && !authorUserslug.isNullOrEmpty()) {
+                authorText.setTextColor(authorText.context.getColor(android.R.color.holo_blue_dark))
+                authorText.setOnClickListener {
+                    onAuthorClick.invoke(authorUserslug)
+                }
             }
 
             // Contact button
