@@ -69,7 +69,8 @@ class FeedFragment : Fragment() {
             onReplyClick = { post -> showReplyDialog(post) },
             onShowRepliesClick = { post -> showThread(post) },
             onOptionsClick = { post, view -> showOptionsMenu(post, view) },
-            onImageClick = { images, position -> showImageGallery(images, position) }
+            onImageClick = { images, position -> showImageGallery(images, position) },
+            onAuthorClick = { userSlug -> openUserProfile(userSlug) }
         )
 
         val layoutManager = LinearLayoutManager(requireContext())
@@ -349,5 +350,9 @@ class FeedFragment : Fragment() {
             "Image ${startPosition + 1} of ${images.size}",
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    private fun openUserProfile(userSlug: String) {
+        de.meply.meply.ui.profile.UserProfileActivity.start(requireContext(), userSlug)
     }
 }
