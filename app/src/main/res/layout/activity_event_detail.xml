@@ -62,7 +62,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:textColor="@color/text_primary"
                 tools:text="Dies ist eine lange Beschreibung des Events mit vielen Details." />
+
+            <!-- Meetings Section -->
+            <TextView
+                android:id="@+id/detail_meetings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Mitspielergesuche"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
             <ProgressBar
                 android:id="@+id/detail_meetings_progress_bar"
@@ -87,6 +99,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Keine Spieltreffen für dieses Event gefunden."
+                android:textColor="@color/text_secondary"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/detail_meetings_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:visibility="gone" />
 
         </LinearLayout>
