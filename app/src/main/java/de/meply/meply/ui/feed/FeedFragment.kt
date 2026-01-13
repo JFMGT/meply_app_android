@@ -251,7 +251,7 @@ class FeedFragment : Fragment() {
     private fun showOptionsMenu(post: Post, anchorView: View) {
         // Check if current user is the post author
         val currentUserId = AuthManager.getProfileDocumentId(requireContext())
-        val isOwnPost = currentUserId != null && currentUserId == post.authorDocumentId
+        val isOwnPost = currentUserId != null && currentUserId == post.author.documentId
 
         val options = mutableListOf<String>()
 
