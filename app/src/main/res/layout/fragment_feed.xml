@@ -19,12 +19,21 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!-- Progress Bar -->
+    <!-- Progress Bar for initial load -->
     <ProgressBar
         android:id="@+id/feedProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- Progress Bar for loading more posts at bottom -->
+    <ProgressBar
+        android:id="@+id/feedLoadMoreProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="100dp"
         android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
