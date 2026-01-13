@@ -210,86 +210,105 @@ class FollowersActivity : BaseDetailActivity() {
 
         Log.d("FollowersActivity", "Rendering lists - pending: ${data.pending.size}, followers: ${data.followers.size}, following: ${data.following.size}, blocked: ${data.blocked.size}")
 
-        // Render pending requests
-        val validPending = data.pending.filter { it.follower != null }
+        // Render pending requests - Always show header
+        pendingCard.visibility = View.VISIBLE
+        val validPending = data.pending.filter { it.user != null }
         if (validPending.size < data.pending.size) {
-            Log.w("FollowersActivity", "Filtered out ${data.pending.size - validPending.size} null followers from pending")
+            Log.w("FollowersActivity", "Filtered out ${data.pending.size - validPending.size} null users from pending")
         }
         if (validPending.isNotEmpty()) {
-            pendingCard.visibility = View.VISIBLE
             validPending.forEach { relation ->
-                // Safe access with ?: to handle nulls (should not happen after filter, but be safe)
-                val user = relation.follower ?: return@forEach
+                val user = relation.user ?: return@forEach
+                val followId = relation.documentId ?: relation.id.toString()
                 val itemView = createFollowerItem(
                     user = user,
                     type = ListType.PENDING,
-                    followId = relation.documentId
+                    followId = followId
                 )
                 pendingList.addView(itemView)
             }
         } else {
-            pendingCard.visibility = View.GONE
+            val emptyView = TextView(this)
+            emptyView.text = "Keine Einträge"
+            emptyView.textSize = 14f
+            emptyView.setPadding(16, 16, 16, 16)
+            pendingList.addView(emptyView)
         }
 
-        // Render followers
-        val validFollowers = data.followers.filter { it.follower != null }
+        // Render followers - Always show header
+        followersCard.visibility = View.VISIBLE
+        val validFollowers = data.followers.filter { it.user != null }
         if (validFollowers.size < data.followers.size) {
-            Log.w("FollowersActivity", "Filtered out ${data.followers.size - validFollowers.size} null followers from followers")
+            Log.w("FollowersActivity", "Filtered out ${data.followers.size - validFollowers.size} null users from followers")
         }
         if (validFollowers.isNotEmpty()) {
-            followersCard.visibility = View.VISIBLE
             validFollowers.forEach { relation ->
-                val user = relation.follower ?: return@forEach
+                val user = relation.user ?: return@forEach
+                val followId = relation.documentId ?: relation.id.toString()
                 val itemView = createFollowerItem(
                     user = user,
                     type = ListType.FOLLOWERS,
-                    followId = relation.documentId
+                    followId = followId
                 )
                 followersList.addView(itemView)
             }
         } else {
-            followersCard.visibility = View.GONE
+            val emptyView = TextView(this)
+            emptyView.text = "Keine Einträge"
+            emptyView.textSize = 14f
+            emptyView.setPadding(16, 16, 16, 16)
+            followersList.addView(emptyView)
         }
 
-        // Render following
-        val validFollowing = data.following.filter { it.following != null }
+        // Render following - Always show header
+        followingCard.visibility = View.VISIBLE
+        val validFollowing = data.following.filter { it.user != null }
         if (validFollowing.size < data.following.size) {
-            Log.w("FollowersActivity", "Filtered out ${data.following.size - validFollowing.size} null following from following")
+            Log.w("FollowersActivity", "Filtered out ${data.following.size - validFollowing.size} null users from following")
         }
         if (validFollowing.isNotEmpty()) {
-            followingCard.visibility = View.VISIBLE
             validFollowing.forEach { relation ->
-                val user = relation.following ?: return@forEach
+                val user = relation.user ?: return@forEach
+                val followId = relation.documentId ?: relation.id.toString()
                 val itemView = createFollowerItem(
                     user = user,
                     type = ListType.FOLLOWING,
-                    followId = relation.documentId,
+                    followId = followId,
                     userDocumentId = user.documentId
                 )
                 followingList.addView(itemView)
             }
         } else {
-            followingCard.visibility = View.GONE
+            val emptyView = TextView(this)
+            emptyView.text = "Keine Einträge"
+            emptyView.textSize = 14f
+            emptyView.setPadding(16, 16, 16, 16)
+            followingList.addView(emptyView)
         }
 
-        // Render blocked
-        val validBlocked = data.blocked.filter { it.follower != null }
+        // Render blocked - Always show header
+        blockedCard.visibility = View.VISIBLE
+        val validBlocked = data.blocked.filter { it.user != null }
         if (validBlocked.size < data.blocked.size) {
-            Log.w("FollowersActivity", "Filtered out ${data.blocked.size - validBlocked.size} null followers from blocked")
+            Log.w("FollowersActivity", "Filtered out ${data.blocked.size - validBlocked.size} null users from blocked")
         }
         if (validBlocked.isNotEmpty()) {
-            blockedCard.visibility = View.VISIBLE
             validBlocked.forEach { relation ->
-                val user = relation.follower ?: return@forEach
+                val user = relation.user ?: return@forEach
+                val followId = relation.documentId ?: relation.id.toString()
                 val itemView = createFollowerItem(
                     user = user,
                     type = ListType.BLOCKED,
-                    followId = relation.documentId
+                    followId = followId
                 )
                 blockedList.addView(itemView)
             }
         } else {
-            blockedCard.visibility = View.GONE
+            val emptyView = TextView(this)
+            emptyView.text = "Keine Einträge"
+            emptyView.textSize = 14f
+            emptyView.setPadding(16, 16, 16, 16)
+            blockedList.addView(emptyView)
         }
     }
 

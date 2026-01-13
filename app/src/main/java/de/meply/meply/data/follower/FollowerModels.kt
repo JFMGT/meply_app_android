@@ -18,15 +18,15 @@ data class AvatarUpload(
 )
 
 /**
- * Follow relationship model
- * Note: follower and following can be null if the user was deleted
+ * Follow relationship model from Strapi API
+ * The API returns a simplified structure with 'user' field
+ * Note: user can be null if the account was deleted
  */
 data class FollowRelation(
     @SerializedName("id") val id: Int,
-    @SerializedName("documentId") val documentId: String,
-    @SerializedName("follower") val follower: FollowerUser?,
-    @SerializedName("following") val following: FollowerUser?,
-    @SerializedName("status") val status: String, // "pending", "accepted", "declined"
+    @SerializedName("documentId") val documentId: String?,
+    @SerializedName("user") val user: FollowerUser?,
+    @SerializedName("status") val status: String?, // "pending", "accepted", "declined"
     @SerializedName("createdAt") val createdAt: String?,
     @SerializedName("updatedAt") val updatedAt: String?
 )
