@@ -152,7 +152,7 @@ class FeedFragment : Fragment() {
                 if (response.isSuccessful) {
                     val feedResponse = response.body()
                     if (feedResponse != null) {
-                        Log.d("FeedFragment", "Response received: ${feedResponse.feed.size} posts, hasMore=${feedResponse.hasMore}, cursor=${feedResponse.cursor?.oldestCreatedAt}")
+                        Log.d("FeedFragment", "Response received: ${feedResponse.feed.size} posts, hasMore=${feedResponse.hasMore}, cursor.hasMore=${feedResponse.cursor?.hasMore}, cursor=${feedResponse.cursor?.oldestCreatedAt}")
 
                         if (reset) {
                             feedAdapter.updatePosts(feedResponse.feed)
@@ -161,7 +161,8 @@ class FeedFragment : Fragment() {
                         }
 
                         currentCursor = feedResponse.cursor?.oldestCreatedAt
-                        hasMore = feedResponse.hasMore
+                        // Use hasMore from cursor if available, otherwise from response
+                        hasMore = feedResponse.cursor?.hasMore ?: feedResponse.hasMore
 
                         Log.d("FeedFragment", "State after load: currentCursor=$currentCursor, hasMore=$hasMore, totalPosts=${posts.size}")
                     } else {
