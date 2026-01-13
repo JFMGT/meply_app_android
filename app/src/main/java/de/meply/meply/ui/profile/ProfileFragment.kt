@@ -1,16 +1,29 @@
 package de.meply.meply.ui.profile
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
+import de.meply.meply.data.feed.ImageUploadResponse
 import de.meply.meply.data.profile.InviteCodesResponse
 import de.meply.meply.data.profile.ProfileItem
 import de.meply.meply.data.profile.ProfileMeData
@@ -18,13 +31,21 @@ import de.meply.meply.data.profile.ProfileResponse
 import de.meply.meply.data.profile.UpdateProfileRequest
 import de.meply.meply.network.ApiClient
 import de.meply.meply.network.ApiService
+import de.meply.meply.utils.AvatarUtils
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.File
+import java.io.FileOutputStream
 
 class ProfileFragment : Fragment() {
 
     private lateinit var progressBar: ProgressBar
+    private lateinit var profileAvatar: ImageView
+    private lateinit var btnChangeAvatar: Button
     private lateinit var editUsername: TextInputEditText
     private lateinit var editBirthDate: TextInputEditText
     private lateinit var spinnerGender: Spinner
@@ -43,8 +64,37 @@ class ProfileFragment : Fragment() {
 
     private var loadedProfile: ProfileItem? = null
     private var currentProfileId: String? = null
+    private var currentAvatarUploadId: Int? = null
+    private var photoUri: Uri? = null
 
     private val genderOptions = listOf("Keine Angabe", "Weiblich", "Männlich", "Divers", "anderes")
+
+    // Activity Result Contracts
+    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && photoUri != null) {
+            uploadAvatar(photoUri!!)
+        }
+    }
+
+    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { uploadAvatar(it) }
+    }
+
+    private val cameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            launchCamera()
+        } else {
+            Toast.makeText(requireContext(), "Kamera-Berechtigung benötigt", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val storagePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            launchGallery()
+        } else {
+            Toast.makeText(requireContext(), "Speicher-Berechtigung benötigt", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,6 +103,8 @@ class ProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
         progressBar = view.findViewById(R.id.profile_progress)
+        profileAvatar = view.findViewById(R.id.profile_avatar)
+        btnChangeAvatar = view.findViewById(R.id.btn_change_avatar)
         editUsername = view.findViewById(R.id.edit_username)
         editBirthDate = view.findViewById(R.id.edit_birth_date)
         spinnerGender = view.findViewById(R.id.spinner_gender)
@@ -73,6 +125,7 @@ class ProfileFragment : Fragment() {
         setupInviteCodesRecycler()
 
         btnSave.setOnClickListener { saveProfile() }
+        btnChangeAvatar.setOnClickListener { showAvatarOptions() }
 
         loadProfile()
         loadInviteCodes()
@@ -136,6 +189,9 @@ class ProfileFragment : Fragment() {
 
     private fun showProfile(profile: ProfileItem) {
         Log.d("ProfileFragment", "Loading profile: ${profile.attributes}")
+
+        // Load avatar - For now we'll fetch from /profiles/me which returns avatar data
+        loadProfileAvatar()
 
         editUsername.setText(profile.attributes?.username ?: "")
         editBirthDate.setText(profile.attributes?.birthDate ?: "")
@@ -277,6 +333,251 @@ class ProfileFragment : Fragment() {
 
     private fun showLoading(isLoading: Boolean) {
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
+    private fun loadProfileAvatar() {
+        // Fetch full profile with avatar from /profiles/me
+        ApiClient.retrofit.getMyProfile()
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
+                override fun onResponse(
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
+                ) {
+                    if (response.isSuccessful) {
+                        val profileData = response.body()?.data
+                        // Check if avatar exists in the API response
+                        // For now, use generated avatar based on user ID
+                        val userId = profileData?.documentId ?: "default"
+                        val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+
+                        Glide.with(this@ProfileFragment)
+                            .load(defaultAvatarUrl)
+                            .circleCrop()
+                            .placeholder(R.drawable.ic_launcher_foreground)
+                            .into(profileAvatar)
+                    }
+                }
+
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
+                    Log.e("ProfileFragment", "Error loading avatar", t)
+                }
+            })
+    }
+
+    private fun showAvatarOptions() {
+        val options = if (currentAvatarUploadId != null) {
+            arrayOf("Foto aufnehmen", "Aus Galerie wählen", "Profilbild löschen", "Abbrechen")
+        } else {
+            arrayOf("Foto aufnehmen", "Aus Galerie wählen", "Abbrechen")
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Profilbild ändern")
+            .setItems(options) { _, which ->
+                when (options[which]) {
+                    "Foto aufnehmen" -> checkCameraPermissionAndLaunch()
+                    "Aus Galerie wählen" -> checkStoragePermissionAndLaunch()
+                    "Profilbild löschen" -> confirmDeleteAvatar()
+                }
+            }
+            .show()
+    }
+
+    private fun checkCameraPermissionAndLaunch() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                launchCamera()
+            }
+            else -> {
+                cameraPermission.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun checkStoragePermissionAndLaunch() {
+        when {
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU -> {
+                // Android 13+: Use READ_MEDIA_IMAGES
+                when {
+                    ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    ) == PackageManager.PERMISSION_GRANTED -> {
+                        launchGallery()
+                    }
+                    else -> {
+                        storagePermission.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                    }
+                }
+            }
+            else -> {
+                // Android 12 and below: Use READ_EXTERNAL_STORAGE
+                when {
+                    ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    ) == PackageManager.PERMISSION_GRANTED -> {
+                        launchGallery()
+                    }
+                    else -> {
+                        storagePermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun launchCamera() {
+        val photoFile = File(requireContext().externalCacheDir, "profile_${System.currentTimeMillis()}.jpg")
+        photoUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            photoFile
+        )
+        takePicture.launch(photoUri)
+    }
+
+    private fun launchGallery() {
+        pickImage.launch("image/*")
+    }
+
+    private fun uploadAvatar(uri: Uri) {
+        showLoading(true)
+
+        try {
+            // Convert URI to File
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val file = File(requireContext().cacheDir, "avatar_upload_${System.currentTimeMillis()}.jpg")
+
+            inputStream?.use { input ->
+                FileOutputStream(file).use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            // Compress image if needed
+            val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+            val compressedFile = File(requireContext().cacheDir, "avatar_compressed_${System.currentTimeMillis()}.jpg")
+            FileOutputStream(compressedFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out)
+            }
+
+            // Create multipart request
+            val requestFile = compressedFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
+            val body = MultipartBody.Part.createFormData("files", compressedFile.name, requestFile)
+
+            // Upload to API
+            ApiClient.retrofit.uploadImage(body)
+                .enqueue(object : Callback<ImageUploadResponse> {
+                    override fun onResponse(
+                        call: Call<ImageUploadResponse>,
+                        response: Response<ImageUploadResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            val uploadId = response.body()?.uploads?.firstOrNull()?.uploadId
+                            if (uploadId != null) {
+                                currentAvatarUploadId = uploadId
+                                updateProfileAvatar(uploadId)
+                            } else {
+                                showLoading(false)
+                                Toast.makeText(requireContext(), "Fehler beim Upload", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            showLoading(false)
+                            Toast.makeText(requireContext(), "Upload fehlgeschlagen: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        }
+
+                        // Clean up temp files
+                        file.delete()
+                        compressedFile.delete()
+                    }
+
+                    override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
+                        showLoading(false)
+                        Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                        file.delete()
+                    }
+                })
+        } catch (e: Exception) {
+            showLoading(false)
+            Toast.makeText(requireContext(), "Fehler beim Verarbeiten des Bildes", Toast.LENGTH_SHORT).show()
+            Log.e("ProfileFragment", "Error processing image", e)
+        }
+    }
+
+    private fun updateProfileAvatar(uploadId: Int) {
+        val updateMap = mutableMapOf<String, Any?>(
+            "avatar" to listOf(uploadId)
+        )
+
+        val request = UpdateProfileRequest(updateMap)
+
+        ApiClient.retrofit.updateMyProfile(request)
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
+                override fun onResponse(
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
+                ) {
+                    showLoading(false)
+                    if (response.isSuccessful) {
+                        Toast.makeText(requireContext(), "Profilbild aktualisiert", Toast.LENGTH_SHORT).show()
+                        loadProfileAvatar()
+                    } else {
+                        Toast.makeText(requireContext(), "Fehler beim Speichern", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
+                    showLoading(false)
+                    Toast.makeText(requireContext(), "Netzwerkfehler", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    private fun confirmDeleteAvatar() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Profilbild löschen")
+            .setMessage("Möchtest du dein Profilbild wirklich löschen?")
+            .setPositiveButton("Löschen") { _, _ ->
+                deleteAvatar()
+            }
+            .setNegativeButton("Abbrechen", null)
+            .show()
+    }
+
+    private fun deleteAvatar() {
+        showLoading(true)
+
+        val updateMap = mutableMapOf<String, Any?>(
+            "avatar" to emptyList<Int>()
+        )
+
+        val request = UpdateProfileRequest(updateMap)
+
+        ApiClient.retrofit.updateMyProfile(request)
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
+                override fun onResponse(
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
+                ) {
+                    showLoading(false)
+                    if (response.isSuccessful) {
+                        currentAvatarUploadId = null
+                        Toast.makeText(requireContext(), "Profilbild gelöscht", Toast.LENGTH_SHORT).show()
+                        loadProfileAvatar()
+                    } else {
+                        Toast.makeText(requireContext(), "Fehler beim Löschen", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
+                    showLoading(false)
+                    Toast.makeText(requireContext(), "Netzwerkfehler", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 }
 
