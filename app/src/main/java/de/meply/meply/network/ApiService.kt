@@ -93,7 +93,7 @@ interface ApiService {
     ): Call<UserMe>
 
     @GET("profiles/me")
-    fun getMyProfile(): Call<ProfileResponse<ProfileItem>>
+    fun getMyProfile(): Call<ProfileResponse<de.meply.meply.data.profile.ProfileMeData>>
 
     @GET("profiles/{id}")
     fun getProfile(@Path("id") profileId: String): Call<ProfileResponse<ProfileItem>>
@@ -101,7 +101,7 @@ interface ApiService {
     @PUT("profiles/me")
     fun updateMyProfile(
         @Body update: UpdateProfileRequest
-    ): Call<ProfileResponse<ProfileItem>>
+    ): Call<ProfileResponse<de.meply.meply.data.profile.ProfileMeData>>
 
     @PUT("profiles/{id}")
     fun updateProfile(

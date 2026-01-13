@@ -50,6 +50,68 @@ data class ProfileResponse<T>(
 )
 
 /**
+ * Special response for /profiles/me endpoint which returns a flat structure
+ * All fields are directly in the data object (not nested in attributes)
+ */
+data class ProfileMeData(
+    @SerializedName("id") val id: Int,
+    @SerializedName("documentId") val documentId: String?,
+    @SerializedName("username") val username: String?,
+    @SerializedName("birthDate") val birthDate: String?,
+    @SerializedName("postalCode") val postalCode: String?,
+    @SerializedName("city") val city: String?,
+    @SerializedName("searchRadius") val searchRadius: Int?,
+    @SerializedName("gender") val gender: String?,
+    @SerializedName("boardgamegeekProfile") val boardgamegeekProfile: String?,
+    @SerializedName("boardGameArenaUsername") val boardGameArenaUsername: String?,
+    @SerializedName("showInUserList") val showInUserList: Boolean?,
+    @SerializedName("followPrivacy") val followPrivacy: String?,
+    @SerializedName("usersCanFollow") val usersCanFollow: String?,
+    @SerializedName("allowProfileView") val allowProfileView: Boolean?,
+    @SerializedName("showBoardGameRatings") val showBoardGameRatings: Boolean?,
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
+    @SerializedName("cords") val cords: Any?  // Can be String or Object
+) {
+    /**
+     * Convert ProfileMeData to ProfileAttributes for use in ProfileItem
+     */
+    fun toProfileAttributes(): ProfileAttributes {
+        return ProfileAttributes(
+            username = username,
+            birthDate = birthDate,
+            postalCode = postalCode,
+            city = city,
+            searchRadius = searchRadius,
+            gender = gender,
+            boardgamegeekProfile = boardgamegeekProfile,
+            boardGameArenaUsername = boardGameArenaUsername,
+            showInUserList = showInUserList,
+            followPrivacy = followPrivacy,
+            usersCanFollow = usersCanFollow,
+            allowProfileView = allowProfileView,
+            showBoardGameRatings = showBoardGameRatings,
+            latitude = latitude,
+            longitude = longitude,
+            cords = when (cords) {
+                is String -> cords
+                else -> null
+            }
+        )
+    }
+
+    /**
+     * Convert ProfileMeData to ProfileItem
+     */
+    fun toProfileItem(): ProfileItem {
+        return ProfileItem(
+            id = id.toString(),
+            attributes = toProfileAttributes()
+        )
+    }
+}
+
+/**
  * Request-Body für Updates:
  * Strapi erwartet { "data": { ... } }
  * Map mit Any? + @JvmSuppressWildcards, damit Retrofit/Gson problemlos serialisiert.

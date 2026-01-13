@@ -13,6 +13,7 @@ import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
 import de.meply.meply.data.profile.InviteCodesResponse
 import de.meply.meply.data.profile.ProfileItem
+import de.meply.meply.data.profile.ProfileMeData
 import de.meply.meply.data.profile.ProfileResponse
 import de.meply.meply.data.profile.UpdateProfileRequest
 import de.meply.meply.network.ApiClient
@@ -97,21 +98,23 @@ class ProfileFragment : Fragment() {
         showLoading(true)
 
         ApiClient.retrofit.getMyProfile()
-            .enqueue(object : Callback<ProfileResponse<ProfileItem>> {
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
                 override fun onResponse(
-                    call: Call<ProfileResponse<ProfileItem>>,
-                    response: Response<ProfileResponse<ProfileItem>>
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
                 ) {
                     showLoading(false)
                     if (response.isSuccessful) {
                         val profileResponse = response.body()
                         Log.d("ProfileFragment", "Profile response: $profileResponse")
-                        val profile = profileResponse?.data
-                        if (profile != null) {
-                            Log.d("ProfileFragment", "Profile ID: ${profile.id}")
-                            Log.d("ProfileFragment", "Profile attributes: ${profile.attributes}")
-                            currentProfileId = profile.id
-                            loadedProfile = profile
+                        val profileMeData = profileResponse?.data
+                        if (profileMeData != null) {
+                            Log.d("ProfileFragment", "Profile ID: ${profileMeData.id}")
+                            Log.d("ProfileFragment", "Profile fields: username=${profileMeData.username}, city=${profileMeData.city}")
+                            // Convert ProfileMeData to ProfileItem for use in the fragment
+                            currentProfileId = profileMeData.id.toString()
+                            loadedProfile = profileMeData.toProfileItem()
+                            Log.d("ProfileFragment", "Converted ProfileItem attributes: ${loadedProfile?.attributes}")
                             showProfile(loadedProfile!!)
                         } else {
                             Log.e("ProfileFragment", "Profile data is null in response")
@@ -123,7 +126,7 @@ class ProfileFragment : Fragment() {
                     }
                 }
 
-                override fun onFailure(call: Call<ProfileResponse<ProfileItem>>, t: Throwable) {
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
                     showLoading(false)
                     Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
                     Log.e("ProfileFragment", "Network error loading profile", t)
@@ -215,17 +218,18 @@ class ProfileFragment : Fragment() {
         val request = UpdateProfileRequest(updateMap)
 
         ApiClient.retrofit.updateMyProfile(request)
-            .enqueue(object : Callback<ProfileResponse<ProfileItem>> {
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
                 override fun onResponse(
-                    call: Call<ProfileResponse<ProfileItem>>,
-                    response: Response<ProfileResponse<ProfileItem>>
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
                 ) {
                     showLoading(false)
                     if (response.isSuccessful) {
                         Toast.makeText(requireContext(), "Profil gespeichert", Toast.LENGTH_SHORT).show()
-                        response.body()?.data?.let {
-                            loadedProfile = it
-                            showProfile(it)
+                        response.body()?.data?.let { profileMeData ->
+                            // Convert ProfileMeData to ProfileItem
+                            loadedProfile = profileMeData.toProfileItem()
+                            showProfile(loadedProfile!!)
                         }
                     } else {
                         Toast.makeText(requireContext(), "Fehler ${response.code()} beim Speichern", Toast.LENGTH_SHORT).show()
@@ -233,7 +237,7 @@ class ProfileFragment : Fragment() {
                     }
                 }
 
-                override fun onFailure(call: Call<ProfileResponse<ProfileItem>>, t: Throwable) {
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
                     showLoading(false)
                     Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
                     Log.e("ProfileFragment", "Network error saving profile", t)
