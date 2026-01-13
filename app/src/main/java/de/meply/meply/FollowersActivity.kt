@@ -208,10 +208,16 @@ class FollowersActivity : BaseDetailActivity() {
         followingList.removeAllViews()
         blockedList.removeAllViews()
 
+        Log.d("FollowersActivity", "Rendering lists - pending: ${data.pending.size}, followers: ${data.followers.size}, following: ${data.following.size}, blocked: ${data.blocked.size}")
+
         // Render pending requests
-        if (data.pending.isNotEmpty()) {
+        val validPending = data.pending.filter { it.follower != null }
+        if (validPending.size < data.pending.size) {
+            Log.w("FollowersActivity", "Filtered out ${data.pending.size - validPending.size} null followers from pending")
+        }
+        if (validPending.isNotEmpty()) {
             pendingCard.visibility = View.VISIBLE
-            data.pending.forEach { relation ->
+            validPending.forEach { relation ->
                 val itemView = createFollowerItem(
                     user = relation.follower,
                     type = ListType.PENDING,
@@ -224,9 +230,13 @@ class FollowersActivity : BaseDetailActivity() {
         }
 
         // Render followers
-        if (data.followers.isNotEmpty()) {
+        val validFollowers = data.followers.filter { it.follower != null }
+        if (validFollowers.size < data.followers.size) {
+            Log.w("FollowersActivity", "Filtered out ${data.followers.size - validFollowers.size} null followers from followers")
+        }
+        if (validFollowers.isNotEmpty()) {
             followersCard.visibility = View.VISIBLE
-            data.followers.forEach { relation ->
+            validFollowers.forEach { relation ->
                 val itemView = createFollowerItem(
                     user = relation.follower,
                     type = ListType.FOLLOWERS,
@@ -239,9 +249,13 @@ class FollowersActivity : BaseDetailActivity() {
         }
 
         // Render following
-        if (data.following.isNotEmpty()) {
+        val validFollowing = data.following.filter { it.following != null }
+        if (validFollowing.size < data.following.size) {
+            Log.w("FollowersActivity", "Filtered out ${data.following.size - validFollowing.size} null following from following")
+        }
+        if (validFollowing.isNotEmpty()) {
             followingCard.visibility = View.VISIBLE
-            data.following.forEach { relation ->
+            validFollowing.forEach { relation ->
                 val itemView = createFollowerItem(
                     user = relation.following,
                     type = ListType.FOLLOWING,
@@ -255,9 +269,13 @@ class FollowersActivity : BaseDetailActivity() {
         }
 
         // Render blocked
-        if (data.blocked.isNotEmpty()) {
+        val validBlocked = data.blocked.filter { it.follower != null }
+        if (validBlocked.size < data.blocked.size) {
+            Log.w("FollowersActivity", "Filtered out ${data.blocked.size - validBlocked.size} null followers from blocked")
+        }
+        if (validBlocked.isNotEmpty()) {
             blockedCard.visibility = View.VISIBLE
-            data.blocked.forEach { relation ->
+            validBlocked.forEach { relation ->
                 val itemView = createFollowerItem(
                     user = relation.follower,
                     type = ListType.BLOCKED,

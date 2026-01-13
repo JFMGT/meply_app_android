@@ -19,12 +19,13 @@ data class AvatarUpload(
 
 /**
  * Follow relationship model
+ * Note: follower and following can be null if the user was deleted
  */
 data class FollowRelation(
     @SerializedName("id") val id: Int,
     @SerializedName("documentId") val documentId: String,
-    @SerializedName("follower") val follower: FollowerUser,
-    @SerializedName("following") val following: FollowerUser,
+    @SerializedName("follower") val follower: FollowerUser?,
+    @SerializedName("following") val following: FollowerUser?,
     @SerializedName("status") val status: String, // "pending", "accepted", "declined"
     @SerializedName("createdAt") val createdAt: String?,
     @SerializedName("updatedAt") val updatedAt: String?
