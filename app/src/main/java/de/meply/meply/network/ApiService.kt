@@ -94,7 +94,7 @@ interface ApiService {
         @Query(value = "populate[profile][populate]", encoded = true) profilePopulate: String = "*"
     ): Call<UserMe>
 
-    @GET("profiles/me")
+    @GET("profiles/me?populate=avatar")
     fun getMyProfile(): Call<ProfileResponse<de.meply.meply.data.profile.ProfileMeData>>
 
     @GET("profiles/{id}")

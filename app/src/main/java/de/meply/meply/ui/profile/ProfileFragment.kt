@@ -344,16 +344,32 @@ class ProfileFragment : Fragment() {
                 ) {
                     if (response.isSuccessful) {
                         val profileData = response.body()?.data
-                        // Check if avatar exists in the API response
-                        // For now, use generated avatar based on user ID
                         val userId = profileData?.documentId ?: "default"
-                        val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
 
-                        Glide.with(this@ProfileFragment)
-                            .load(defaultAvatarUrl)
-                            .circleCrop()
-                            .placeholder(R.drawable.ic_launcher_foreground)
-                            .into(profileAvatar)
+                        // Check if user has uploaded avatar
+                        val avatarUrl = profileData?.avatar?.firstOrNull()?.url
+
+                        if (!avatarUrl.isNullOrEmpty()) {
+                            // User has uploaded avatar - load it
+                            val fullUrl = "https://dev.meply.de$avatarUrl"
+                            currentAvatarUploadId = profileData?.avatar?.firstOrNull()?.id
+
+                            Glide.with(this@ProfileFragment)
+                                .load(fullUrl)
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .into(profileAvatar)
+                        } else {
+                            // No uploaded avatar - use generated one
+                            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+                            currentAvatarUploadId = null
+
+                            Glide.with(this@ProfileFragment)
+                                .load(defaultAvatarUrl)
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .into(profileAvatar)
+                        }
                     }
                 }
 

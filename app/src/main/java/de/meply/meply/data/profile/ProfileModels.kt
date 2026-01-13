@@ -3,6 +3,23 @@ package de.meply.meply.data.profile
 import com.google.gson.annotations.SerializedName
 
 /**
+ * Avatar upload data from Strapi
+ */
+data class AvatarUpload(
+    @SerializedName("id") val id: Int?,
+    @SerializedName("url") val url: String?,
+    @SerializedName("formats") val formats: AvatarFormats?
+)
+
+data class AvatarFormats(
+    @SerializedName("thumbnail") val thumbnail: AvatarFormat?
+)
+
+data class AvatarFormat(
+    @SerializedName("url") val url: String?
+)
+
+/**
  * Entspricht den Profil-Attributen in Strapi.
  * Alle Felder nullable, weil Strapi je nach Nutzer unvollständig zurückliefern kann.
  */
@@ -71,7 +88,8 @@ data class ProfileMeData(
     @SerializedName("showBoardGameRatings") val showBoardGameRatings: Boolean?,
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?,
-    @SerializedName("cords") val cords: Any?  // Can be String or Object
+    @SerializedName("cords") val cords: Any?,  // Can be String or Object
+    @SerializedName("avatar") val avatar: List<AvatarUpload>?
 ) {
     /**
      * Convert ProfileMeData to ProfileAttributes for use in ProfileItem
