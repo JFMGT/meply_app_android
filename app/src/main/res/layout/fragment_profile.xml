@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Benutzername"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_disabled" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Geburtsdatum (YYYY-MM-DD)"
                 android:inputType="date"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_disabled" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -79,6 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:background="@color/background_card"
+            android:textColorHint="@color/text_disabled"
             android:padding="12dp" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -95,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Postleitzahl"
                 android:inputType="number"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_disabled" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -111,7 +112,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Stadt"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_disabled" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -128,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Suchradius (km)"
                 android:inputType="number"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_disabled" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Spieleprofile -->
@@ -156,7 +157,7 @@
                 android:layout_height="wrap_content"
                 android:hint="BoardGameGeek Profil"
                 android:inputType="textUri"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_disabled" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -172,7 +173,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Board Game Arena Benutzername"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_disabled" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Privatsphäre-Einstellungen -->
