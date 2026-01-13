@@ -218,8 +218,10 @@ class FollowersActivity : BaseDetailActivity() {
         if (validPending.isNotEmpty()) {
             pendingCard.visibility = View.VISIBLE
             validPending.forEach { relation ->
+                // Safe access with ?: to handle nulls (should not happen after filter, but be safe)
+                val user = relation.follower ?: return@forEach
                 val itemView = createFollowerItem(
-                    user = relation.follower,
+                    user = user,
                     type = ListType.PENDING,
                     followId = relation.documentId
                 )
@@ -237,8 +239,9 @@ class FollowersActivity : BaseDetailActivity() {
         if (validFollowers.isNotEmpty()) {
             followersCard.visibility = View.VISIBLE
             validFollowers.forEach { relation ->
+                val user = relation.follower ?: return@forEach
                 val itemView = createFollowerItem(
-                    user = relation.follower,
+                    user = user,
                     type = ListType.FOLLOWERS,
                     followId = relation.documentId
                 )
@@ -256,11 +259,12 @@ class FollowersActivity : BaseDetailActivity() {
         if (validFollowing.isNotEmpty()) {
             followingCard.visibility = View.VISIBLE
             validFollowing.forEach { relation ->
+                val user = relation.following ?: return@forEach
                 val itemView = createFollowerItem(
-                    user = relation.following,
+                    user = user,
                     type = ListType.FOLLOWING,
                     followId = relation.documentId,
-                    userDocumentId = relation.following.documentId
+                    userDocumentId = user.documentId
                 )
                 followingList.addView(itemView)
             }
@@ -276,8 +280,9 @@ class FollowersActivity : BaseDetailActivity() {
         if (validBlocked.isNotEmpty()) {
             blockedCard.visibility = View.VISIBLE
             validBlocked.forEach { relation ->
+                val user = relation.follower ?: return@forEach
                 val itemView = createFollowerItem(
-                    user = relation.follower,
+                    user = user,
                     type = ListType.BLOCKED,
                     followId = relation.documentId
                 )
