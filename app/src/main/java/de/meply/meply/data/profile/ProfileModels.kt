@@ -1,31 +1,33 @@
 package de.meply.meply.data.profile
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * Entspricht den Profil-Attributen in Strapi.
  * Alle Felder nullable, weil Strapi je nach Nutzer unvollständig zurückliefern kann.
  */
 data class ProfileAttributes(
-    val username: String?,
-    val birthDate: String?,                 // Format: "YYYY-MM-DD"
-    val postalCode: String?,
-    val city: String?,
-    val searchRadius: Int?,
-    val gender: String?,                    // "none" | "female" | "male" | "diverse" | "other"
-    val boardgamegeekProfile: String?,
-    val boardGameArenaUsername: String?,
-    val showInUserList: Boolean?,
-    val followPrivacy: String?,             // "open" | "request" (deprecated, use usersCanFollow)
-    val usersCanFollow: String?,            // "open" | "request" (current field name)
-    val allowProfileView: Boolean?,
-    val showBoardGameRatings: Boolean?,
+    @SerializedName("username") val username: String?,
+    @SerializedName("birthDate") val birthDate: String?,                 // Format: "YYYY-MM-DD"
+    @SerializedName("postalCode") val postalCode: String?,
+    @SerializedName("city") val city: String?,
+    @SerializedName("searchRadius") val searchRadius: Int?,
+    @SerializedName("gender") val gender: String?,                    // "none" | "female" | "male" | "diverse" | "other"
+    @SerializedName("boardgamegeekProfile") val boardgamegeekProfile: String?,
+    @SerializedName("boardGameArenaUsername") val boardGameArenaUsername: String?,
+    @SerializedName("showInUserList") val showInUserList: Boolean?,
+    @SerializedName("followPrivacy") val followPrivacy: String?,             // "open" | "request" (deprecated, use usersCanFollow)
+    @SerializedName("usersCanFollow") val usersCanFollow: String?,            // "open" | "request" (current field name)
+    @SerializedName("allowProfileView") val allowProfileView: Boolean?,
+    @SerializedName("showBoardGameRatings") val showBoardGameRatings: Boolean?,
 
     // optional/technisch
-    val latitude: Double?,
-    val longitude: Double?,
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
 
     // In PHP wurde 'cords' als JSON-String abgelegt. Wenn ihr später echtes JSON wollt,
     // kann man das in Map<String, Double> ändern.
-    val cords: String?
+    @SerializedName("cords") val cords: String?
 )
 
 /**
@@ -33,8 +35,8 @@ data class ProfileAttributes(
  * { "data": { "id": "...", "attributes": { ... } } }
  */
 data class ProfileItem(
-    val id: String,
-    val attributes: ProfileAttributes? // <- ohne `?`
+    @SerializedName("id") val id: String,
+    @SerializedName("attributes") val attributes: ProfileAttributes?
 )
 
 
@@ -44,7 +46,7 @@ data class ProfileItem(
  * Für PUT/GET von /profiles/... erwarten wir meistens genau dieses Format.
  */
 data class ProfileResponse<T>(
-    val data: T?
+    @SerializedName("data") val data: T?
 )
 
 /**
@@ -53,6 +55,7 @@ data class ProfileResponse<T>(
  * Map mit Any? + @JvmSuppressWildcards, damit Retrofit/Gson problemlos serialisiert.
  */
 data class UpdateProfileRequest(
+    @SerializedName("data")
     @JvmSuppressWildcards
     val data: MutableMap<String, Any?>?
 )

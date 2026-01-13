@@ -52,16 +52,16 @@ interface ApiService {
 
     // User-Model
     data class UserMe(
-        val id: Int,
-        val username: String,
-        val email: String,
-        val profile: ProfileWrapper?
+        @SerializedName("id") val id: Int,
+        @SerializedName("username") val username: String,
+        @SerializedName("email") val email: String,
+        @SerializedName("profile") val profile: ProfileWrapper?
     )
 
     data class ProfileWrapper(
-        val id: String,
-        val documentId: String,
-        val attributes: de.meply.meply.data.profile.ProfileAttributes?
+        @SerializedName("id") val id: String,
+        @SerializedName("documentId") val documentId: String,
+        @SerializedName("attributes") val attributes: de.meply.meply.data.profile.ProfileAttributes?
     )
     data class ProfileData(
         val id: Int,
