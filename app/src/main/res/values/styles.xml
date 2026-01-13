@@ -45,11 +45,18 @@
 
     <!-- Alert Dialog Theme - Dark background with light text -->
     <style name="Theme.Meply.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="android:background">@color/background_card</item>
-        <item name="backgroundTint">@color/background_card</item>
+        <item name="android:background">@color/background</item>
+        <item name="backgroundTint">@color/background</item>
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
-        <item name="colorSurface">@color/background_card</item>
+        <item name="colorSurface">@color/background</item>
         <item name="colorOnSurface">@color/text_primary</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Theme.Meply.AlertDialog.Button</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Theme.Meply.AlertDialog.Button</item>
+    </style>
+
+    <!-- Alert Dialog Button Style -->
+    <style name="Theme.Meply.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_primary</item>
     </style>
 </resources>
