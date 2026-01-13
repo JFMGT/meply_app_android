@@ -4,14 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:fillViewport="true">
+    android:fillViewport="false"
+    android:isScrollContainer="true"
+    android:overScrollMode="ifContentScrolls">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:paddingBottom="100dp">
+        android:paddingBottom="120dp"
+        android:focusableInTouchMode="true">
 
         <ProgressBar
             android:id="@+id/profile_progress"
