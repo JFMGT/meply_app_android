@@ -15,6 +15,7 @@ import de.meply.meply.ui.feed.FeedFragment
 import de.meply.meply.ui.events.EventsFragment
 import de.meply.meply.ui.pm.PmFragment
 import de.meply.meply.ui.profile.ProfileFragment
+import de.meply.meply.ui.followers.FollowersFragment
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 
@@ -24,6 +25,7 @@ class HomeActivity : AppCompatActivity() {
     private val events by lazy { EventsFragment() }
     private val pm by lazy { PmFragment() }
     private val profile by lazy { ProfileFragment() }
+    private val followers by lazy { FollowersFragment() }
 
     private val createPostLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -112,8 +114,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun openFollowers() {
-        val intent = Intent(this, FollowersActivity::class.java)
-        startActivity(intent)
+        switchTo(followers, "followers")
     }
 
     private fun logout() {

@@ -1,19 +1,21 @@
-package de.meply.meply
+package de.meply.meply.ui.followers
 
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.follower.*
 import de.meply.meply.network.ApiClient
@@ -22,9 +24,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class FollowersActivity : BaseDetailActivity() {
+class FollowersFragment : Fragment() {
 
-    private lateinit var toolbar: MaterialToolbar
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var progressBar: ProgressBar
 
@@ -38,37 +39,36 @@ class FollowersActivity : BaseDetailActivity() {
     private lateinit var followingList: LinearLayout
     private lateinit var blockedList: LinearLayout
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_followers)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_followers, container, false)
+    }
 
-        initializeViews()
-        setupToolbar()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        initializeViews(view)
         setupSwipeRefresh()
 
         loadFollowerLists()
     }
 
-    private fun initializeViews() {
-        toolbar = findViewById(R.id.toolbar)
-        swipeRefresh = findViewById(R.id.swipeRefresh)
-        progressBar = findViewById(R.id.progressBar)
+    private fun initializeViews(view: View) {
+        swipeRefresh = view.findViewById(R.id.swipeRefresh)
+        progressBar = view.findViewById(R.id.progressBar)
 
-        pendingCard = findViewById(R.id.pendingCard)
-        followersCard = findViewById(R.id.followersCard)
-        followingCard = findViewById(R.id.followingCard)
-        blockedCard = findViewById(R.id.blockedCard)
+        pendingCard = view.findViewById(R.id.pendingCard)
+        followersCard = view.findViewById(R.id.followersCard)
+        followingCard = view.findViewById(R.id.followingCard)
+        blockedCard = view.findViewById(R.id.blockedCard)
 
-        pendingList = findViewById(R.id.pendingList)
-        followersList = findViewById(R.id.followersList)
-        followingList = findViewById(R.id.followingList)
-        blockedList = findViewById(R.id.blockedList)
-    }
-
-    private fun setupToolbar() {
-        toolbar.setNavigationOnClickListener {
-            finish()
-        }
+        pendingList = view.findViewById(R.id.pendingList)
+        followersList = view.findViewById(R.id.followersList)
+        followingList = view.findViewById(R.id.followingList)
+        blockedList = view.findViewById(R.id.blockedList)
     }
 
     private fun setupSwipeRefresh() {
@@ -78,13 +78,13 @@ class FollowersActivity : BaseDetailActivity() {
     }
 
     private fun loadFollowerLists() {
-        val currentUserId = AuthManager.getUserDocumentId(this)
+        val currentUserId = AuthManager.getUserDocumentId(requireContext())
         if (currentUserId == null) {
-            Toast.makeText(this, "Fehler: Benutzer nicht gefunden", Toast.LENGTH_SHORT).show()
-            Log.e("FollowersActivity", "User documentId is null - check if it's saved on login")
+            Toast.makeText(requireContext(), "Fehler: Benutzer nicht gefunden", Toast.LENGTH_SHORT).show()
+            Log.e("FollowersFragment", "User documentId is null - check if it's saved on login")
             return
         }
-        Log.d("FollowersActivity", "Loading follower lists for user: $currentUserId")
+        Log.d("FollowersFragment", "Loading follower lists for user: $currentUserId")
 
         progressBar.visibility = View.VISIBLE
 
@@ -118,15 +118,15 @@ class FollowersActivity : BaseDetailActivity() {
                     if (response.isSuccessful) {
                         val users = response.body()?.users ?: emptyList()
                         listsData.pending.addAll(users)
-                        Log.d("FollowersActivity", "Loaded ${users.size} pending requests")
+                        Log.d("FollowersFragment", "Loaded ${users.size} pending requests")
                     } else {
-                        Log.e("FollowersActivity", "Error loading pending: ${response.code()} - ${response.message()}")
+                        Log.e("FollowersFragment", "Error loading pending: ${response.code()} - ${response.message()}")
                     }
                     checkComplete()
                 }
 
                 override fun onFailure(call: Call<FollowedByResponse>, t: Throwable) {
-                    Log.e("FollowersActivity", "Error loading pending", t)
+                    Log.e("FollowersFragment", "Error loading pending", t)
                     checkComplete()
                 }
             })
@@ -141,15 +141,15 @@ class FollowersActivity : BaseDetailActivity() {
                     if (response.isSuccessful) {
                         val users = response.body()?.users ?: emptyList()
                         listsData.followers.addAll(users)
-                        Log.d("FollowersActivity", "Loaded ${users.size} followers")
+                        Log.d("FollowersFragment", "Loaded ${users.size} followers")
                     } else {
-                        Log.e("FollowersActivity", "Error loading followers: ${response.code()} - ${response.message()}")
+                        Log.e("FollowersFragment", "Error loading followers: ${response.code()} - ${response.message()}")
                     }
                     checkComplete()
                 }
 
                 override fun onFailure(call: Call<FollowedByResponse>, t: Throwable) {
-                    Log.e("FollowersActivity", "Error loading followers", t)
+                    Log.e("FollowersFragment", "Error loading followers", t)
                     checkComplete()
                 }
             })
@@ -164,15 +164,15 @@ class FollowersActivity : BaseDetailActivity() {
                     if (response.isSuccessful) {
                         val users = response.body()?.users ?: emptyList()
                         listsData.following.addAll(users)
-                        Log.d("FollowersActivity", "Loaded ${users.size} following")
+                        Log.d("FollowersFragment", "Loaded ${users.size} following")
                     } else {
-                        Log.e("FollowersActivity", "Error loading following: ${response.code()} - ${response.message()}")
+                        Log.e("FollowersFragment", "Error loading following: ${response.code()} - ${response.message()}")
                     }
                     checkComplete()
                 }
 
                 override fun onFailure(call: Call<FollowedByResponse>, t: Throwable) {
-                    Log.e("FollowersActivity", "Error loading following", t)
+                    Log.e("FollowersFragment", "Error loading following", t)
                     checkComplete()
                 }
             })
@@ -187,15 +187,15 @@ class FollowersActivity : BaseDetailActivity() {
                     if (response.isSuccessful) {
                         val users = response.body()?.users ?: emptyList()
                         listsData.blocked.addAll(users)
-                        Log.d("FollowersActivity", "Loaded ${users.size} blocked")
+                        Log.d("FollowersFragment", "Loaded ${users.size} blocked")
                     } else {
-                        Log.e("FollowersActivity", "Error loading blocked: ${response.code()} - ${response.message()}")
+                        Log.e("FollowersFragment", "Error loading blocked: ${response.code()} - ${response.message()}")
                     }
                     checkComplete()
                 }
 
                 override fun onFailure(call: Call<FollowedByResponse>, t: Throwable) {
-                    Log.e("FollowersActivity", "Error loading blocked", t)
+                    Log.e("FollowersFragment", "Error loading blocked", t)
                     checkComplete()
                 }
             })
@@ -208,13 +208,13 @@ class FollowersActivity : BaseDetailActivity() {
         followingList.removeAllViews()
         blockedList.removeAllViews()
 
-        Log.d("FollowersActivity", "Rendering lists - pending: ${data.pending.size}, followers: ${data.followers.size}, following: ${data.following.size}, blocked: ${data.blocked.size}")
+        Log.d("FollowersFragment", "Rendering lists - pending: ${data.pending.size}, followers: ${data.followers.size}, following: ${data.following.size}, blocked: ${data.blocked.size}")
 
         // Render pending requests - Always show header
         pendingCard.visibility = View.VISIBLE
         val validPending = data.pending.filter { it.user != null }
         if (validPending.size < data.pending.size) {
-            Log.w("FollowersActivity", "Filtered out ${data.pending.size - validPending.size} null users from pending")
+            Log.w("FollowersFragment", "Filtered out ${data.pending.size - validPending.size} null users from pending")
         }
         if (validPending.isNotEmpty()) {
             validPending.forEach { relation ->
@@ -228,7 +228,7 @@ class FollowersActivity : BaseDetailActivity() {
                 pendingList.addView(itemView)
             }
         } else {
-            val emptyView = TextView(this)
+            val emptyView = TextView(requireContext())
             emptyView.text = "Keine Einträge"
             emptyView.textSize = 14f
             emptyView.setPadding(16, 16, 16, 16)
@@ -239,7 +239,7 @@ class FollowersActivity : BaseDetailActivity() {
         followersCard.visibility = View.VISIBLE
         val validFollowers = data.followers.filter { it.user != null }
         if (validFollowers.size < data.followers.size) {
-            Log.w("FollowersActivity", "Filtered out ${data.followers.size - validFollowers.size} null users from followers")
+            Log.w("FollowersFragment", "Filtered out ${data.followers.size - validFollowers.size} null users from followers")
         }
         if (validFollowers.isNotEmpty()) {
             validFollowers.forEach { relation ->
@@ -253,7 +253,7 @@ class FollowersActivity : BaseDetailActivity() {
                 followersList.addView(itemView)
             }
         } else {
-            val emptyView = TextView(this)
+            val emptyView = TextView(requireContext())
             emptyView.text = "Keine Einträge"
             emptyView.textSize = 14f
             emptyView.setPadding(16, 16, 16, 16)
@@ -264,7 +264,7 @@ class FollowersActivity : BaseDetailActivity() {
         followingCard.visibility = View.VISIBLE
         val validFollowing = data.following.filter { it.user != null }
         if (validFollowing.size < data.following.size) {
-            Log.w("FollowersActivity", "Filtered out ${data.following.size - validFollowing.size} null users from following")
+            Log.w("FollowersFragment", "Filtered out ${data.following.size - validFollowing.size} null users from following")
         }
         if (validFollowing.isNotEmpty()) {
             validFollowing.forEach { relation ->
@@ -279,7 +279,7 @@ class FollowersActivity : BaseDetailActivity() {
                 followingList.addView(itemView)
             }
         } else {
-            val emptyView = TextView(this)
+            val emptyView = TextView(requireContext())
             emptyView.text = "Keine Einträge"
             emptyView.textSize = 14f
             emptyView.setPadding(16, 16, 16, 16)
@@ -290,7 +290,7 @@ class FollowersActivity : BaseDetailActivity() {
         blockedCard.visibility = View.VISIBLE
         val validBlocked = data.blocked.filter { it.user != null }
         if (validBlocked.size < data.blocked.size) {
-            Log.w("FollowersActivity", "Filtered out ${data.blocked.size - validBlocked.size} null users from blocked")
+            Log.w("FollowersFragment", "Filtered out ${data.blocked.size - validBlocked.size} null users from blocked")
         }
         if (validBlocked.isNotEmpty()) {
             validBlocked.forEach { relation ->
@@ -304,7 +304,7 @@ class FollowersActivity : BaseDetailActivity() {
                 blockedList.addView(itemView)
             }
         } else {
-            val emptyView = TextView(this)
+            val emptyView = TextView(requireContext())
             emptyView.text = "Keine Einträge"
             emptyView.textSize = 14f
             emptyView.setPadding(16, 16, 16, 16)
@@ -325,7 +325,7 @@ class FollowersActivity : BaseDetailActivity() {
             ListType.BLOCKED -> blockedList
         }
 
-        val itemView = LayoutInflater.from(this)
+        val itemView = LayoutInflater.from(requireContext())
             .inflate(R.layout.list_item_follower, parentLayout, false)
 
         val avatar = itemView.findViewById<ImageView>(R.id.userAvatar)
@@ -414,7 +414,7 @@ class FollowersActivity : BaseDetailActivity() {
                         loadFollowerLists()
                     } else {
                         Toast.makeText(
-                            this@FollowersActivity,
+                            requireContext(),
                             "Fehler bei der Aktion",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -423,11 +423,11 @@ class FollowersActivity : BaseDetailActivity() {
 
                 override fun onFailure(call: Call<FollowManageResponse>, t: Throwable) {
                     Toast.makeText(
-                        this@FollowersActivity,
+                        requireContext(),
                         "Netzwerkfehler",
                         Toast.LENGTH_SHORT
                     ).show()
-                    Log.e("FollowersActivity", "Error managing follow", t)
+                    Log.e("FollowersFragment", "Error managing follow", t)
                 }
             })
     }
@@ -446,7 +446,7 @@ class FollowersActivity : BaseDetailActivity() {
                         loadFollowerLists()
                     } else {
                         Toast.makeText(
-                            this@FollowersActivity,
+                            requireContext(),
                             "Fehler beim Entfolgen",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -455,11 +455,11 @@ class FollowersActivity : BaseDetailActivity() {
 
                 override fun onFailure(call: Call<FollowToggleResponse>, t: Throwable) {
                     Toast.makeText(
-                        this@FollowersActivity,
+                        requireContext(),
                         "Netzwerkfehler",
                         Toast.LENGTH_SHORT
                     ).show()
-                    Log.e("FollowersActivity", "Error toggling follow", t)
+                    Log.e("FollowersFragment", "Error toggling follow", t)
                 }
             })
     }
