@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import de.meply.meply.R
 import de.meply.meply.data.feed.Post
+import de.meply.meply.utils.AvatarUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -69,17 +70,21 @@ class FeedAdapter(
         // Avatar
         val avatarUrl = post.author.avatar?.firstOrNull()?.formats?.thumbnail?.url
         if (avatarUrl != null) {
+            // User has uploaded avatar
             Glide.with(context)
                 .load(imageBaseUrl + avatarUrl)
                 .circleCrop()
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.avatar)
         } else {
-            // Fallback avatar (use generated avatar like in web version)
-            val hash = post.author.id.hashCode()
-            val avatarIndex = (Math.abs(hash) % 8) + 1
-            // For now, use a simple placeholder. You can add avatar1.png to avatar8.png later
-            holder.avatar.setImageResource(R.drawable.ic_launcher_foreground)
+            // Generate default avatar based on userId (matching PHP implementation)
+            val userId = post.author.userId ?: post.author.documentId
+            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+            Glide.with(context)
+                .load(defaultAvatarUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .into(holder.avatar)
         }
 
         // Meta: timestamp + visibility

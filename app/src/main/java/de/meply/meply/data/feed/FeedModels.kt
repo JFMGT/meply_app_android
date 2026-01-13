@@ -38,6 +38,7 @@ data class Post(
 data class PostAuthor(
     @SerializedName("id") val id: Int,
     @SerializedName("documentId") val documentId: String,
+    @SerializedName("userId") val userId: String? = null,
     @SerializedName("username") val username: String,
     @SerializedName("userslug") val userslug: String?,
     @SerializedName("avatar") val avatar: List<AvatarImage>? = null
