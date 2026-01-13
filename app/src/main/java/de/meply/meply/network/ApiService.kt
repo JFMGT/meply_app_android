@@ -196,6 +196,15 @@ interface ApiService {
     ): Call<List<StrapiUploadResponse>>
 
     /**
+     * Delete uploaded file from Strapi
+     * @param fileId The ID of the file to delete
+     */
+    @DELETE("upload/files/{id}")
+    fun deleteUploadedFile(
+        @Path("id") fileId: Int
+    ): Call<StrapiUploadResponse>
+
+    /**
      * Toggle like on a post
      */
     @POST("likes/toggle")

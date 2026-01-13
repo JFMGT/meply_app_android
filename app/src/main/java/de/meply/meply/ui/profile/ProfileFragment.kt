@@ -529,6 +529,33 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateProfileAvatar(uploadId: Int) {
+        // Delete old avatar file before setting new one
+        val oldAvatarId = currentAvatarUploadId
+        if (oldAvatarId != null && oldAvatarId != uploadId) {
+            ApiClient.retrofit.deleteUploadedFile(oldAvatarId)
+                .enqueue(object : Callback<StrapiUploadResponse> {
+                    override fun onResponse(
+                        call: Call<StrapiUploadResponse>,
+                        response: Response<StrapiUploadResponse>
+                    ) {
+                        Log.d("ProfileFragment", "Old avatar deleted successfully")
+                        // Continue to update profile with new avatar
+                        setNewAvatarInProfile(uploadId)
+                    }
+
+                    override fun onFailure(call: Call<StrapiUploadResponse>, t: Throwable) {
+                        Log.w("ProfileFragment", "Failed to delete old avatar: ${t.message}")
+                        // Continue anyway to set new avatar
+                        setNewAvatarInProfile(uploadId)
+                    }
+                })
+        } else {
+            // No old avatar to delete, just set the new one
+            setNewAvatarInProfile(uploadId)
+        }
+    }
+
+    private fun setNewAvatarInProfile(uploadId: Int) {
         val updateMap = mutableMapOf<String, Any?>(
             "avatar" to listOf(uploadId)
         )
@@ -569,8 +596,34 @@ class ProfileFragment : Fragment() {
     }
 
     private fun deleteAvatar() {
+        val avatarId = currentAvatarUploadId
+        if (avatarId == null) {
+            Toast.makeText(requireContext(), "Kein Avatar zum Löschen vorhanden", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         showLoading(true)
 
+        // First, delete the file from Strapi
+        ApiClient.retrofit.deleteUploadedFile(avatarId)
+            .enqueue(object : Callback<StrapiUploadResponse> {
+                override fun onResponse(
+                    call: Call<StrapiUploadResponse>,
+                    response: Response<StrapiUploadResponse>
+                ) {
+                    // File deleted (or failed), now update profile to remove avatar reference
+                    updateProfileToRemoveAvatar()
+                }
+
+                override fun onFailure(call: Call<StrapiUploadResponse>, t: Throwable) {
+                    Log.w("ProfileFragment", "Failed to delete avatar file: ${t.message}")
+                    // Still try to update profile even if file deletion failed
+                    updateProfileToRemoveAvatar()
+                }
+            })
+    }
+
+    private fun updateProfileToRemoveAvatar() {
         val updateMap = mutableMapOf<String, Any?>(
             "avatar" to emptyList<Int>()
         )
