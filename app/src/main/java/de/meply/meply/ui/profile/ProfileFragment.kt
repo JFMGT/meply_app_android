@@ -286,6 +286,7 @@ fun ApiService.ProfileData.toAttributes(): de.meply.meply.data.profile.ProfileAt
         boardGameArenaUsername = this.boardGameArenaUsername,
         showInUserList = this.showInUserList,
         followPrivacy = this.followPrivacy,
+        usersCanFollow = null,  // Not available in ProfileData, will be fetched separately
         allowProfileView = this.allowProfileView,
         showBoardGameRatings = this.showBoardGameRatings,
         latitude = this.latitude,

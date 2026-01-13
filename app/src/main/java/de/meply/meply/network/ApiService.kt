@@ -1,5 +1,6 @@
 package de.meply.meply.network
 
+import com.google.gson.annotations.SerializedName
 import de.meply.meply.data.events.EventItem
 import de.meply.meply.data.events.StrapiListResponse
 import de.meply.meply.data.events.StrapiSingleResponse
