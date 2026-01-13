@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Events in deiner Nähe"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/text_disabled"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp" />
@@ -41,8 +41,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
+                    app:expandedHintEnabled="true"
                     android:hint="PLZ"
-                    app:hintTextColor="@color/text_secondary">
+                    app:hintTextColor="@color/text_secondary"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="@color/primary" >
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edit_zip"
@@ -50,7 +53,8 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:maxLength="5"
-                        android:textColor="@color/text_primary" />
+                        android:textColor="@color/text_disabled"
+                        />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -58,14 +62,17 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="Radius (km)"
-                    app:hintTextColor="@color/text_secondary">
+                    app:hintTextColor="@color/text_disabled"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="@color/primary"
+                    >
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edit_radius"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
-                        android:textColor="@color/text_primary" />
+                        android:textColor="@color/text_disabled" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -87,7 +94,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerEvents"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="448dp"
             android:clipToPadding="false"
             android:paddingBottom="72dp" />
 
