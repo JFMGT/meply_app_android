@@ -25,7 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.events.EventDetailActivity" />
-        <activity android:name=".HomeActivity"/>
+        <activity android:name=".HomeActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.feed.CreatePostActivity" />
         <activity android:name=".ui.feed.ThreadActivity" />
         <activity android:name=".ui.pm.ConversationActivity"
