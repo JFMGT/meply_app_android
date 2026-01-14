@@ -13,7 +13,9 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import android.content.res.ColorStateList
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -194,6 +196,9 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun showTab(tab: Int) {
+        val activeColor = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary))
+        val transparentColor = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
+
         // Reset all tabs
         tabComparison.visibility = View.GONE
         tabMeetings.visibility = View.GONE
@@ -203,21 +208,27 @@ class UserProfileActivity : BaseDetailActivity() {
         btnTabMeetings.isEnabled = true
         btnTabSales.isEnabled = true
         btnTabPosts.isEnabled = true
-        btnTabComparison.background = null
-        btnTabMeetings.background = null
-        btnTabSales.background = null
-        btnTabPosts.background = null
+
+        // Reset backgrounds - set drawable with transparent tint
+        btnTabComparison.setBackgroundResource(R.drawable.bg_tab_active)
+        btnTabMeetings.setBackgroundResource(R.drawable.bg_tab_active)
+        btnTabSales.setBackgroundResource(R.drawable.bg_tab_active)
+        btnTabPosts.setBackgroundResource(R.drawable.bg_tab_active)
+        btnTabComparison.backgroundTintList = transparentColor
+        btnTabMeetings.backgroundTintList = transparentColor
+        btnTabSales.backgroundTintList = transparentColor
+        btnTabPosts.backgroundTintList = transparentColor
 
         when (tab) {
             TAB_COMPARISON -> {
                 tabComparison.visibility = View.VISIBLE
                 btnTabComparison.isEnabled = false
-                btnTabComparison.setBackgroundResource(R.drawable.bg_tab_active)
+                btnTabComparison.backgroundTintList = activeColor
             }
             TAB_MEETINGS -> {
                 tabMeetings.visibility = View.VISIBLE
                 btnTabMeetings.isEnabled = false
-                btnTabMeetings.setBackgroundResource(R.drawable.bg_tab_active)
+                btnTabMeetings.backgroundTintList = activeColor
 
                 // Load meetings when tab is shown for the first time
                 if (meetingsAdapter.itemCount == 0) {
@@ -227,7 +238,7 @@ class UserProfileActivity : BaseDetailActivity() {
             TAB_SALES -> {
                 tabSales.visibility = View.VISIBLE
                 btnTabSales.isEnabled = false
-                btnTabSales.setBackgroundResource(R.drawable.bg_tab_active)
+                btnTabSales.backgroundTintList = activeColor
 
                 // Load sales when tab is shown for the first time
                 if (!salesLoaded) {
@@ -237,7 +248,7 @@ class UserProfileActivity : BaseDetailActivity() {
             TAB_POSTS -> {
                 tabPosts.visibility = View.VISIBLE
                 btnTabPosts.isEnabled = false
-                btnTabPosts.setBackgroundResource(R.drawable.bg_tab_active)
+                btnTabPosts.backgroundTintList = activeColor
 
                 // Load posts when tab is shown for the first time
                 if (!postsLoaded) {
