@@ -11,127 +11,132 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:fillViewport="true">
 
-            <!-- Header Card with Search -->
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/background_card"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <LinearLayout
+                <!-- Header Card with Search -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginBottom="12dp"
+                    app:cardBackgroundColor="@color/background_card"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Meine Sammlung"
-                        android:textColor="@color/text_on_light"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Verwalte deine Brettspiele, bewerte sie und markiere deinen Status."
-                        android:textColor="@color/text_on_light"
-                        android:textSize="14sp" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Meine Sammlung"
+                            android:textColor="@color/text_on_light"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
 
-                    <EditText
-                        android:id="@+id/search_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Spiel suchen oder hinzufügen..."
-                        android:inputType="text"
-                        android:textColor="@color/text_on_light"
-                        android:textColorHint="@color/text_secondary"
-                        android:background="@drawable/rounded_corner_background"
-                        android:padding="12dp" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Verwalte deine Brettspiele, bewerte sie und markiere deinen Status."
+                            android:textColor="@color/text_on_light"
+                            android:textSize="14sp" />
 
-                    <!-- Search Results Dropdown -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/search_results"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:visibility="gone"
-                        android:background="#F5F5F5"
-                        android:nestedScrollingEnabled="false" />
+                        <EditText
+                            android:id="@+id/search_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:hint="Spiel suchen oder hinzufügen..."
+                            android:inputType="text"
+                            android:textColor="@color/text_on_light"
+                            android:textColorHint="@color/text_secondary"
+                            android:background="@drawable/rounded_corner_background"
+                            android:padding="12dp" />
 
-                    <TextView
-                        android:id="@+id/no_results_hint"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Kein passendes Spiel gefunden."
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:visibility="gone" />
+                        <!-- Search Results Dropdown -->
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/search_results"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:visibility="gone"
+                            android:background="#F5F5F5"
+                            android:nestedScrollingEnabled="false" />
 
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <TextView
+                            android:id="@+id/no_results_hint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Kein passendes Spiel gefunden."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:visibility="gone" />
 
-            <!-- Collection Stats -->
-            <TextView
-                android:id="@+id/collection_stats"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp"
-                android:text="Lade Spiele..." />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-            <!-- Loading Indicator -->
-            <ProgressBar
-                android:id="@+id/loading_progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
-
-            <!-- Empty State -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/empty_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:cardBackgroundColor="@color/background_card"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp">
-
+                <!-- Collection Stats -->
                 <TextView
+                    android:id="@+id/collection_stats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Du hast noch keine Spiele in deiner Sammlung.\nNutze das Suchfeld oben, um Spiele hinzuzufügen."
-                    android:textColor="@color/text_on_light"
-                    android:textAlignment="center" />
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:text="Lade Spiele..." />
 
-            </com.google.android.material.card.MaterialCardView>
+                <!-- Loading Indicator -->
+                <ProgressBar
+                    android:id="@+id/loading_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
 
-            <!-- Games List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/games_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:clipToPadding="false"
-                android:paddingBottom="16dp"
-                android:nestedScrollingEnabled="false" />
+                <!-- Empty State -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/empty_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/background_card"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
 
-        </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:text="Du hast noch keine Spiele in deiner Sammlung.\nNutze das Suchfeld oben, um Spiele hinzuzufügen."
+                        android:textColor="@color/text_on_light"
+                        android:textAlignment="center" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Games List -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/games_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingBottom="16dp"
+                    android:nestedScrollingEnabled="false" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>
