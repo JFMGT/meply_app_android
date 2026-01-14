@@ -3,10 +3,12 @@ package de.meply.meply
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.fragment.app.Fragment
@@ -18,6 +20,12 @@ import de.meply.meply.ui.profile.ProfileFragment
 import de.meply.meply.ui.followers.FollowersFragment
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
+import de.meply.meply.data.profile.ProfileMeData
+import de.meply.meply.data.profile.ProfileResponse
+import de.meply.meply.utils.AvatarUtils
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class HomeActivity : AppCompatActivity() {
 
@@ -54,6 +62,7 @@ class HomeActivity : AppCompatActivity() {
 
         setupToolbar()
         setupBottomNavigation()
+        loadUserAvatar()
     }
 
     private fun setupToolbar() {
@@ -159,5 +168,61 @@ class HomeActivity : AppCompatActivity() {
 
     fun navigateToProfile() {
         switchTo(profile, "profile")
+    }
+
+    fun refreshUserAvatar() {
+        loadUserAvatar()
+    }
+
+    private fun loadUserAvatar() {
+        val userIcon = findViewById<ImageView>(R.id.toolbarUserIcon)
+
+        ApiClient.retrofit.getMyProfile()
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
+                override fun onResponse(
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
+                ) {
+                    if (response.isSuccessful) {
+                        val profileData = response.body()?.data
+                        val userId = profileData?.documentId ?: "default"
+                        val avatarUrl = profileData?.avatar?.firstOrNull()?.url
+
+                        if (!avatarUrl.isNullOrEmpty()) {
+                            // Uploaded avatar exists
+                            val fullUrl = "${ApiClient.STRAPI_IMAGE_BASE}$avatarUrl"
+                            Glide.with(this@HomeActivity)
+                                .load(fullUrl)
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .into(userIcon)
+                        } else {
+                            // Use generated avatar
+                            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+                            Glide.with(this@HomeActivity)
+                                .load(defaultAvatarUrl)
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .into(userIcon)
+                        }
+                    } else {
+                        Log.e("HomeActivity", "Failed to load profile: ${response.code()}")
+                        // Show placeholder on error
+                        Glide.with(this@HomeActivity)
+                            .load(R.drawable.ic_launcher_foreground)
+                            .circleCrop()
+                            .into(userIcon)
+                    }
+                }
+
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
+                    Log.e("HomeActivity", "Error loading profile avatar", t)
+                    // Show placeholder on error
+                    Glide.with(this@HomeActivity)
+                        .load(R.drawable.ic_launcher_foreground)
+                        .circleCrop()
+                        .into(userIcon)
+                }
+            })
     }
 }
