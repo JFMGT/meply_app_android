@@ -87,13 +87,19 @@ class GesucheFragment : Fragment() {
 
                 if (response.isSuccessful) {
                     val meetings = response.body()?.data ?: emptyList()
+                    android.util.Log.d("GesucheFragment", "Loaded ${meetings.size} meetings")
+                    meetings.forEach { m ->
+                        android.util.Log.d("GesucheFragment", "Meeting: ${m.title} by ${m.author?.username}")
+                    }
                     if (meetings.isEmpty()) {
                         emptyStateText.visibility = View.VISIBLE
                     } else {
                         displayMeetings(meetings)
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Fehler beim Laden der Gesuche", Toast.LENGTH_SHORT).show()
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("GesucheFragment", "Error: ${response.code()} - $errorBody")
+                    Toast.makeText(requireContext(), "Fehler beim Laden: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 

@@ -84,8 +84,8 @@ class CreateMeetingActivity : AppCompatActivity() {
 
     private fun setupDateTypeSpinner() {
         val dateTypes = arrayOf("Spezifisches Datum", "Zeitraum", "Wiederkehrend")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, dateTypes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = ArrayAdapter(this, R.layout.spinner_item, dateTypes)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         spinnerDateType.adapter = adapter
 
         spinnerDateType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -107,8 +107,8 @@ class CreateMeetingActivity : AppCompatActivity() {
 
     private fun setupFrequencySpinner() {
         val frequencies = arrayOf("Wöchentlich", "Alle zwei Wochen", "Monatlich")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, frequencies)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = ArrayAdapter(this, R.layout.spinner_item, frequencies)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         spinnerFrequency.adapter = adapter
     }
 
