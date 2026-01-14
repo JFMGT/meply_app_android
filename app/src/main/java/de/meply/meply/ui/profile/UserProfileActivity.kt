@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -22,6 +23,8 @@ import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.events.StrapiListResponse
+import de.meply.meply.data.feed.FeedResponse
+import de.meply.meply.data.feed.Post
 import de.meply.meply.data.meetings.MeetingData
 import de.meply.meply.data.messages.CreateConversationRequest
 import de.meply.meply.data.messages.SendMessageResponse
@@ -30,6 +33,7 @@ import de.meply.meply.data.follower.FollowToggleRequest
 import de.meply.meply.data.follower.FollowToggleResponse
 import de.meply.meply.network.ApiClient
 import de.meply.meply.ui.events.MeetingsAdapter
+import de.meply.meply.ui.feed.FeedAdapter
 import de.meply.meply.utils.AvatarUtils
 import retrofit2.Call
 import retrofit2.Callback
@@ -53,8 +57,12 @@ class UserProfileActivity : BaseDetailActivity() {
     private lateinit var btnFollow: Button
     private lateinit var btnTabComparison: Button
     private lateinit var btnTabMeetings: Button
+    private lateinit var btnTabSales: Button
+    private lateinit var btnTabPosts: Button
     private lateinit var tabComparison: View
     private lateinit var tabMeetings: View
+    private lateinit var tabSales: View
+    private lateinit var tabPosts: View
     private lateinit var mainProgressBar: ProgressBar
 
     // Comparison tab elements
@@ -66,17 +74,31 @@ class UserProfileActivity : BaseDetailActivity() {
     private lateinit var sharedGamesRecycler: RecyclerView
     private lateinit var sharedGamesAdapter: SharedGamesAdapter
 
+    // Flea market / Flohmarkt elements
+    private lateinit var salesProgress: ProgressBar
+    private lateinit var salesEmptyMessage: TextView
+    private lateinit var salesListContainer: LinearLayout
+
     // Meetings tab elements
     private lateinit var meetingsProgress: ProgressBar
     private lateinit var meetingsEmptyMessage: TextView
     private lateinit var meetingsRecycler: RecyclerView
     private lateinit var meetingsAdapter: MeetingsAdapter
 
+    // Posts tab elements
+    private lateinit var postsProgress: ProgressBar
+    private lateinit var postsEmptyMessage: TextView
+    private lateinit var postsRecycler: RecyclerView
+    private lateinit var postsAdapter: FeedAdapter
+    private val userPosts: MutableList<Post> = mutableListOf()
+
     private var userSlug: String? = null
     private var profileData: UserProfileData? = null
     private var currentUserId: String? = null
     private var currentUserProfileId: Int? = null
     private var isFollowing: Boolean = false
+    private var salesLoaded: Boolean = false
+    private var postsLoaded: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,8 +137,12 @@ class UserProfileActivity : BaseDetailActivity() {
         btnFollow = findViewById(R.id.btn_follow)
         btnTabComparison = findViewById(R.id.btn_tab_comparison)
         btnTabMeetings = findViewById(R.id.btn_tab_meetings)
+        btnTabSales = findViewById(R.id.btn_tab_sales)
+        btnTabPosts = findViewById(R.id.btn_tab_posts)
         tabComparison = findViewById(R.id.tab_comparison)
         tabMeetings = findViewById(R.id.tab_meetings)
+        tabSales = findViewById(R.id.tab_sales)
+        tabPosts = findViewById(R.id.tab_posts)
         mainProgressBar = findViewById(R.id.main_progress_bar)
 
         // Comparison tab
@@ -127,10 +153,20 @@ class UserProfileActivity : BaseDetailActivity() {
         sharedGamesMessage = findViewById(R.id.shared_games_message)
         sharedGamesRecycler = findViewById(R.id.shared_games_recycler)
 
+        // Flea market / Flohmarkt
+        salesProgress = findViewById(R.id.sales_progress)
+        salesEmptyMessage = findViewById(R.id.sales_empty_message)
+        salesListContainer = findViewById(R.id.sales_list_container)
+
         // Meetings tab
         meetingsProgress = findViewById(R.id.meetings_progress)
         meetingsEmptyMessage = findViewById(R.id.meetings_empty_message)
         meetingsRecycler = findViewById(R.id.meetings_recycler)
+
+        // Posts tab
+        postsProgress = findViewById(R.id.posts_progress)
+        postsEmptyMessage = findViewById(R.id.posts_empty_message)
+        postsRecycler = findViewById(R.id.posts_recycler)
 
         btnSendMessage.setOnClickListener { onSendMessage() }
         btnFollow.setOnClickListener { onFollowClick() }
@@ -143,6 +179,12 @@ class UserProfileActivity : BaseDetailActivity() {
         btnTabMeetings.setOnClickListener {
             showTab(TAB_MEETINGS)
         }
+        btnTabSales.setOnClickListener {
+            showTab(TAB_SALES)
+        }
+        btnTabPosts.setOnClickListener {
+            showTab(TAB_POSTS)
+        }
         showTab(TAB_COMPARISON)
     }
 
@@ -150,26 +192,54 @@ class UserProfileActivity : BaseDetailActivity() {
         val activeColor = ContextCompat.getColor(this, R.color.primary)
         val inactiveColor = android.graphics.Color.TRANSPARENT
 
+        // Reset all tabs
+        tabComparison.visibility = View.GONE
+        tabMeetings.visibility = View.GONE
+        tabSales.visibility = View.GONE
+        tabPosts.visibility = View.GONE
+        btnTabComparison.isEnabled = true
+        btnTabMeetings.isEnabled = true
+        btnTabSales.isEnabled = true
+        btnTabPosts.isEnabled = true
+        btnTabComparison.setBackgroundColor(inactiveColor)
+        btnTabMeetings.setBackgroundColor(inactiveColor)
+        btnTabSales.setBackgroundColor(inactiveColor)
+        btnTabPosts.setBackgroundColor(inactiveColor)
+
         when (tab) {
             TAB_COMPARISON -> {
                 tabComparison.visibility = View.VISIBLE
-                tabMeetings.visibility = View.GONE
                 btnTabComparison.isEnabled = false
-                btnTabMeetings.isEnabled = true
                 btnTabComparison.setBackgroundColor(activeColor)
-                btnTabMeetings.setBackgroundColor(inactiveColor)
             }
             TAB_MEETINGS -> {
-                tabComparison.visibility = View.GONE
                 tabMeetings.visibility = View.VISIBLE
-                btnTabComparison.isEnabled = true
                 btnTabMeetings.isEnabled = false
-                btnTabComparison.setBackgroundColor(inactiveColor)
                 btnTabMeetings.setBackgroundColor(activeColor)
 
                 // Load meetings when tab is shown for the first time
                 if (meetingsAdapter.itemCount == 0) {
                     loadUserMeetings()
+                }
+            }
+            TAB_SALES -> {
+                tabSales.visibility = View.VISIBLE
+                btnTabSales.isEnabled = false
+                btnTabSales.setBackgroundColor(activeColor)
+
+                // Load sales when tab is shown for the first time
+                if (!salesLoaded) {
+                    loadUserSales()
+                }
+            }
+            TAB_POSTS -> {
+                tabPosts.visibility = View.VISIBLE
+                btnTabPosts.isEnabled = false
+                btnTabPosts.setBackgroundColor(activeColor)
+
+                // Load posts when tab is shown for the first time
+                if (!postsLoaded) {
+                    loadUserPosts()
                 }
             }
         }
@@ -186,6 +256,18 @@ class UserProfileActivity : BaseDetailActivity() {
         )
         meetingsRecycler.layoutManager = LinearLayoutManager(this)
         meetingsRecycler.adapter = meetingsAdapter
+
+        postsAdapter = FeedAdapter(
+            posts = userPosts,
+            onLikeClick = { /* Not implemented in profile view */ },
+            onReplyClick = { /* Not implemented in profile view */ },
+            onShowRepliesClick = { /* Not implemented in profile view */ },
+            onOptionsClick = { _, _ -> /* Not implemented in profile view */ },
+            onImageClick = { _, _ -> /* Not implemented in profile view */ },
+            onAuthorClick = null // Already viewing their profile
+        )
+        postsRecycler.layoutManager = LinearLayoutManager(this)
+        postsRecycler.adapter = postsAdapter
     }
 
     private fun openUserProfile(userSlug: String) {
@@ -434,6 +516,116 @@ class UserProfileActivity : BaseDetailActivity() {
                     sharedGamesProgress.visibility = View.GONE
                     sharedGamesMessage.visibility = View.VISIBLE
                     Log.e(TAG, "Error loading shared games", t)
+                }
+            })
+    }
+
+    private fun loadUserSales() {
+        val profileId = profileData?.id ?: return
+
+        salesProgress.visibility = View.VISIBLE
+        salesEmptyMessage.visibility = View.GONE
+        salesListContainer.visibility = View.GONE
+
+        ApiClient.retrofit.getUserSales(profileId.toString())
+            .enqueue(object : Callback<UserSalesResponse> {
+                override fun onResponse(
+                    call: Call<UserSalesResponse>,
+                    response: Response<UserSalesResponse>
+                ) {
+                    salesProgress.visibility = View.GONE
+                    salesLoaded = true
+
+                    if (response.isSuccessful) {
+                        val sales = response.body()?.sales
+                        if (!sales.isNullOrEmpty()) {
+                            displayUserSales(sales)
+                        } else {
+                            salesEmptyMessage.visibility = View.VISIBLE
+                        }
+                    } else {
+                        salesEmptyMessage.visibility = View.VISIBLE
+                    }
+                }
+
+                override fun onFailure(call: Call<UserSalesResponse>, t: Throwable) {
+                    salesProgress.visibility = View.GONE
+                    salesEmptyMessage.visibility = View.VISIBLE
+                    Log.e(TAG, "Error loading user sales", t)
+                }
+            })
+    }
+
+    private fun displayUserSales(sales: List<UserSaleItem>) {
+        salesListContainer.removeAllViews()
+        salesListContainer.visibility = View.VISIBLE
+        salesEmptyMessage.visibility = View.GONE
+
+        for (sale in sales) {
+            val itemView = layoutInflater.inflate(R.layout.item_user_sale, salesListContainer, false)
+
+            val titleText = itemView.findViewById<TextView>(R.id.sale_title)
+            val detailsText = itemView.findViewById<TextView>(R.id.sale_details)
+
+            titleText.text = sale.title ?: "Unbekanntes Spiel"
+
+            val details = buildString {
+                append(sale.getFormattedPrice())
+                val condition = sale.getLocalizedCondition()
+                if (condition.isNotEmpty()) {
+                    append(" • ")
+                    append(condition)
+                }
+                val delivery = sale.getLocalizedDeliveryOption()
+                if (delivery.isNotEmpty()) {
+                    append(" • ")
+                    append(delivery)
+                }
+                if (sale.tradePossible == true) {
+                    append(" 🔁")
+                }
+            }
+            detailsText.text = details
+
+            salesListContainer.addView(itemView)
+        }
+    }
+
+    private fun loadUserPosts() {
+        val authorId = profileData?.id ?: return
+
+        postsProgress.visibility = View.VISIBLE
+        postsEmptyMessage.visibility = View.GONE
+        postsRecycler.visibility = View.GONE
+
+        ApiClient.retrofit.getFeed(limit = 20, author = authorId.toString())
+            .enqueue(object : Callback<FeedResponse> {
+                override fun onResponse(
+                    call: Call<FeedResponse>,
+                    response: Response<FeedResponse>
+                ) {
+                    postsProgress.visibility = View.GONE
+                    postsLoaded = true
+
+                    if (response.isSuccessful) {
+                        val posts = response.body()?.feed
+                        if (!posts.isNullOrEmpty()) {
+                            userPosts.clear()
+                            userPosts.addAll(posts)
+                            postsAdapter.notifyDataSetChanged()
+                            postsRecycler.visibility = View.VISIBLE
+                        } else {
+                            postsEmptyMessage.visibility = View.VISIBLE
+                        }
+                    } else {
+                        postsEmptyMessage.visibility = View.VISIBLE
+                    }
+                }
+
+                override fun onFailure(call: Call<FeedResponse>, t: Throwable) {
+                    postsProgress.visibility = View.GONE
+                    postsEmptyMessage.visibility = View.VISIBLE
+                    Log.e(TAG, "Error loading user posts", t)
                 }
             })
     }
@@ -702,6 +894,8 @@ class UserProfileActivity : BaseDetailActivity() {
         private const val EXTRA_USER_SLUG = "user_slug"
         private const val TAB_COMPARISON = 0
         private const val TAB_MEETINGS = 1
+        private const val TAB_SALES = 2
+        private const val TAB_POSTS = 3
 
         fun start(context: Context, userSlug: String) {
             val intent = Intent(context, UserProfileActivity::class.java).apply {
