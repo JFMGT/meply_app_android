@@ -527,54 +527,63 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <!-- Headline Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     app:cardBackgroundColor="#FFFFFF"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:text="📝 Beiträge"
+                        android:textColor="@color/text_on_light"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📝 Beiträge"
-                            android:textColor="@color/text_on_light"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <ProgressBar
-                            android:id="@+id/posts_progress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="16dp"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/posts_empty_message"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Hat noch keine Beiträge veröffentlicht."
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            android:fontStyle="italic" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/posts_recycler"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:visibility="gone" />
-
-                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <ProgressBar
+                    android:id="@+id/posts_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone" />
+
+                <!-- Empty Message Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/posts_empty_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
+
+                    <TextView
+                        android:id="@+id/posts_empty_message"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:text="Hat noch keine Beiträge veröffentlicht."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:fontStyle="italic" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Posts RecyclerView (each post in item_post.xml has its own card styling) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/posts_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

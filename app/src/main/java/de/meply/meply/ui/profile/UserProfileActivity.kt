@@ -87,6 +87,7 @@ class UserProfileActivity : BaseDetailActivity() {
 
     // Posts tab elements
     private lateinit var postsProgress: ProgressBar
+    private lateinit var postsEmptyCard: MaterialCardView
     private lateinit var postsEmptyMessage: TextView
     private lateinit var postsRecycler: RecyclerView
     private lateinit var postsAdapter: FeedAdapter
@@ -165,6 +166,7 @@ class UserProfileActivity : BaseDetailActivity() {
 
         // Posts tab
         postsProgress = findViewById(R.id.posts_progress)
+        postsEmptyCard = findViewById(R.id.posts_empty_card)
         postsEmptyMessage = findViewById(R.id.posts_empty_message)
         postsRecycler = findViewById(R.id.posts_recycler)
 
@@ -595,7 +597,7 @@ class UserProfileActivity : BaseDetailActivity() {
         val authorDocId = profileData?.documentId ?: return
 
         postsProgress.visibility = View.VISIBLE
-        postsEmptyMessage.visibility = View.GONE
+        postsEmptyCard.visibility = View.GONE
         postsRecycler.visibility = View.GONE
 
         ApiClient.retrofit.getFeed(limit = 20, author = authorDocId)
@@ -615,16 +617,16 @@ class UserProfileActivity : BaseDetailActivity() {
                             postsAdapter.notifyDataSetChanged()
                             postsRecycler.visibility = View.VISIBLE
                         } else {
-                            postsEmptyMessage.visibility = View.VISIBLE
+                            postsEmptyCard.visibility = View.VISIBLE
                         }
                     } else {
-                        postsEmptyMessage.visibility = View.VISIBLE
+                        postsEmptyCard.visibility = View.VISIBLE
                     }
                 }
 
                 override fun onFailure(call: Call<FeedResponse>, t: Throwable) {
                     postsProgress.visibility = View.GONE
-                    postsEmptyMessage.visibility = View.VISIBLE
+                    postsEmptyCard.visibility = View.VISIBLE
                     Log.e(TAG, "Error loading user posts", t)
                 }
             })
