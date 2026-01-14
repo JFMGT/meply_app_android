@@ -54,8 +54,10 @@ class UserProfileActivity : BaseDetailActivity() {
     private lateinit var btnFollow: Button
     private lateinit var btnTabComparison: Button
     private lateinit var btnTabMeetings: Button
+    private lateinit var btnTabSales: Button
     private lateinit var tabComparison: View
     private lateinit var tabMeetings: View
+    private lateinit var tabSales: View
     private lateinit var mainProgressBar: ProgressBar
 
     // Comparison tab elements
@@ -83,6 +85,7 @@ class UserProfileActivity : BaseDetailActivity() {
     private var currentUserId: String? = null
     private var currentUserProfileId: Int? = null
     private var isFollowing: Boolean = false
+    private var salesLoaded: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,8 +124,10 @@ class UserProfileActivity : BaseDetailActivity() {
         btnFollow = findViewById(R.id.btn_follow)
         btnTabComparison = findViewById(R.id.btn_tab_comparison)
         btnTabMeetings = findViewById(R.id.btn_tab_meetings)
+        btnTabSales = findViewById(R.id.btn_tab_sales)
         tabComparison = findViewById(R.id.tab_comparison)
         tabMeetings = findViewById(R.id.tab_meetings)
+        tabSales = findViewById(R.id.tab_sales)
         mainProgressBar = findViewById(R.id.main_progress_bar)
 
         // Comparison tab
@@ -154,6 +159,9 @@ class UserProfileActivity : BaseDetailActivity() {
         btnTabMeetings.setOnClickListener {
             showTab(TAB_MEETINGS)
         }
+        btnTabSales.setOnClickListener {
+            showTab(TAB_SALES)
+        }
         showTab(TAB_COMPARISON)
     }
 
@@ -161,26 +169,41 @@ class UserProfileActivity : BaseDetailActivity() {
         val activeColor = ContextCompat.getColor(this, R.color.primary)
         val inactiveColor = android.graphics.Color.TRANSPARENT
 
+        // Reset all tabs
+        tabComparison.visibility = View.GONE
+        tabMeetings.visibility = View.GONE
+        tabSales.visibility = View.GONE
+        btnTabComparison.isEnabled = true
+        btnTabMeetings.isEnabled = true
+        btnTabSales.isEnabled = true
+        btnTabComparison.setBackgroundColor(inactiveColor)
+        btnTabMeetings.setBackgroundColor(inactiveColor)
+        btnTabSales.setBackgroundColor(inactiveColor)
+
         when (tab) {
             TAB_COMPARISON -> {
                 tabComparison.visibility = View.VISIBLE
-                tabMeetings.visibility = View.GONE
                 btnTabComparison.isEnabled = false
-                btnTabMeetings.isEnabled = true
                 btnTabComparison.setBackgroundColor(activeColor)
-                btnTabMeetings.setBackgroundColor(inactiveColor)
             }
             TAB_MEETINGS -> {
-                tabComparison.visibility = View.GONE
                 tabMeetings.visibility = View.VISIBLE
-                btnTabComparison.isEnabled = true
                 btnTabMeetings.isEnabled = false
-                btnTabComparison.setBackgroundColor(inactiveColor)
                 btnTabMeetings.setBackgroundColor(activeColor)
 
                 // Load meetings when tab is shown for the first time
                 if (meetingsAdapter.itemCount == 0) {
                     loadUserMeetings()
+                }
+            }
+            TAB_SALES -> {
+                tabSales.visibility = View.VISIBLE
+                btnTabSales.isEnabled = false
+                btnTabSales.setBackgroundColor(activeColor)
+
+                // Load sales when tab is shown for the first time
+                if (!salesLoaded) {
+                    loadUserSales()
                 }
             }
         }
@@ -220,7 +243,6 @@ class UserProfileActivity : BaseDetailActivity() {
                         loadMatchScore()
                         loadFollowStatus()
                         loadSharedGames()
-                        loadUserSales()
                     } else {
                         showError("Profil nicht gefunden")
                     }
@@ -464,6 +486,7 @@ class UserProfileActivity : BaseDetailActivity() {
                     response: Response<UserSalesResponse>
                 ) {
                     salesProgress.visibility = View.GONE
+                    salesLoaded = true
 
                     if (response.isSuccessful) {
                         val sales = response.body()?.sales
@@ -784,6 +807,7 @@ class UserProfileActivity : BaseDetailActivity() {
         private const val EXTRA_USER_SLUG = "user_slug"
         private const val TAB_COMPARISON = 0
         private const val TAB_MEETINGS = 1
+        private const val TAB_SALES = 2
 
         fun start(context: Context, userSlug: String) {
             val intent = Intent(context, UserProfileActivity::class.java).apply {
