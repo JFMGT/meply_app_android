@@ -277,6 +277,17 @@
                         android:text="Flohmarkt"
                         android:textAllCaps="false" />
 
+                    <Button
+                        android:id="@+id/btn_tab_posts"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="8pt"
+                        android:textColor="@color/text_on_light"
+                        android:text="Beiträge"
+                        android:textAllCaps="false" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -500,6 +511,65 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
+                            android:layout_marginTop="8dp"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Tab Content: Posts / Beiträge -->
+            <LinearLayout
+                android:id="@+id/tab_posts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📝 Beiträge"
+                            android:textColor="@color/text_on_light"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ProgressBar
+                            android:id="@+id/posts_progress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="16dp"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/posts_empty_message"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Hat noch keine Beiträge veröffentlicht."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp"
+                            android:fontStyle="italic" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/posts_recycler"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:visibility="gone" />
 
