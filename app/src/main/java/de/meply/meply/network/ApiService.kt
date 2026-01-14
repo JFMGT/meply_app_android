@@ -336,6 +336,15 @@ interface ApiService {
     ): Call<List<de.meply.meply.data.profile.SharedGame>>
 
     /**
+     * Get user's flea market sales listings
+     * @param profileId The profile ID of the user
+     */
+    @GET("user-boardgames/sales/{profileId}")
+    fun getUserSales(
+        @Path("profileId") profileId: String
+    ): Call<de.meply.meply.data.profile.UserSalesResponse>
+
+    /**
      * Check follow status between two users
      * @param userA The user document ID of user A
      * @param userB The user document ID of user B

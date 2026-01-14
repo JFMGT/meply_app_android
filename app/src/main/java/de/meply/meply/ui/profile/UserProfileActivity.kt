@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -65,6 +66,11 @@ class UserProfileActivity : BaseDetailActivity() {
     private lateinit var sharedGamesMessage: TextView
     private lateinit var sharedGamesRecycler: RecyclerView
     private lateinit var sharedGamesAdapter: SharedGamesAdapter
+
+    // Flea market / Flohmarkt elements
+    private lateinit var salesProgress: ProgressBar
+    private lateinit var salesEmptyMessage: TextView
+    private lateinit var salesListContainer: LinearLayout
 
     // Meetings tab elements
     private lateinit var meetingsProgress: ProgressBar
@@ -126,6 +132,11 @@ class UserProfileActivity : BaseDetailActivity() {
         sharedGamesProgress = findViewById(R.id.shared_games_progress)
         sharedGamesMessage = findViewById(R.id.shared_games_message)
         sharedGamesRecycler = findViewById(R.id.shared_games_recycler)
+
+        // Flea market / Flohmarkt
+        salesProgress = findViewById(R.id.sales_progress)
+        salesEmptyMessage = findViewById(R.id.sales_empty_message)
+        salesListContainer = findViewById(R.id.sales_list_container)
 
         // Meetings tab
         meetingsProgress = findViewById(R.id.meetings_progress)
@@ -209,6 +220,7 @@ class UserProfileActivity : BaseDetailActivity() {
                         loadMatchScore()
                         loadFollowStatus()
                         loadSharedGames()
+                        loadUserSales()
                     } else {
                         showError("Profil nicht gefunden")
                     }
@@ -436,6 +448,76 @@ class UserProfileActivity : BaseDetailActivity() {
                     Log.e(TAG, "Error loading shared games", t)
                 }
             })
+    }
+
+    private fun loadUserSales() {
+        val profileId = profileData?.id ?: return
+
+        salesProgress.visibility = View.VISIBLE
+        salesEmptyMessage.visibility = View.GONE
+        salesListContainer.visibility = View.GONE
+
+        ApiClient.retrofit.getUserSales(profileId.toString())
+            .enqueue(object : Callback<UserSalesResponse> {
+                override fun onResponse(
+                    call: Call<UserSalesResponse>,
+                    response: Response<UserSalesResponse>
+                ) {
+                    salesProgress.visibility = View.GONE
+
+                    if (response.isSuccessful) {
+                        val sales = response.body()?.sales
+                        if (!sales.isNullOrEmpty()) {
+                            displayUserSales(sales)
+                        } else {
+                            salesEmptyMessage.visibility = View.VISIBLE
+                        }
+                    } else {
+                        salesEmptyMessage.visibility = View.VISIBLE
+                    }
+                }
+
+                override fun onFailure(call: Call<UserSalesResponse>, t: Throwable) {
+                    salesProgress.visibility = View.GONE
+                    salesEmptyMessage.visibility = View.VISIBLE
+                    Log.e(TAG, "Error loading user sales", t)
+                }
+            })
+    }
+
+    private fun displayUserSales(sales: List<UserSaleItem>) {
+        salesListContainer.removeAllViews()
+        salesListContainer.visibility = View.VISIBLE
+        salesEmptyMessage.visibility = View.GONE
+
+        for (sale in sales) {
+            val itemView = layoutInflater.inflate(R.layout.item_user_sale, salesListContainer, false)
+
+            val titleText = itemView.findViewById<TextView>(R.id.sale_title)
+            val detailsText = itemView.findViewById<TextView>(R.id.sale_details)
+
+            titleText.text = sale.title ?: "Unbekanntes Spiel"
+
+            val details = buildString {
+                append(sale.getFormattedPrice())
+                val condition = sale.getLocalizedCondition()
+                if (condition.isNotEmpty()) {
+                    append(" • ")
+                    append(condition)
+                }
+                val delivery = sale.getLocalizedDeliveryOption()
+                if (delivery.isNotEmpty()) {
+                    append(" • ")
+                    append(delivery)
+                }
+                if (sale.tradePossible == true) {
+                    append(" 🔁")
+                }
+            }
+            detailsText.text = details
+
+            salesListContainer.addView(itemView)
+        }
     }
 
     private fun loadUserMeetings() {
