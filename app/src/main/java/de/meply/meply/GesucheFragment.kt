@@ -2,14 +2,17 @@ package de.meply.meply
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
@@ -20,6 +23,7 @@ import de.meply.meply.data.meeting.Meeting
 import de.meply.meply.data.meeting.MeetingsResponse
 import de.meply.meply.network.ApiClient
 import de.meply.meply.auth.AuthManager
+import de.meply.meply.ui.profile.UserProfileActivity
 import de.meply.meply.utils.AvatarUtils
 import retrofit2.Call
 import retrofit2.Callback
@@ -121,24 +125,32 @@ class GesucheFragment : Fragment() {
     }
 
     private fun createMeetingCard(meeting: Meeting): View {
-        val cardView = MaterialCardView(requireContext()).apply {
+        // Outer FrameLayout to allow absolute positioning of delete button
+        val outerFrame = FrameLayout(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                bottomMargin = 16
+                setMargins(0, 0, 0, dpToPx(12))
             }
-            radius = 8f
-            cardElevation = 2f
+        }
+
+        val cardView = MaterialCardView(requireContext()).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            )
+            radius = dpToPx(12).toFloat()
+            cardElevation = dpToPx(2).toFloat()
             setCardBackgroundColor(resources.getColor(R.color.background_card, null))
         }
 
         val contentLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(16, 16, 16, 16)
+            setPadding(dpToPx(20), dpToPx(20), dpToPx(20), dpToPx(20))
         }
 
-        // Header with avatar and username
+        // Header: Username, City, Type in one line
         val headerLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
@@ -147,69 +159,66 @@ class GesucheFragment : Fragment() {
             )
         }
 
-        val avatar = ImageView(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(48, 48).apply {
-                rightMargin = 12
-            }
-        }
-
-        val avatarUrl = meeting.author?.avatar?.firstOrNull()?.url
-        if (!avatarUrl.isNullOrEmpty()) {
-            Glide.with(this)
-                .load("${ApiClient.STRAPI_IMAGE_BASE}$avatarUrl")
-                .circleCrop()
-                .into(avatar)
-        } else {
-            val userId = meeting.author?.documentId ?: "default"
-            Glide.with(this)
-                .load(AvatarUtils.getDefaultAvatarUrl(userId))
-                .circleCrop()
-                .into(avatar)
-        }
-
-        headerLayout.addView(avatar)
-
-        val userInfoLayout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            )
-        }
-
         val usernameText = TextView(requireContext()).apply {
             text = meeting.author?.username ?: "Unbekannt"
-            textSize = 16f
+            textSize = 14f
             setTextColor(resources.getColor(R.color.text_on_light, null))
             setTypeface(null, android.graphics.Typeface.BOLD)
-        }
-        userInfoLayout.addView(usernameText)
+            isClickable = true
+            isFocusable = true
 
-        val cityText = TextView(requireContext()).apply {
-            text = meeting.author?.city ?: ""
+            // Make username clickable to open profile
+            setOnClickListener {
+                val userSlug = meeting.author?.userslug ?: meeting.author?.documentId
+                if (!userSlug.isNullOrEmpty()) {
+                    UserProfileActivity.start(requireContext(), userSlug)
+                }
+            }
+
+            // Add padding to increase clickable area
+            setPadding(0, dpToPx(4), dpToPx(8), dpToPx(4))
+        }
+        headerLayout.addView(usernameText)
+
+        // Separator dot
+        val separatorText1 = TextView(requireContext()).apply {
+            text = " • "
             textSize = 14f
             setTextColor(resources.getColor(R.color.text_on_light, null))
         }
-        userInfoLayout.addView(cityText)
+        headerLayout.addView(separatorText1)
 
-        headerLayout.addView(userInfoLayout)
-        contentLayout.addView(headerLayout)
+        // City
+        val cityText = TextView(requireContext()).apply {
+            text = meeting.author?.city ?: "Unbekannt"
+            textSize = 14f
+            setTextColor(resources.getColor(R.color.text_on_light, null))
+        }
+        headerLayout.addView(cityText)
 
-        // Location/Event info
+        // Separator dot
+        val separatorText2 = TextView(requireContext()).apply {
+            text = " • "
+            textSize = 14f
+            setTextColor(resources.getColor(R.color.text_on_light, null))
+        }
+        headerLayout.addView(separatorText2)
+
+        // Location/Event type
         val locationInfo = when {
-            meeting.location != null -> meeting.location.titel ?: meeting.location.ort
-            meeting.event != null -> meeting.event.title
+            meeting.location != null -> meeting.location.titel ?: meeting.location.ort ?: "Freies Gesuch"
+            meeting.event != null -> meeting.event.title ?: "Event"
             else -> "Freies Gesuch"
         }
 
-        val locationText = TextView(requireContext()).apply {
+        val locationTypeText = TextView(requireContext()).apply {
             text = locationInfo
             textSize = 14f
             setTextColor(resources.getColor(R.color.text_on_light, null))
-            setPadding(0, 8, 0, 0)
         }
-        contentLayout.addView(locationText)
+        headerLayout.addView(locationTypeText)
+
+        contentLayout.addView(headerLayout)
 
         // Title
         val titleText = TextView(requireContext()).apply {
@@ -217,7 +226,7 @@ class GesucheFragment : Fragment() {
             textSize = 18f
             setTextColor(resources.getColor(R.color.text_on_light, null))
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(0, 12, 0, 0)
+            setPadding(0, dpToPx(12), 0, 0)
         }
         contentLayout.addView(titleText)
 
@@ -226,7 +235,7 @@ class GesucheFragment : Fragment() {
             text = formatMeetingDate(meeting)
             textSize = 14f
             setTextColor(resources.getColor(R.color.text_on_light, null))
-            setPadding(0, 8, 0, 0)
+            setPadding(0, dpToPx(8), 0, 0)
         }
         contentLayout.addView(dateText)
 
@@ -236,34 +245,47 @@ class GesucheFragment : Fragment() {
                 text = meeting.description
                 textSize = 14f
                 setTextColor(resources.getColor(R.color.text_on_light, null))
-                setPadding(0, 8, 0, 0)
+                setPadding(0, dpToPx(8), 0, 0)
             }
             contentLayout.addView(descriptionText)
         }
 
-        // Action buttons
-        val actionsLayout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setPadding(0, 16, 0, 0)
-        }
+        cardView.addView(contentLayout)
+        outerFrame.addView(cardView)
 
+        // Delete button - positioned absolutely in top right corner
         val deleteButton = MaterialButton(requireContext()).apply {
-            text = "Löschen"
-            setIconResource(android.R.drawable.ic_menu_delete)
+            layoutParams = FrameLayout.LayoutParams(
+                dpToPx(40),
+                dpToPx(40)
+            ).apply {
+                gravity = Gravity.TOP or Gravity.END
+                setMargins(0, dpToPx(12), dpToPx(12), 0)
+            }
+
+            // Yellow circle background
+            setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary))
+            cornerRadius = dpToPx(20)
+
+            // Only icon, no text
+            icon = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_delete)
+            iconTint = null // Remove tint to keep original icon color
+            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+            iconPadding = 0
+            insetTop = 0
+            insetBottom = 0
+
             setOnClickListener {
                 deleteMeeting(meeting)
             }
         }
-        actionsLayout.addView(deleteButton)
+        outerFrame.addView(deleteButton)
 
-        contentLayout.addView(actionsLayout)
-        cardView.addView(contentLayout)
+        return outerFrame
+    }
 
-        return cardView
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 
     private fun formatMeetingDate(meeting: Meeting): String {
