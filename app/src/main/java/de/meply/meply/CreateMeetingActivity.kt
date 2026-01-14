@@ -173,7 +173,7 @@ class CreateMeetingActivity : AppCompatActivity() {
         val description = inputDescription.text.toString().trim()
         val dateTypePosition = spinnerDateType.selectedItemPosition
 
-        val (dates, filterDate): Pair<MeetingDatesRequest, String?> = when (dateTypePosition) {
+        val dateInfo: Pair<MeetingDatesRequest, String?> = when (dateTypePosition) {
             0 -> { // Fixed date
                 if (selectedDate == null) {
                     Toast.makeText(this, "Bitte wähle ein Datum aus", Toast.LENGTH_SHORT).show()
@@ -234,6 +234,7 @@ class CreateMeetingActivity : AppCompatActivity() {
             }
             else -> return
         }
+        val (dates, filterDate) = dateInfo
 
         val profileId = AuthManager.getProfileDocumentId(this)
         if (profileId == null) {
