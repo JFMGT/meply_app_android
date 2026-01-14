@@ -592,13 +592,13 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun loadUserPosts() {
-        val authorId = profileData?.id ?: return
+        val authorDocId = profileData?.documentId ?: return
 
         postsProgress.visibility = View.VISIBLE
         postsEmptyMessage.visibility = View.GONE
         postsRecycler.visibility = View.GONE
 
-        ApiClient.retrofit.getFeed(limit = 20, author = authorId.toString())
+        ApiClient.retrofit.getFeed(limit = 20, author = authorDocId)
             .enqueue(object : Callback<FeedResponse> {
                 override fun onResponse(
                     call: Call<FeedResponse>,
