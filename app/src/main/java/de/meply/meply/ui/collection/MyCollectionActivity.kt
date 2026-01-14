@@ -154,8 +154,9 @@ class MyCollectionActivity : BaseDetailActivity() {
 
                 override fun onFailure(call: Call<MyCollectionResponse>, t: Throwable) {
                     loadingProgress.visibility = View.GONE
-                    Log.e(TAG, "Error loading collection", t)
-                    Toast.makeText(this@MyCollectionActivity, "Netzwerkfehler", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "Error loading collection: ${t.message}", t)
+                    t.printStackTrace()
+                    Toast.makeText(this@MyCollectionActivity, "Fehler: ${t.message}", Toast.LENGTH_LONG).show()
                 }
             })
     }
