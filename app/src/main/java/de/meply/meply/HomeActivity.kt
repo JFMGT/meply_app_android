@@ -34,6 +34,7 @@ class HomeActivity : AppCompatActivity() {
     private val pm by lazy { PmFragment() }
     private val profile by lazy { ProfileFragment() }
     private val followers by lazy { FollowersFragment() }
+    private val gesuche by lazy { GesucheFragment() }
 
     private val createPostLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -112,6 +113,10 @@ class HomeActivity : AppCompatActivity() {
                     openFollowers()
                     true
                 }
+                R.id.menu_gesuche -> {
+                    openGesuche()
+                    true
+                }
                 R.id.menu_logout -> {
                     logout()
                     true
@@ -124,6 +129,10 @@ class HomeActivity : AppCompatActivity() {
 
     private fun openFollowers() {
         switchTo(followers, "followers")
+    }
+
+    private fun openGesuche() {
+        switchTo(gesuche, "gesuche")
     }
 
     private fun logout() {

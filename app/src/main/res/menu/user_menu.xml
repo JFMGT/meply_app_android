@@ -7,6 +7,9 @@
         android:id="@+id/menu_followers"
         android:title="Follower" />
     <item
+        android:id="@+id/menu_gesuche"
+        android:title="Meine Gesuche" />
+    <item
         android:id="@+id/menu_logout"
         android:title="Logout" />
 </menu>

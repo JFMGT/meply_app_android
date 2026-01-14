@@ -34,6 +34,7 @@
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".WebViewActivity" />
         <activity android:name=".ui.profile.UserProfileActivity" />
+        <activity android:name=".CreateMeetingActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
