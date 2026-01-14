@@ -36,7 +36,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Follower"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:textSize="24sp"
                         android:textStyle="bold" />
 
@@ -45,7 +45,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Übersicht über offene Anfragen und Leuten die dir folgen oder denen du folgst."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/text_disabled"
                         android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -71,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="🔔 Offene Follow-Anfragen"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -105,7 +105,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="🧍 Menschen die dir folgen"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -139,7 +139,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="🙋 Menschen denen du folgst"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -173,7 +173,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="🚫 Blockierte Anfragen"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
