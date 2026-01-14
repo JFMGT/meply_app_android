@@ -24,7 +24,11 @@ import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.events.StrapiListResponse
 import de.meply.meply.data.feed.FeedResponse
+import de.meply.meply.data.feed.LikeToggleRequest
+import de.meply.meply.data.feed.LikeToggleResponse
 import de.meply.meply.data.feed.Post
+import de.meply.meply.ui.feed.CreatePostActivity
+import de.meply.meply.ui.feed.ThreadActivity
 import de.meply.meply.data.meetings.MeetingData
 import de.meply.meply.data.messages.CreateConversationRequest
 import de.meply.meply.data.messages.SendMessageResponse
@@ -261,11 +265,11 @@ class UserProfileActivity : BaseDetailActivity() {
 
         postsAdapter = FeedAdapter(
             posts = userPosts,
-            onLikeClick = { /* Not implemented in profile view */ },
-            onReplyClick = { /* Not implemented in profile view */ },
-            onShowRepliesClick = { /* Not implemented in profile view */ },
-            onOptionsClick = { _, _ -> /* Not implemented in profile view */ },
-            onImageClick = { _, _ -> /* Not implemented in profile view */ },
+            onLikeClick = { post -> togglePostLike(post) },
+            onReplyClick = { post -> showReplyDialog(post) },
+            onShowRepliesClick = { post -> showThread(post) },
+            onOptionsClick = { _, _ -> /* Not needed in profile view */ },
+            onImageClick = { _, _ -> /* Image gallery not implemented */ },
             onAuthorClick = null // Already viewing their profile
         )
         postsRecycler.layoutManager = LinearLayoutManager(this)
@@ -672,6 +676,50 @@ class UserProfileActivity : BaseDetailActivity() {
                 Log.e(TAG, "Error loading meetings", t)
             }
         })
+    }
+
+    private fun togglePostLike(post: Post) {
+        val request = LikeToggleRequest(
+            targetDocumentId = post.documentId,
+            targetType = "post"
+        )
+
+        ApiClient.retrofit.toggleLike(request).enqueue(object : Callback<LikeToggleResponse> {
+            override fun onResponse(
+                call: Call<LikeToggleResponse>,
+                response: Response<LikeToggleResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val likeResponse = response.body()
+                    if (likeResponse != null) {
+                        // Update post in adapter
+                        val updatedPost = post.copy(
+                            liked = likeResponse.status == "liked",
+                            likeCount = likeResponse.likeCount
+                        )
+                        postsAdapter.updatePost(updatedPost)
+                    }
+                } else {
+                    Toast.makeText(this@UserProfileActivity, "Fehler beim Liken", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
+                Toast.makeText(this@UserProfileActivity, "Netzwerkfehler", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun showReplyDialog(post: Post) {
+        val intent = Intent(this, CreatePostActivity::class.java)
+        intent.putExtra("parentDocumentId", post.documentId)
+        startActivity(intent)
+    }
+
+    private fun showThread(post: Post) {
+        val intent = Intent(this, ThreadActivity::class.java)
+        intent.putExtra("documentId", post.documentId)
+        startActivity(intent)
     }
 
     private fun onSendMessage() {

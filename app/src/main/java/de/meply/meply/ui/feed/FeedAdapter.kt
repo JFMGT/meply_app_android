@@ -63,7 +63,7 @@ class FeedAdapter(
             }
         } else {
             // Reset to default if no callback
-            holder.username.setTextColor(context.getColor(R.color.text_primary))
+            holder.username.setTextColor(context.getColor(R.color.text_on_light))
             holder.username.setOnClickListener(null)
         }
 
