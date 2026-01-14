@@ -1,6 +1,8 @@
 package de.meply.meply.ui.collection
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -28,6 +30,8 @@ class MyCollectionFragment : Fragment() {
 
     companion object {
         private const val TAG = "MyCollectionFragment"
+        private const val SEARCH_DEBOUNCE_MS = 400L
+        private const val PAGE_SIZE = 25
     }
 
     private lateinit var swipeRefresh: SwipeRefreshLayout
@@ -39,8 +43,15 @@ class MyCollectionFragment : Fragment() {
 
     private lateinit var collectionAdapter: CollectionAdapter
 
-    private val allGames = mutableListOf<UserBoardgame>()
-    private var currentFilter: String = ""
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
+    private var currentSearchQuery: String = ""
+
+    private val displayedGames = mutableListOf<UserBoardgame>()
+    private var currentPage = 1
+    private var totalGames = 0
+    private var isLoading = false
+    private var hasMorePages = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,7 +67,8 @@ class MyCollectionFragment : Fragment() {
         initializeViews(view)
         setupAdapters()
         setupSearch()
-        loadCollection()
+        setupScrollListener()
+        loadCollection(resetList = true)
     }
 
     private fun initializeViews(view: View) {
@@ -68,7 +80,7 @@ class MyCollectionFragment : Fragment() {
         gamesRecycler = view.findViewById(R.id.games_recycler)
 
         swipeRefresh.setOnRefreshListener {
-            loadCollection()
+            loadCollection(resetList = true)
         }
     }
 
@@ -87,77 +99,128 @@ class MyCollectionFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                currentFilter = s?.toString()?.trim() ?: ""
-                filterAndDisplayGames()
+                val query = s?.toString()?.trim() ?: ""
+
+                // Cancel pending search
+                searchRunnable?.let { searchHandler.removeCallbacks(it) }
+
+                // Debounce: wait before sending API request
+                searchRunnable = Runnable {
+                    if (query != currentSearchQuery) {
+                        currentSearchQuery = query
+                        loadCollection(resetList = true)
+                    }
+                }
+                searchHandler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_MS)
             }
         })
     }
 
-    private fun loadCollection() {
-        loadingProgress.visibility = View.VISIBLE
-        emptyCard.visibility = View.GONE
-        gamesRecycler.visibility = View.GONE
+    private fun setupScrollListener() {
+        gamesRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
 
-        ApiClient.retrofit.getMyCollection(pageSize = 100)
-            .enqueue(object : Callback<MyCollectionResponse> {
-                override fun onResponse(
-                    call: Call<MyCollectionResponse>,
-                    response: Response<MyCollectionResponse>
-                ) {
-                    if (!isAdded) return
+                if (dy > 0 && hasMorePages && !isLoading) {
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val visibleItemCount = layoutManager.childCount
+                    val totalItemCount = layoutManager.itemCount
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-                    loadingProgress.visibility = View.GONE
-                    swipeRefresh.isRefreshing = false
-
-                    if (response.isSuccessful) {
-                        val collection = response.body()?.results ?: emptyList()
-                        allGames.clear()
-                        allGames.addAll(collection)
-                        filterAndDisplayGames()
-                    } else {
-                        Log.e(TAG, "Error loading collection: ${response.code()}")
-                        Toast.makeText(requireContext(), "Fehler beim Laden: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    // Load more when near the end (5 items before)
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 5) {
+                        loadCollection(resetList = false)
                     }
                 }
-
-                override fun onFailure(call: Call<MyCollectionResponse>, t: Throwable) {
-                    if (!isAdded) return
-
-                    loadingProgress.visibility = View.GONE
-                    swipeRefresh.isRefreshing = false
-                    Log.e(TAG, "Error loading collection: ${t.message}", t)
-                    Toast.makeText(requireContext(), "Fehler: ${t.message}", Toast.LENGTH_LONG).show()
-                }
-            })
+            }
+        })
     }
 
-    private fun filterAndDisplayGames() {
-        val filteredGames = if (currentFilter.isEmpty()) {
-            allGames.toList()
-        } else {
-            allGames.filter { game ->
-                game.title?.contains(currentFilter, ignoreCase = true) == true
-            }
+    private fun loadCollection(resetList: Boolean) {
+        if (isLoading) return
+        isLoading = true
+
+        if (resetList) {
+            currentPage = 1
+            hasMorePages = true
+            displayedGames.clear()
+            loadingProgress.visibility = View.VISIBLE
+            emptyCard.visibility = View.GONE
+            gamesRecycler.visibility = View.GONE
         }
 
-        if (allGames.isEmpty()) {
+        val searchTitle = currentSearchQuery.ifEmpty { null }
+
+        ApiClient.retrofit.getMyCollection(
+            page = currentPage,
+            pageSize = PAGE_SIZE,
+            title = searchTitle
+        ).enqueue(object : Callback<MyCollectionResponse> {
+            override fun onResponse(
+                call: Call<MyCollectionResponse>,
+                response: Response<MyCollectionResponse>
+            ) {
+                if (!isAdded) return
+
+                isLoading = false
+                loadingProgress.visibility = View.GONE
+                swipeRefresh.isRefreshing = false
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val newGames = body?.results ?: emptyList()
+                    val pagination = body?.pagination
+
+                    totalGames = pagination?.total ?: newGames.size
+                    val pageCount = pagination?.pageCount ?: 1
+                    hasMorePages = currentPage < pageCount
+
+                    displayedGames.addAll(newGames)
+                    currentPage++
+
+                    updateUI()
+                } else {
+                    Log.e(TAG, "Error loading collection: ${response.code()}")
+                    Toast.makeText(requireContext(), "Fehler beim Laden: ${response.code()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<MyCollectionResponse>, t: Throwable) {
+                if (!isAdded) return
+
+                isLoading = false
+                loadingProgress.visibility = View.GONE
+                swipeRefresh.isRefreshing = false
+                Log.e(TAG, "Error loading collection: ${t.message}", t)
+                Toast.makeText(requireContext(), "Fehler: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
+    private fun updateUI() {
+        if (displayedGames.isEmpty()) {
             emptyCard.visibility = View.VISIBLE
             gamesRecycler.visibility = View.GONE
-            collectionStats.text = "Keine Spiele in deiner Sammlung"
-        } else if (filteredGames.isEmpty()) {
-            emptyCard.visibility = View.GONE
-            gamesRecycler.visibility = View.VISIBLE
-            collectionStats.text = "Keine Treffer für \"$currentFilter\" (${allGames.size} Spiele gesamt)"
-            collectionAdapter.submitList(emptyList())
+            if (currentSearchQuery.isNotEmpty()) {
+                collectionStats.text = "Keine Treffer für \"$currentSearchQuery\""
+            } else {
+                collectionStats.text = "Keine Spiele in deiner Sammlung"
+            }
         } else {
             emptyCard.visibility = View.GONE
             gamesRecycler.visibility = View.VISIBLE
-            if (currentFilter.isEmpty()) {
-                collectionStats.text = "${allGames.size} Spiele in deiner Sammlung"
+
+            if (currentSearchQuery.isNotEmpty()) {
+                collectionStats.text = "${displayedGames.size} von $totalGames Treffern für \"$currentSearchQuery\""
             } else {
-                collectionStats.text = "${filteredGames.size} von ${allGames.size} Spielen"
+                if (displayedGames.size < totalGames) {
+                    collectionStats.text = "${displayedGames.size} von $totalGames Spielen geladen"
+                } else {
+                    collectionStats.text = "$totalGames Spiele in deiner Sammlung"
+                }
             }
-            collectionAdapter.submitList(filteredGames)
+
+            collectionAdapter.submitList(displayedGames.toList())
         }
     }
 
@@ -222,8 +285,9 @@ class MyCollectionFragment : Fragment() {
                     if (!isAdded) return
 
                     if (response.isSuccessful) {
-                        allGames.removeAll { it.id == game.id }
-                        filterAndDisplayGames()
+                        displayedGames.removeAll { it.id == game.id }
+                        totalGames--
+                        updateUI()
                         Toast.makeText(requireContext(), "Spiel entfernt", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(requireContext(), "Fehler beim Entfernen", Toast.LENGTH_SHORT).show()
