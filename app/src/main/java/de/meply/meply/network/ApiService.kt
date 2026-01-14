@@ -489,7 +489,7 @@ interface ApiService {
      */
     @PUT("user-boardgames/update/{entryId}")
     fun updateUserBoardgame(
-        @Path("entryId") entryId: Int,
+        @Path("entryId") entryId: String,
         @Body request: de.meply.meply.data.collection.UpdateUserBoardgameRequest
     ): Call<de.meply.meply.data.collection.CollectionActionResponse>
 
@@ -499,7 +499,7 @@ interface ApiService {
      */
     @DELETE("user-boardgames/{entryId}")
     fun removeFromCollection(
-        @Path("entryId") entryId: Int
+        @Path("entryId") entryId: String
     ): Call<de.meply.meply.data.collection.CollectionActionResponse>
 
 

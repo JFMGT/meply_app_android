@@ -21,7 +21,7 @@ data class CollectionPagination(
  * A boardgame in the user's collection
  */
 data class UserBoardgame(
-    @SerializedName("id") val id: Int,
+    @SerializedName("id") val id: String,
     @SerializedName("documentId") val documentId: String?,
     @SerializedName("title") val title: String?,
     @SerializedName("rating") val rating: Float?,
