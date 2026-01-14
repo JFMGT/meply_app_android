@@ -58,32 +58,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:hint="Spiel suchen oder hinzufügen..."
+                            android:hint="Sammlung filtern..."
                             android:inputType="text"
                             android:textColor="@color/text_on_light"
                             android:textColorHint="@color/text_secondary"
                             android:background="@drawable/rounded_corner_background"
                             android:padding="12dp" />
-
-                        <!-- Search Results Dropdown -->
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/search_results"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:visibility="gone"
-                            android:background="#F5F5F5"
-                            android:nestedScrollingEnabled="false" />
-
-                        <TextView
-                            android:id="@+id/no_results_hint"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Kein passendes Spiel gefunden."
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
-                            android:visibility="gone" />
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
