@@ -14,7 +14,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -195,9 +194,6 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun showTab(tab: Int) {
-        val activeColor = ContextCompat.getColor(this, R.color.primary)
-        val inactiveColor = android.graphics.Color.TRANSPARENT
-
         // Reset all tabs
         tabComparison.visibility = View.GONE
         tabMeetings.visibility = View.GONE
@@ -207,21 +203,21 @@ class UserProfileActivity : BaseDetailActivity() {
         btnTabMeetings.isEnabled = true
         btnTabSales.isEnabled = true
         btnTabPosts.isEnabled = true
-        btnTabComparison.setBackgroundColor(inactiveColor)
-        btnTabMeetings.setBackgroundColor(inactiveColor)
-        btnTabSales.setBackgroundColor(inactiveColor)
-        btnTabPosts.setBackgroundColor(inactiveColor)
+        btnTabComparison.background = null
+        btnTabMeetings.background = null
+        btnTabSales.background = null
+        btnTabPosts.background = null
 
         when (tab) {
             TAB_COMPARISON -> {
                 tabComparison.visibility = View.VISIBLE
                 btnTabComparison.isEnabled = false
-                btnTabComparison.setBackgroundColor(activeColor)
+                btnTabComparison.setBackgroundResource(R.drawable.bg_tab_active)
             }
             TAB_MEETINGS -> {
                 tabMeetings.visibility = View.VISIBLE
                 btnTabMeetings.isEnabled = false
-                btnTabMeetings.setBackgroundColor(activeColor)
+                btnTabMeetings.setBackgroundResource(R.drawable.bg_tab_active)
 
                 // Load meetings when tab is shown for the first time
                 if (meetingsAdapter.itemCount == 0) {
@@ -231,7 +227,7 @@ class UserProfileActivity : BaseDetailActivity() {
             TAB_SALES -> {
                 tabSales.visibility = View.VISIBLE
                 btnTabSales.isEnabled = false
-                btnTabSales.setBackgroundColor(activeColor)
+                btnTabSales.setBackgroundResource(R.drawable.bg_tab_active)
 
                 // Load sales when tab is shown for the first time
                 if (!salesLoaded) {
@@ -241,7 +237,7 @@ class UserProfileActivity : BaseDetailActivity() {
             TAB_POSTS -> {
                 tabPosts.visibility = View.VISIBLE
                 btnTabPosts.isEnabled = false
-                btnTabPosts.setBackgroundColor(activeColor)
+                btnTabPosts.setBackgroundResource(R.drawable.bg_tab_active)
 
                 // Load posts when tab is shown for the first time
                 if (!postsLoaded) {

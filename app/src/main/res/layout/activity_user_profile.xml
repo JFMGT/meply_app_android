@@ -239,56 +239,67 @@
                 app:cardCornerRadius="8dp"
                 app:cardElevation="1dp">
 
-                <LinearLayout
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:scrollbars="none"
+                    android:fillViewport="true">
 
-                    <Button
-                        android:id="@+id/btn_tab_comparison"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8pt"
-                        android:textColor="@color/text_on_light"
-                        android:text="Vergleich"
-                        android:textAllCaps="false" />
+                        android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btn_tab_meetings"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8pt"
-                        android:textColor="@color/text_on_light"
-                        android:text="Gesuche"
-                        android:textAllCaps="false" />
+                        <Button
+                            android:id="@+id/btn_tab_comparison"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_on_light"
+                            android:text="Vergleich"
+                            android:textAllCaps="false" />
 
-                    <Button
-                        android:id="@+id/btn_tab_sales"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8pt"
-                        android:textColor="@color/text_on_light"
-                        android:text="Flohmarkt"
-                        android:textAllCaps="false" />
+                        <Button
+                            android:id="@+id/btn_tab_meetings"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_on_light"
+                            android:text="Gesuche"
+                            android:textAllCaps="false" />
 
-                    <Button
-                        android:id="@+id/btn_tab_posts"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8pt"
-                        android:textColor="@color/text_on_light"
-                        android:text="Beiträge"
-                        android:textAllCaps="false" />
+                        <Button
+                            android:id="@+id/btn_tab_sales"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_on_light"
+                            android:text="Flohmarkt"
+                            android:textAllCaps="false" />
 
-                </LinearLayout>
+                        <Button
+                            android:id="@+id/btn_tab_posts"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_on_light"
+                            android:text="Beiträge"
+                            android:textAllCaps="false" />
+
+                    </LinearLayout>
+                </HorizontalScrollView>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Tab Content: Comparison -->
