@@ -111,125 +111,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Stats Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/stats_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <!-- Matching Score Row -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/match_score"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/text_disabled"
-                                android:textSize="20sp"
-                                android:textStyle="bold"
-                                tools:text="75%" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Match"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/shared_count"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/text_disabled"
-                                android:textSize="20sp"
-                                android:textStyle="bold"
-                                tools:text="12" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Gemeinsam"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/distance"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/text_disabled"
-                                android:textSize="20sp"
-                                android:textStyle="bold"
-                                tools:text="15 km" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Entfernung"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <!-- Follow Button -->
-                    <Button
-                        android:id="@+id/btn_follow"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="➕ Folgen"
-                        android:textAllCaps="false" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- No Data Message -->
-            <TextView
-                android:id="@+id/no_stats_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="16dp"
-                android:text="❓ Nicht genug Daten verfügbar"
-                android:textColor="@color/text_secondary"
-                android:visibility="gone" />
-
             <!-- Tab Buttons -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -239,56 +120,67 @@
                 app:cardCornerRadius="8dp"
                 app:cardElevation="1dp">
 
-                <LinearLayout
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:scrollbars="none"
+                    android:fillViewport="true">
 
-                    <Button
-                        android:id="@+id/btn_tab_comparison"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8pt"
-                        android:textColor="@color/text_on_light"
-                        android:text="Vergleich"
-                        android:textAllCaps="false" />
+                        android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btn_tab_meetings"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8pt"
-                        android:textColor="@color/text_on_light"
-                        android:text="Gesuche"
-                        android:textAllCaps="false" />
+                        <Button
+                            android:id="@+id/btn_tab_comparison"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_on_light"
+                            android:text="Vergleich"
+                            android:textAllCaps="false" />
 
-                    <Button
-                        android:id="@+id/btn_tab_sales"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8pt"
-                        android:textColor="@color/text_on_light"
-                        android:text="Flohmarkt"
-                        android:textAllCaps="false" />
+                        <Button
+                            android:id="@+id/btn_tab_meetings"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_on_light"
+                            android:text="Gesuche"
+                            android:textAllCaps="false" />
 
-                    <Button
-                        android:id="@+id/btn_tab_posts"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="8pt"
-                        android:textColor="@color/text_on_light"
-                        android:text="Beiträge"
-                        android:textAllCaps="false" />
+                        <Button
+                            android:id="@+id/btn_tab_sales"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_on_light"
+                            android:text="Flohmarkt"
+                            android:textAllCaps="false" />
 
-                </LinearLayout>
+                        <Button
+                            android:id="@+id/btn_tab_posts"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_on_light"
+                            android:text="Beiträge"
+                            android:textAllCaps="false" />
+
+                    </LinearLayout>
+                </HorizontalScrollView>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Tab Content: Comparison -->
@@ -298,6 +190,125 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="visible">
+
+                <!-- Stats Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/stats_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Matching Score Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:id="@+id/match_score"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/text_on_light"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold"
+                                    tools:text="75%" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Match"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:id="@+id/shared_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/text_on_light"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold"
+                                    tools:text="12" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Gemeinsam"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:id="@+id/distance"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/text_on_light"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold"
+                                    tools:text="15 km" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Entfernung"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Follow Button -->
+                        <Button
+                            android:id="@+id/btn_follow"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="➕ Folgen"
+                            android:textAllCaps="false" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- No Data Message -->
+                <TextView
+                    android:id="@+id/no_stats_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="12dp"
+                    android:text="❓ Nicht genug Daten verfügbar"
+                    android:textColor="@color/text_secondary"
+                    android:visibility="gone" />
 
                 <!-- External Profiles -->
                 <com.google.android.material.card.MaterialCardView
@@ -409,53 +420,41 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <!-- Progress -->
+                <ProgressBar
+                    android:id="@+id/meetings_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone" />
+
+                <!-- Empty Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/meetings_empty_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     app:cardBackgroundColor="#FFFFFF"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/meetings_empty_message"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:text="Hat noch keine Gesuche veröffentlicht."
+                        android:textColor="@color/text_secondary" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Suchanfragen des Nutzers"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <ProgressBar
-                            android:id="@+id/meetings_progress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="16dp"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/meetings_empty_message"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Keine Spieltreffen gefunden."
-                            android:textColor="@color/text_secondary"
-                            android:visibility="gone" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/meetings_recycler"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:visibility="gone" />
-
-                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Meetings RecyclerView (items have their own cards) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/meetings_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -467,55 +466,42 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <!-- Progress -->
+                <ProgressBar
+                    android:id="@+id/sales_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone" />
+
+                <!-- Empty Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/sales_empty_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     app:cardBackgroundColor="#FFFFFF"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/sales_empty_message"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:text="Bietet derzeit keine Spiele zum Verkauf an."
+                        android:textColor="@color/text_secondary" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🏷️ Angebote auf dem Flohmarkt"
-                            android:textColor="@color/text_on_light"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <ProgressBar
-                            android:id="@+id/sales_progress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="16dp"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/sales_empty_message"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Bietet derzeit keine Spiele zum Verkauf an."
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            android:fontStyle="italic" />
-
-                        <LinearLayout
-                            android:id="@+id/sales_list_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_marginTop="8dp"
-                            android:visibility="gone" />
-
-                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Sales items container (items have their own cards) -->
+                <LinearLayout
+                    android:id="@+id/sales_list_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -527,54 +513,43 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <ProgressBar
+                    android:id="@+id/posts_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone" />
+
+                <!-- Empty Message Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/posts_empty_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     app:cardBackgroundColor="#FFFFFF"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/posts_empty_message"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:text="Hat noch keine Beiträge veröffentlicht."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:fontStyle="italic" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📝 Beiträge"
-                            android:textColor="@color/text_on_light"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <ProgressBar
-                            android:id="@+id/posts_progress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="16dp"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/posts_empty_message"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Hat noch keine Beiträge veröffentlicht."
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
-                            android:fontStyle="italic" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/posts_recycler"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:visibility="gone" />
-
-                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Posts RecyclerView (each post in item_post.xml has its own card styling) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/posts_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

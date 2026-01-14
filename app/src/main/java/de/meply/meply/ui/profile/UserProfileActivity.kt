@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import android.content.res.ColorStateList
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,7 +25,11 @@ import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.events.StrapiListResponse
 import de.meply.meply.data.feed.FeedResponse
+import de.meply.meply.data.feed.LikeToggleRequest
+import de.meply.meply.data.feed.LikeToggleResponse
 import de.meply.meply.data.feed.Post
+import de.meply.meply.ui.feed.CreatePostActivity
+import de.meply.meply.ui.feed.ThreadActivity
 import de.meply.meply.data.meetings.MeetingData
 import de.meply.meply.data.messages.CreateConversationRequest
 import de.meply.meply.data.messages.SendMessageResponse
@@ -76,17 +81,20 @@ class UserProfileActivity : BaseDetailActivity() {
 
     // Flea market / Flohmarkt elements
     private lateinit var salesProgress: ProgressBar
+    private lateinit var salesEmptyCard: MaterialCardView
     private lateinit var salesEmptyMessage: TextView
     private lateinit var salesListContainer: LinearLayout
 
     // Meetings tab elements
     private lateinit var meetingsProgress: ProgressBar
+    private lateinit var meetingsEmptyCard: MaterialCardView
     private lateinit var meetingsEmptyMessage: TextView
     private lateinit var meetingsRecycler: RecyclerView
     private lateinit var meetingsAdapter: MeetingsAdapter
 
     // Posts tab elements
     private lateinit var postsProgress: ProgressBar
+    private lateinit var postsEmptyCard: MaterialCardView
     private lateinit var postsEmptyMessage: TextView
     private lateinit var postsRecycler: RecyclerView
     private lateinit var postsAdapter: FeedAdapter
@@ -155,16 +163,19 @@ class UserProfileActivity : BaseDetailActivity() {
 
         // Flea market / Flohmarkt
         salesProgress = findViewById(R.id.sales_progress)
+        salesEmptyCard = findViewById(R.id.sales_empty_card)
         salesEmptyMessage = findViewById(R.id.sales_empty_message)
         salesListContainer = findViewById(R.id.sales_list_container)
 
         // Meetings tab
         meetingsProgress = findViewById(R.id.meetings_progress)
+        meetingsEmptyCard = findViewById(R.id.meetings_empty_card)
         meetingsEmptyMessage = findViewById(R.id.meetings_empty_message)
         meetingsRecycler = findViewById(R.id.meetings_recycler)
 
         // Posts tab
         postsProgress = findViewById(R.id.posts_progress)
+        postsEmptyCard = findViewById(R.id.posts_empty_card)
         postsEmptyMessage = findViewById(R.id.posts_empty_message)
         postsRecycler = findViewById(R.id.posts_recycler)
 
@@ -189,8 +200,8 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun showTab(tab: Int) {
-        val activeColor = ContextCompat.getColor(this, R.color.primary)
-        val inactiveColor = android.graphics.Color.TRANSPARENT
+        val activeColor = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary))
+        val transparentColor = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
 
         // Reset all tabs
         tabComparison.visibility = View.GONE
@@ -201,21 +212,27 @@ class UserProfileActivity : BaseDetailActivity() {
         btnTabMeetings.isEnabled = true
         btnTabSales.isEnabled = true
         btnTabPosts.isEnabled = true
-        btnTabComparison.setBackgroundColor(inactiveColor)
-        btnTabMeetings.setBackgroundColor(inactiveColor)
-        btnTabSales.setBackgroundColor(inactiveColor)
-        btnTabPosts.setBackgroundColor(inactiveColor)
+
+        // Reset backgrounds - set drawable with transparent tint
+        btnTabComparison.setBackgroundResource(R.drawable.bg_tab_active)
+        btnTabMeetings.setBackgroundResource(R.drawable.bg_tab_active)
+        btnTabSales.setBackgroundResource(R.drawable.bg_tab_active)
+        btnTabPosts.setBackgroundResource(R.drawable.bg_tab_active)
+        btnTabComparison.backgroundTintList = transparentColor
+        btnTabMeetings.backgroundTintList = transparentColor
+        btnTabSales.backgroundTintList = transparentColor
+        btnTabPosts.backgroundTintList = transparentColor
 
         when (tab) {
             TAB_COMPARISON -> {
                 tabComparison.visibility = View.VISIBLE
                 btnTabComparison.isEnabled = false
-                btnTabComparison.setBackgroundColor(activeColor)
+                btnTabComparison.backgroundTintList = activeColor
             }
             TAB_MEETINGS -> {
                 tabMeetings.visibility = View.VISIBLE
                 btnTabMeetings.isEnabled = false
-                btnTabMeetings.setBackgroundColor(activeColor)
+                btnTabMeetings.backgroundTintList = activeColor
 
                 // Load meetings when tab is shown for the first time
                 if (meetingsAdapter.itemCount == 0) {
@@ -225,7 +242,7 @@ class UserProfileActivity : BaseDetailActivity() {
             TAB_SALES -> {
                 tabSales.visibility = View.VISIBLE
                 btnTabSales.isEnabled = false
-                btnTabSales.setBackgroundColor(activeColor)
+                btnTabSales.backgroundTintList = activeColor
 
                 // Load sales when tab is shown for the first time
                 if (!salesLoaded) {
@@ -235,7 +252,7 @@ class UserProfileActivity : BaseDetailActivity() {
             TAB_POSTS -> {
                 tabPosts.visibility = View.VISIBLE
                 btnTabPosts.isEnabled = false
-                btnTabPosts.setBackgroundColor(activeColor)
+                btnTabPosts.backgroundTintList = activeColor
 
                 // Load posts when tab is shown for the first time
                 if (!postsLoaded) {
@@ -259,11 +276,11 @@ class UserProfileActivity : BaseDetailActivity() {
 
         postsAdapter = FeedAdapter(
             posts = userPosts,
-            onLikeClick = { /* Not implemented in profile view */ },
-            onReplyClick = { /* Not implemented in profile view */ },
-            onShowRepliesClick = { /* Not implemented in profile view */ },
-            onOptionsClick = { _, _ -> /* Not implemented in profile view */ },
-            onImageClick = { _, _ -> /* Not implemented in profile view */ },
+            onLikeClick = { post -> togglePostLike(post) },
+            onReplyClick = { post -> showReplyDialog(post) },
+            onShowRepliesClick = { post -> showThread(post) },
+            onOptionsClick = { _, _ -> /* Not needed in profile view */ },
+            onImageClick = { _, _ -> /* Image gallery not implemented */ },
             onAuthorClick = null // Already viewing their profile
         )
         postsRecycler.layoutManager = LinearLayoutManager(this)
@@ -524,7 +541,7 @@ class UserProfileActivity : BaseDetailActivity() {
         val profileId = profileData?.id ?: return
 
         salesProgress.visibility = View.VISIBLE
-        salesEmptyMessage.visibility = View.GONE
+        salesEmptyCard.visibility = View.GONE
         salesListContainer.visibility = View.GONE
 
         ApiClient.retrofit.getUserSales(profileId.toString())
@@ -541,16 +558,16 @@ class UserProfileActivity : BaseDetailActivity() {
                         if (!sales.isNullOrEmpty()) {
                             displayUserSales(sales)
                         } else {
-                            salesEmptyMessage.visibility = View.VISIBLE
+                            salesEmptyCard.visibility = View.VISIBLE
                         }
                     } else {
-                        salesEmptyMessage.visibility = View.VISIBLE
+                        salesEmptyCard.visibility = View.VISIBLE
                     }
                 }
 
                 override fun onFailure(call: Call<UserSalesResponse>, t: Throwable) {
                     salesProgress.visibility = View.GONE
-                    salesEmptyMessage.visibility = View.VISIBLE
+                    salesEmptyCard.visibility = View.VISIBLE
                     Log.e(TAG, "Error loading user sales", t)
                 }
             })
@@ -559,7 +576,7 @@ class UserProfileActivity : BaseDetailActivity() {
     private fun displayUserSales(sales: List<UserSaleItem>) {
         salesListContainer.removeAllViews()
         salesListContainer.visibility = View.VISIBLE
-        salesEmptyMessage.visibility = View.GONE
+        salesEmptyCard.visibility = View.GONE
 
         for (sale in sales) {
             val itemView = layoutInflater.inflate(R.layout.item_user_sale, salesListContainer, false)
@@ -595,7 +612,7 @@ class UserProfileActivity : BaseDetailActivity() {
         val authorDocId = profileData?.documentId ?: return
 
         postsProgress.visibility = View.VISIBLE
-        postsEmptyMessage.visibility = View.GONE
+        postsEmptyCard.visibility = View.GONE
         postsRecycler.visibility = View.GONE
 
         ApiClient.retrofit.getFeed(limit = 20, author = authorDocId)
@@ -615,16 +632,16 @@ class UserProfileActivity : BaseDetailActivity() {
                             postsAdapter.notifyDataSetChanged()
                             postsRecycler.visibility = View.VISIBLE
                         } else {
-                            postsEmptyMessage.visibility = View.VISIBLE
+                            postsEmptyCard.visibility = View.VISIBLE
                         }
                     } else {
-                        postsEmptyMessage.visibility = View.VISIBLE
+                        postsEmptyCard.visibility = View.VISIBLE
                     }
                 }
 
                 override fun onFailure(call: Call<FeedResponse>, t: Throwable) {
                     postsProgress.visibility = View.GONE
-                    postsEmptyMessage.visibility = View.VISIBLE
+                    postsEmptyCard.visibility = View.VISIBLE
                     Log.e(TAG, "Error loading user posts", t)
                 }
             })
@@ -634,7 +651,7 @@ class UserProfileActivity : BaseDetailActivity() {
         val profileDocId = profileData?.documentId ?: return
 
         meetingsProgress.visibility = View.VISIBLE
-        meetingsEmptyMessage.visibility = View.GONE
+        meetingsEmptyCard.visibility = View.GONE
         meetingsRecycler.visibility = View.GONE
 
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -656,20 +673,64 @@ class UserProfileActivity : BaseDetailActivity() {
                         meetingsAdapter.submitList(userMeetings)
                         meetingsRecycler.visibility = View.VISIBLE
                     } else {
-                        meetingsEmptyMessage.visibility = View.VISIBLE
+                        meetingsEmptyCard.visibility = View.VISIBLE
                     }
                 } else {
-                    meetingsEmptyMessage.visibility = View.VISIBLE
+                    meetingsEmptyCard.visibility = View.VISIBLE
                     Log.e(TAG, "Error loading meetings: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<StrapiListResponse<MeetingData>>, t: Throwable) {
                 meetingsProgress.visibility = View.GONE
-                meetingsEmptyMessage.visibility = View.VISIBLE
+                meetingsEmptyCard.visibility = View.VISIBLE
                 Log.e(TAG, "Error loading meetings", t)
             }
         })
+    }
+
+    private fun togglePostLike(post: Post) {
+        val request = LikeToggleRequest(
+            targetDocumentId = post.documentId,
+            targetType = "post"
+        )
+
+        ApiClient.retrofit.toggleLike(request).enqueue(object : Callback<LikeToggleResponse> {
+            override fun onResponse(
+                call: Call<LikeToggleResponse>,
+                response: Response<LikeToggleResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val likeResponse = response.body()
+                    if (likeResponse != null) {
+                        // Update post in adapter
+                        val updatedPost = post.copy(
+                            liked = likeResponse.status == "liked",
+                            likeCount = likeResponse.likeCount
+                        )
+                        postsAdapter.updatePost(updatedPost)
+                    }
+                } else {
+                    Toast.makeText(this@UserProfileActivity, "Fehler beim Liken", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
+                Toast.makeText(this@UserProfileActivity, "Netzwerkfehler", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun showReplyDialog(post: Post) {
+        val intent = Intent(this, CreatePostActivity::class.java)
+        intent.putExtra("parentDocumentId", post.documentId)
+        startActivity(intent)
+    }
+
+    private fun showThread(post: Post) {
+        val intent = Intent(this, ThreadActivity::class.java)
+        intent.putExtra("documentId", post.documentId)
+        startActivity(intent)
     }
 
     private fun onSendMessage() {
