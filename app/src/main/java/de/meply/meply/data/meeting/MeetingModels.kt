@@ -81,7 +81,8 @@ data class MeetingDataRequest(
     @SerializedName("location") val location: String? = null,
     @SerializedName("event") val event: String? = null,
     @SerializedName("dates") val dates: MeetingDatesRequest,
-    @SerializedName("date") val date: String? = null // For filtering
+    @SerializedName("date") val date: String? = null, // For filtering
+    @SerializedName("author") val author: String? = null // Profile documentId
 )
 
 data class MeetingDatesRequest(

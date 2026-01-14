@@ -234,11 +234,18 @@ class CreateMeetingActivity : AppCompatActivity() {
             else -> return
         }
 
+        val profileId = AuthManager.getProfileDocumentId(this)
+        if (profileId == null) {
+            Toast.makeText(this, "Nicht angemeldet", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val meetingData = MeetingDataRequest(
             title = title,
             description = description.ifEmpty { null },
             dates = dates,
-            date = filterDate
+            date = filterDate,
+            author = profileId
         )
 
         createMeeting(meetingData)
