@@ -18,7 +18,7 @@ import de.meply.meply.ui.events.EventsFragment
 import de.meply.meply.ui.pm.PmFragment
 import de.meply.meply.ui.profile.ProfileFragment
 import de.meply.meply.ui.followers.FollowersFragment
-import de.meply.meply.ui.collection.MyCollectionActivity
+import de.meply.meply.ui.collection.MyCollectionFragment
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -36,6 +36,7 @@ class HomeActivity : AppCompatActivity() {
     private val profile by lazy { ProfileFragment() }
     private val followers by lazy { FollowersFragment() }
     private val gesuche by lazy { GesucheFragment() }
+    private val collection by lazy { MyCollectionFragment() }
 
     private val createPostLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -141,7 +142,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun openCollection() {
-        MyCollectionActivity.start(this)
+        switchTo(collection, "collection")
     }
 
     private fun logout() {

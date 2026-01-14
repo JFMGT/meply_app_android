@@ -11,10 +11,10 @@ data class MyCollectionResponse(
 )
 
 data class CollectionPagination(
-    @SerializedName("page") val page: Int,
-    @SerializedName("pageSize") val pageSize: Int,
-    @SerializedName("pageCount") val pageCount: Int,
-    @SerializedName("total") val total: Int
+    @SerializedName("page") val page: Int?,
+    @SerializedName("pageSize") val pageSize: Int?,
+    @SerializedName("pageCount") val pageCount: Int?,
+    @SerializedName("total") val total: Int?
 )
 
 /**
