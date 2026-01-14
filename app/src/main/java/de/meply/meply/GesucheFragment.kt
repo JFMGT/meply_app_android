@@ -68,16 +68,18 @@ class GesucheFragment : Fragment() {
         emptyStateText.visibility = View.GONE
         meetingsContainer.removeAllViews()
 
-        val userId = AuthManager.getUserDocumentId(requireContext())
-        if (userId == null) {
+        val profileId = AuthManager.getProfileDocumentId(requireContext())
+        if (profileId == null) {
             Toast.makeText(requireContext(), "Nicht angemeldet", Toast.LENGTH_SHORT).show()
             progressBar.visibility = View.GONE
             swipeRefresh.isRefreshing = false
             return
         }
 
+        android.util.Log.d("GesucheFragment", "Loading meetings for profile: $profileId")
+
         ApiClient.retrofit.getUserMeetings(
-            authorDocumentId = userId,
+            authorDocumentId = profileId,
             dateIsNull = true,
             dateIsGte = "1984-05-05" // Magic date to show all user meetings
         ).enqueue(object : Callback<MeetingsResponse> {

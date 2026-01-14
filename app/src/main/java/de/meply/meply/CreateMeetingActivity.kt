@@ -144,7 +144,7 @@ class CreateMeetingActivity : AppCompatActivity() {
 
     private fun showDateTimePicker(onSelected: (Calendar) -> Unit) {
         val calendar = Calendar.getInstance()
-        DatePickerDialog(this, { _, year, month, day ->
+        DatePickerDialog(this, R.style.Theme_Meply_DatePicker, { _, year, month, day ->
             calendar.set(year, month, day)
             TimePickerDialog(this, { _, hour, minute ->
                 calendar.set(Calendar.HOUR_OF_DAY, hour)
@@ -156,7 +156,7 @@ class CreateMeetingActivity : AppCompatActivity() {
 
     private fun showDatePicker(onSelected: (Calendar) -> Unit) {
         val calendar = Calendar.getInstance()
-        DatePickerDialog(this, { _, year, month, day ->
+        DatePickerDialog(this, R.style.Theme_Meply_DatePicker, { _, year, month, day ->
             calendar.set(year, month, day)
             onSelected(calendar)
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
