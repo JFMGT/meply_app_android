@@ -25,6 +25,8 @@ import de.meply.meply.data.meetings.MeetingData
 import de.meply.meply.data.messages.CreateConversationRequest
 import de.meply.meply.data.messages.SendMessageResponse
 import de.meply.meply.data.profile.*
+import de.meply.meply.data.follower.FollowToggleRequest
+import de.meply.meply.data.follower.FollowToggleResponse
 import de.meply.meply.network.ApiClient
 import de.meply.meply.ui.events.MeetingsAdapter
 import de.meply.meply.utils.AvatarUtils
@@ -539,55 +541,42 @@ class UserProfileActivity : BaseDetailActivity() {
 
     private fun onFollowClick() {
         val userDocId = profileData?.userDocumentId ?: return
-
-        if (isFollowing) {
-            unfollowUser(userDocId)
-        } else {
-            followUser(userDocId)
-        }
+        toggleFollowUser(userDocId)
     }
 
-    private fun followUser(userDocId: String) {
-        val request = FollowUserRequest(userToFollow = userDocId)
+    private fun toggleFollowUser(userDocId: String) {
+        val request = FollowToggleRequest(documentId = userDocId)
 
-        ApiClient.retrofit.followUser(request).enqueue(object : Callback<FollowActionResponse> {
+        ApiClient.retrofit.toggleFollow(request).enqueue(object : Callback<FollowToggleResponse> {
             override fun onResponse(
-                call: Call<FollowActionResponse>,
-                response: Response<FollowActionResponse>
+                call: Call<FollowToggleResponse>,
+                response: Response<FollowToggleResponse>
             ) {
                 if (response.isSuccessful) {
-                    isFollowing = true
-                    updateFollowButton()
-                    Toast.makeText(this@UserProfileActivity, "Du folgst jetzt ${profileData?.username}", Toast.LENGTH_SHORT).show()
+                    val result = response.body()
+                    when (result?.status) {
+                        "followed" -> {
+                            isFollowing = true
+                            updateFollowButton()
+                            Toast.makeText(this@UserProfileActivity, "Du folgst jetzt ${profileData?.username}", Toast.LENGTH_SHORT).show()
+                        }
+                        "unfollowed" -> {
+                            isFollowing = false
+                            updateFollowButton()
+                            Toast.makeText(this@UserProfileActivity, "Du folgst ${profileData?.username} nicht mehr", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            // Fallback: toggle the local state
+                            isFollowing = !isFollowing
+                            updateFollowButton()
+                        }
+                    }
                 } else {
                     Toast.makeText(this@UserProfileActivity, "Fehler: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<FollowActionResponse>, t: Throwable) {
-                Toast.makeText(this@UserProfileActivity, "Netzwerkfehler", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-    private fun unfollowUser(userDocId: String) {
-        val request = UnfollowUserRequest(userToUnfollow = userDocId)
-
-        ApiClient.retrofit.unfollowUser(request).enqueue(object : Callback<FollowActionResponse> {
-            override fun onResponse(
-                call: Call<FollowActionResponse>,
-                response: Response<FollowActionResponse>
-            ) {
-                if (response.isSuccessful) {
-                    isFollowing = false
-                    updateFollowButton()
-                    Toast.makeText(this@UserProfileActivity, "Du folgst ${profileData?.username} nicht mehr", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this@UserProfileActivity, "Fehler: ${response.code()}", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<FollowActionResponse>, t: Throwable) {
+            override fun onFailure(call: Call<FollowToggleResponse>, t: Throwable) {
                 Toast.makeText(this@UserProfileActivity, "Netzwerkfehler", Toast.LENGTH_SHORT).show()
             }
         })
