@@ -13,6 +13,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -146,18 +147,25 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun showTab(tab: Int) {
+        val activeColor = ContextCompat.getColor(this, R.color.primary)
+        val inactiveColor = android.graphics.Color.TRANSPARENT
+
         when (tab) {
             TAB_COMPARISON -> {
                 tabComparison.visibility = View.VISIBLE
                 tabMeetings.visibility = View.GONE
                 btnTabComparison.isEnabled = false
                 btnTabMeetings.isEnabled = true
+                btnTabComparison.setBackgroundColor(activeColor)
+                btnTabMeetings.setBackgroundColor(inactiveColor)
             }
             TAB_MEETINGS -> {
                 tabComparison.visibility = View.GONE
                 tabMeetings.visibility = View.VISIBLE
                 btnTabComparison.isEnabled = true
                 btnTabMeetings.isEnabled = false
+                btnTabComparison.setBackgroundColor(inactiveColor)
+                btnTabMeetings.setBackgroundColor(activeColor)
 
                 // Load meetings when tab is shown for the first time
                 if (meetingsAdapter.itemCount == 0) {
