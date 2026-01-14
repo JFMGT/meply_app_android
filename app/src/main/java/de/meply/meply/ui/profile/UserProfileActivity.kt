@@ -81,6 +81,7 @@ class UserProfileActivity : BaseDetailActivity() {
 
     // Flea market / Flohmarkt elements
     private lateinit var salesProgress: ProgressBar
+    private lateinit var salesEmptyCard: MaterialCardView
     private lateinit var salesEmptyMessage: TextView
     private lateinit var salesListContainer: LinearLayout
 
@@ -162,6 +163,7 @@ class UserProfileActivity : BaseDetailActivity() {
 
         // Flea market / Flohmarkt
         salesProgress = findViewById(R.id.sales_progress)
+        salesEmptyCard = findViewById(R.id.sales_empty_card)
         salesEmptyMessage = findViewById(R.id.sales_empty_message)
         salesListContainer = findViewById(R.id.sales_list_container)
 
@@ -539,7 +541,7 @@ class UserProfileActivity : BaseDetailActivity() {
         val profileId = profileData?.id ?: return
 
         salesProgress.visibility = View.VISIBLE
-        salesEmptyMessage.visibility = View.GONE
+        salesEmptyCard.visibility = View.GONE
         salesListContainer.visibility = View.GONE
 
         ApiClient.retrofit.getUserSales(profileId.toString())
@@ -556,16 +558,16 @@ class UserProfileActivity : BaseDetailActivity() {
                         if (!sales.isNullOrEmpty()) {
                             displayUserSales(sales)
                         } else {
-                            salesEmptyMessage.visibility = View.VISIBLE
+                            salesEmptyCard.visibility = View.VISIBLE
                         }
                     } else {
-                        salesEmptyMessage.visibility = View.VISIBLE
+                        salesEmptyCard.visibility = View.VISIBLE
                     }
                 }
 
                 override fun onFailure(call: Call<UserSalesResponse>, t: Throwable) {
                     salesProgress.visibility = View.GONE
-                    salesEmptyMessage.visibility = View.VISIBLE
+                    salesEmptyCard.visibility = View.VISIBLE
                     Log.e(TAG, "Error loading user sales", t)
                 }
             })
@@ -574,7 +576,7 @@ class UserProfileActivity : BaseDetailActivity() {
     private fun displayUserSales(sales: List<UserSaleItem>) {
         salesListContainer.removeAllViews()
         salesListContainer.visibility = View.VISIBLE
-        salesEmptyMessage.visibility = View.GONE
+        salesEmptyCard.visibility = View.GONE
 
         for (sale in sales) {
             val itemView = layoutInflater.inflate(R.layout.item_user_sale, salesListContainer, false)
