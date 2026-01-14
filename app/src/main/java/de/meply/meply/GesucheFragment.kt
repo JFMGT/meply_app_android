@@ -63,8 +63,6 @@ class GesucheFragment : Fragment() {
         btnCreateMeeting.setOnClickListener {
             openCreateMeeting()
         }
-
-        loadMeetings()
     }
 
     private fun loadMeetings() {
