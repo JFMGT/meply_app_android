@@ -8,6 +8,17 @@
     android:orientation="vertical"
     android:padding="32dp">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_primary"
+        android:paddingBottom="25pt"
+        android:textSize="15pt"
+        android:text="Login" />
+
+
+
     <EditText
         android:id="@+id/emailInput"
         android:layout_width="match_parent"
@@ -16,7 +27,7 @@
         android:background="@color/background_card"
         android:hint="Email"
         android:padding="16dp"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/text_on_light"
         android:textColorHint="@color/text_disabled" />
 
     <EditText
@@ -28,7 +39,7 @@
         android:hint="Passwort"
         android:inputType="textPassword"
         android:padding="16dp"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/text_on_light"
         android:textColorHint="@color/text_disabled" />
 
     <Button

@@ -20,7 +20,7 @@
             android:id="@+id/meeting_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text_on_light"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="Spieltreffen am Samstag" />
@@ -43,7 +43,7 @@
             android:layout_marginTop="8dp"
             android:maxLines="3"
             android:ellipsize="end"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text_on_light"
             android:textSize="14sp"
             tools:text="Wir suchen noch Mitspieler für einen gemütlichen Spieleabend." />
 
@@ -69,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Kontakt"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/text_on_light"
                 android:textSize="13sp"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp" />
