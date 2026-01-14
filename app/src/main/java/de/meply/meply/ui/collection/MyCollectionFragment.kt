@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.core.widget.NestedScrollView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.card.MaterialCardView
 import de.meply.meply.R
@@ -35,6 +36,7 @@ class MyCollectionFragment : Fragment() {
     }
 
     private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var nestedScrollView: NestedScrollView
     private lateinit var searchInput: EditText
     private lateinit var collectionStats: TextView
     private lateinit var loadingProgress: ProgressBar
@@ -73,6 +75,7 @@ class MyCollectionFragment : Fragment() {
 
     private fun initializeViews(view: View) {
         swipeRefresh = view.findViewById(R.id.swipeRefresh)
+        nestedScrollView = view.findViewById(R.id.nestedScrollView)
         searchInput = view.findViewById(R.id.search_input)
         collectionStats = view.findViewById(R.id.collection_stats)
         loadingProgress = view.findViewById(R.id.loading_progress)
@@ -117,23 +120,19 @@ class MyCollectionFragment : Fragment() {
     }
 
     private fun setupScrollListener() {
-        gamesRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
+        nestedScrollView.setOnScrollChangeListener { v: NestedScrollView, _, scrollY, _, oldScrollY ->
+            // Only check when scrolling down
+            if (scrollY > oldScrollY && hasMorePages && !isLoading) {
+                val contentHeight = v.getChildAt(0).measuredHeight
+                val scrollViewHeight = v.measuredHeight
+                val scrollPosition = scrollY + scrollViewHeight
 
-                if (dy > 0 && hasMorePages && !isLoading) {
-                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                    val visibleItemCount = layoutManager.childCount
-                    val totalItemCount = layoutManager.itemCount
-                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-
-                    // Load more when near the end (5 items before)
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 5) {
-                        loadCollection(resetList = false)
-                    }
+                // Load more when within 200px of the bottom
+                if (scrollPosition >= contentHeight - 200) {
+                    loadCollection(resetList = false)
                 }
             }
-        })
+        }
     }
 
     private fun loadCollection(resetList: Boolean) {
