@@ -442,5 +442,65 @@ interface ApiService {
         @Path("documentId") documentId: String
     ): Call<Void>
 
+    // ===== MY COLLECTION / BOARDGAMES ENDPOINTS =====
+
+    /**
+     * Get user's boardgame collection
+     * @param page Page number (1-based)
+     * @param pageSize Items per page
+     * @param state Filter by state (wishlist, played, owned)
+     * @param minRating Filter by minimum rating
+     * @param title Filter by title (contains)
+     * @param forSale Filter by sale status
+     * @param sortBy Sort by field (title, rating)
+     */
+    @GET("user-boardgames/my-collection")
+    fun getMyCollection(
+        @Query("page") page: Int = 1,
+        @Query("pageSize") pageSize: Int = 50,
+        @Query("state") state: String? = null,
+        @Query("minRating") minRating: Float? = null,
+        @Query("title") title: String? = null,
+        @Query("forSale") forSale: String? = null,
+        @Query("sortBy") sortBy: String = "title"
+    ): Call<de.meply.meply.data.collection.MyCollectionResponse>
+
+    /**
+     * Search boardgames by title
+     * @param query Search query (min 2 characters)
+     */
+    @GET("boardgames")
+    fun searchBoardgames(
+        @Query("filters[title][\$containsi]") query: String,
+        @Query("pagination[limit]") limit: Int = 10
+    ): Call<de.meply.meply.data.events.StrapiListResponse<de.meply.meply.data.collection.BoardgameSearchResult>>
+
+    /**
+     * Add a boardgame to user's collection
+     */
+    @POST("user-boardgames/add-to-collection")
+    fun addToCollection(
+        @Body request: de.meply.meply.data.collection.AddToCollectionRequest
+    ): Call<de.meply.meply.data.collection.AddToCollectionResponse>
+
+    /**
+     * Update a user boardgame entry (rating, state, sale info)
+     * @param entryId The user-boardgame entry ID
+     */
+    @PUT("user-boardgames/update/{entryId}")
+    fun updateUserBoardgame(
+        @Path("entryId") entryId: Int,
+        @Body request: de.meply.meply.data.collection.UpdateUserBoardgameRequest
+    ): Call<de.meply.meply.data.collection.CollectionActionResponse>
+
+    /**
+     * Remove a boardgame from user's collection
+     * @param entryId The user-boardgame entry ID
+     */
+    @DELETE("user-boardgames/{entryId}")
+    fun removeFromCollection(
+        @Path("entryId") entryId: Int
+    ): Call<de.meply.meply.data.collection.CollectionActionResponse>
+
 
 }

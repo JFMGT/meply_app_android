@@ -18,6 +18,7 @@ import de.meply.meply.ui.events.EventsFragment
 import de.meply.meply.ui.pm.PmFragment
 import de.meply.meply.ui.profile.ProfileFragment
 import de.meply.meply.ui.followers.FollowersFragment
+import de.meply.meply.ui.collection.MyCollectionActivity
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -117,6 +118,10 @@ class HomeActivity : AppCompatActivity() {
                     openGesuche()
                     true
                 }
+                R.id.menu_collection -> {
+                    openCollection()
+                    true
+                }
                 R.id.menu_logout -> {
                     logout()
                     true
@@ -133,6 +138,10 @@ class HomeActivity : AppCompatActivity() {
 
     private fun openGesuche() {
         switchTo(gesuche, "gesuche")
+    }
+
+    private fun openCollection() {
+        MyCollectionActivity.start(this)
     }
 
     private fun logout() {
