@@ -13,13 +13,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import de.meply.meply.data.meeting.Meeting
 import de.meply.meply.data.meeting.MeetingsResponse
 import de.meply.meply.network.ApiClient
-import de.meply.meply.util.AuthManager
-import de.meply.meply.util.AvatarUtils
+import de.meply.meply.auth.AuthManager
+import de.meply.meply.utils.AvatarUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
