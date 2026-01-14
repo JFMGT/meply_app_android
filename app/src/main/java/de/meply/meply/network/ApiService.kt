@@ -385,5 +385,39 @@ interface ApiService {
         @Body request: de.meply.meply.data.follower.FollowToggleRequest
     ): Call<de.meply.meply.data.follower.FollowToggleResponse>
 
+    // ===== MEETING/GESUCHE ENDPOINTS =====
+
+    /**
+     * Get meetings for the current user
+     * @param authorDocumentId The author's user document ID
+     * @param dateFilter Date to filter meetings (use "1984-05-05" to get all)
+     */
+    @GET("meetings")
+    fun getUserMeetings(
+        @Query("filters[author][documentId][\$eq]") authorDocumentId: String,
+        @Query("filters[\$and][0][\$or][0][date][\$null]") dateIsNull: Boolean = true,
+        @Query("filters[\$and][0][\$or][1][date][\$gte]") dateIsGte: String = "1984-05-05",
+        @Query("populate") populate: String = "*",
+        @Query("sort") sort: String = "date:asc"
+    ): Call<de.meply.meply.data.meeting.MeetingsResponse>
+
+    /**
+     * Create a new meeting
+     * @param request The meeting data
+     */
+    @POST("meetings")
+    fun createMeeting(
+        @Body request: de.meply.meply.data.meeting.CreateMeetingRequest
+    ): Call<de.meply.meply.data.meeting.MeetingResponse>
+
+    /**
+     * Delete a meeting
+     * @param documentId The meeting document ID
+     */
+    @DELETE("meetings/{documentId}")
+    fun deleteMeeting(
+        @Path("documentId") documentId: String
+    ): Call<Void>
+
 
 }
