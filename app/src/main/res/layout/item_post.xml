@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/background_card"
     app:cardElevation="2dp"
     app:cardCornerRadius="8dp">
@@ -41,6 +41,7 @@
                     android:id="@+id/postUsername"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/text_on_light"
                     android:textStyle="bold"
                     android:textSize="16sp"
                     tools:text="Username" />
@@ -69,6 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:textColor="@color/text_on_light"
             android:textSize="14sp"
             android:lineSpacingMultiplier="1.2"
             tools:text="This is the post content. It can be multiple lines and will show the full text." />
@@ -116,6 +118,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
+                android:textColor="@color/text_on_light"
                 android:textSize="14sp"
                 tools:text="12" />
 
@@ -137,6 +140,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
+                android:textColor="@color/text_on_light"
                 android:textSize="14sp"
                 tools:text="5" />
         </LinearLayout>
