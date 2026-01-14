@@ -9,7 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.data.meeting.CreateMeetingRequest
-import de.meply.meply.data.meeting.MeetingData
+import de.meply.meply.data.meeting.MeetingDataRequest
+import de.meply.meply.data.meeting.MeetingDatesRequest
 import de.meply.meply.data.meeting.MeetingResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
@@ -171,7 +172,7 @@ class CreateMeetingActivity : AppCompatActivity() {
         val description = inputDescription.text.toString().trim()
         val dateTypePosition = spinnerDateType.selectedItemPosition
 
-        val meetingData = when (dateTypePosition) {
+        val (dates, filterDate) = when (dateTypePosition) {
             0 -> { // Fixed date
                 if (selectedDate == null) {
                     Toast.makeText(this, "Bitte wähle ein Datum aus", Toast.LENGTH_SHORT).show()
@@ -179,12 +180,13 @@ class CreateMeetingActivity : AppCompatActivity() {
                 }
                 val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.GERMAN)
                 format.timeZone = TimeZone.getTimeZone("UTC")
-                MeetingData(
-                    title = title,
-                    description = description.ifEmpty { null },
-                    dateType = "fixed",
-                    date = format.format(selectedDate!!.time)
+                val dateStr = format.format(selectedDate!!.time)
+
+                val datesObj = MeetingDatesRequest(
+                    type = "fixed",
+                    value = mapOf("date" to dateStr)
                 )
+                Pair(datesObj, dateStr)
             }
             1 -> { // Date range
                 if (selectedDateFrom == null || selectedDateTo == null) {
@@ -192,13 +194,14 @@ class CreateMeetingActivity : AppCompatActivity() {
                     return
                 }
                 val format = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN)
-                MeetingData(
-                    title = title,
-                    description = description.ifEmpty { null },
-                    dateType = "range",
-                    dateFrom = format.format(selectedDateFrom!!.time),
-                    dateTo = format.format(selectedDateTo!!.time)
+                val startDate = format.format(selectedDateFrom!!.time)
+                val endDate = format.format(selectedDateTo!!.time)
+
+                val datesObj = MeetingDatesRequest(
+                    type = "range",
+                    value = mapOf("start" to startDate, "end" to endDate)
                 )
+                Pair(datesObj, endDate)
             }
             2 -> { // Recurring
                 val selectedDays = mutableListOf<String>()
@@ -222,21 +225,26 @@ class CreateMeetingActivity : AppCompatActivity() {
                     else -> "weekly"
                 }
 
-                MeetingData(
-                    title = title,
-                    description = description.ifEmpty { null },
-                    dateType = "recurring",
-                    recurringDays = selectedDays,
-                    recurringFrequency = frequency
+                val datesObj = MeetingDatesRequest(
+                    type = "recurring",
+                    value = mapOf("days" to selectedDays, "frequency" to frequency)
                 )
+                Pair(datesObj, null)
             }
             else -> return
         }
 
+        val meetingData = MeetingDataRequest(
+            title = title,
+            description = description.ifEmpty { null },
+            dates = dates,
+            date = filterDate
+        )
+
         createMeeting(meetingData)
     }
 
-    private fun createMeeting(meetingData: MeetingData) {
+    private fun createMeeting(meetingData: MeetingDataRequest) {
         progressBar.visibility = View.VISIBLE
         btnSave.isEnabled = false
 

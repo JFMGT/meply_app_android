@@ -44,7 +44,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Titel *"
-                        app:boxBackgroundColor="@android:color/transparent">
+                        app:boxBackgroundMode="outline"
+                        app:boxBackgroundColor="@color/background_header"
+                        app:boxStrokeColor="@color/primary"
+                        app:hintTextColor="@color/text_on_light">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputTitle"
@@ -60,7 +63,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:hint="Beschreibung (optional)"
-                        app:boxBackgroundColor="@android:color/transparent">
+                        app:boxBackgroundMode="outline"
+                        app:boxBackgroundColor="@color/background_header"
+                        app:boxStrokeColor="@color/primary"
+                        app:hintTextColor="@color/text_on_light">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputDescription"
