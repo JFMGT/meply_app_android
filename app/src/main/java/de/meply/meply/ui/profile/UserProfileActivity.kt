@@ -439,8 +439,8 @@ class UserProfileActivity : BaseDetailActivity() {
 
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        ApiClient.retrofit.getMeetingsForEvent(
-            eventDocumentId = "", // Empty to get all meetings
+        ApiClient.retrofit.getMeetingsByAuthor(
+            authorDocumentId = profileDocId,
             dateIsGte = today
         ).enqueue(object : Callback<StrapiListResponse<MeetingData>> {
             override fun onResponse(
@@ -450,11 +450,7 @@ class UserProfileActivity : BaseDetailActivity() {
                 meetingsProgress.visibility = View.GONE
 
                 if (response.isSuccessful) {
-                    val allMeetings = response.body()?.data ?: emptyList()
-                    // Filter meetings by author
-                    val userMeetings = allMeetings.filter {
-                        it.author?.documentId == profileDocId
-                    }
+                    val userMeetings = response.body()?.data ?: emptyList()
 
                     if (userMeetings.isNotEmpty()) {
                         meetingsAdapter.submitList(userMeetings)

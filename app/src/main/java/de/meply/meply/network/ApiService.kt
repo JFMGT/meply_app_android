@@ -143,6 +143,20 @@ interface ApiService {
         @Query("filters[\$and][0][\$or][1][date][\$gte]") dateIsGte: String // Hier kommt das heutige Datum rein
     ): Call<StrapiListResponse<MeetingData>>
 
+    /**
+     * Get meetings by author (for user profile view)
+     * @param authorDocumentId The author's profile document ID
+     * @param dateIsGte Filter for future meetings
+     */
+    @GET("meetings")
+    fun getMeetingsByAuthor(
+        @Query("filters[author][documentId][\$eq]") authorDocumentId: String,
+        @Query("sort") sortBy: String = "date:asc",
+        @Query("populate") populateFields: String = "*",
+        @Query("filters[\$and][0][\$or][0][date][\$null]") dateIsNull: Boolean = true,
+        @Query("filters[\$and][0][\$or][1][date][\$gte]") dateIsGte: String
+    ): Call<StrapiListResponse<MeetingData>>
+
     // ===== FEED ENDPOINTS =====
 
     /**
