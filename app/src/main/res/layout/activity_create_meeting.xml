@@ -44,13 +44,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Titel *"
-                        app:boxBackgroundColor="@android:color/transparent">
+                        android:textColorHint="@color/text_on_light"
+                        app:boxBackgroundMode="outline"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/background_header"
+                        app:boxStrokeWidth="2dp"
+                        app:hintTextColor="@color/text_on_light">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/text_on_light"
                             android:inputType="text"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -60,13 +65,18 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:hint="Beschreibung (optional)"
-                        app:boxBackgroundColor="@android:color/transparent">
+                        android:textColorHint="@color/text_on_light"
+                        app:boxBackgroundMode="outline"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/background_header"
+                        app:boxStrokeWidth="2dp"
+                        app:hintTextColor="@color/text_on_light">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputDescription"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/text_on_light"
                             android:inputType="textMultiLine"
                             android:minLines="3"
                             android:maxLines="5"
@@ -78,7 +88,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
                         android:text="Datum"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -121,7 +131,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Von:"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/text_on_light"
                             android:textSize="14sp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -140,7 +150,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Bis:"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/text_on_light"
                             android:textSize="14sp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -168,7 +178,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Wochentage:"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/text_on_light"
                             android:textSize="14sp" />
 
                         <CheckBox
@@ -176,56 +186,56 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Montag"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_on_light" />
 
                         <CheckBox
                             android:id="@+id/checkboxTuesday"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Dienstag"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_on_light" />
 
                         <CheckBox
                             android:id="@+id/checkboxWednesday"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Mittwoch"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_on_light" />
 
                         <CheckBox
                             android:id="@+id/checkboxThursday"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Donnerstag"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_on_light" />
 
                         <CheckBox
                             android:id="@+id/checkboxFriday"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Freitag"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_on_light" />
 
                         <CheckBox
                             android:id="@+id/checkboxSaturday"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Samstag"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_on_light" />
 
                         <CheckBox
                             android:id="@+id/checkboxSunday"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Sonntag"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_on_light" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Häufigkeit:"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/text_on_light"
                             android:textSize="14sp" />
 
                         <Spinner

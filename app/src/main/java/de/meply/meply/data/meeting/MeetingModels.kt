@@ -72,21 +72,22 @@ data class Pagination(
 
 // Request model for creating/updating meetings
 data class CreateMeetingRequest(
-    @SerializedName("data") val data: MeetingData
+    @SerializedName("data") val data: MeetingDataRequest
 )
 
-data class MeetingData(
+data class MeetingDataRequest(
     @SerializedName("title") val title: String,
     @SerializedName("description") val description: String? = null,
     @SerializedName("location") val location: String? = null,
     @SerializedName("event") val event: String? = null,
-    @SerializedName("dateType") val dateType: String? = null, // "fixed", "range", "recurring"
-    @SerializedName("date") val date: String? = null, // For fixed date
-    @SerializedName("dateFrom") val dateFrom: String? = null, // For range
-    @SerializedName("dateTo") val dateTo: String? = null, // For range
-    @SerializedName("recurringDays") val recurringDays: List<String>? = null, // For recurring
-    @SerializedName("recurringFrequency") val recurringFrequency: String? = null, // For recurring
-    @SerializedName("eventDays") val eventDays: List<String>? = null // For event meetings
+    @SerializedName("dates") val dates: MeetingDatesRequest,
+    @SerializedName("date") val date: String? = null, // For filtering
+    @SerializedName("author") val author: String? = null // Profile documentId
+)
+
+data class MeetingDatesRequest(
+    @SerializedName("type") val type: String, // "fixed", "range", "recurring", "eventDays"
+    @SerializedName("value") val value: Map<String, Any>
 )
 
 // Delete request

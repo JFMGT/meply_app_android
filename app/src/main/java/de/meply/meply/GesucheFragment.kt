@@ -68,16 +68,18 @@ class GesucheFragment : Fragment() {
         emptyStateText.visibility = View.GONE
         meetingsContainer.removeAllViews()
 
-        val userId = AuthManager.getUserDocumentId(requireContext())
-        if (userId == null) {
+        val profileId = AuthManager.getProfileDocumentId(requireContext())
+        if (profileId == null) {
             Toast.makeText(requireContext(), "Nicht angemeldet", Toast.LENGTH_SHORT).show()
             progressBar.visibility = View.GONE
             swipeRefresh.isRefreshing = false
             return
         }
 
+        android.util.Log.d("GesucheFragment", "Loading meetings for profile: $profileId")
+
         ApiClient.retrofit.getUserMeetings(
-            authorDocumentId = userId,
+            authorDocumentId = profileId,
             dateIsNull = true,
             dateIsGte = "1984-05-05" // Magic date to show all user meetings
         ).enqueue(object : Callback<MeetingsResponse> {
@@ -87,13 +89,19 @@ class GesucheFragment : Fragment() {
 
                 if (response.isSuccessful) {
                     val meetings = response.body()?.data ?: emptyList()
+                    android.util.Log.d("GesucheFragment", "Loaded ${meetings.size} meetings")
+                    meetings.forEach { m ->
+                        android.util.Log.d("GesucheFragment", "Meeting: ${m.title} by ${m.author?.username}")
+                    }
                     if (meetings.isEmpty()) {
                         emptyStateText.visibility = View.VISIBLE
                     } else {
                         displayMeetings(meetings)
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Fehler beim Laden der Gesuche", Toast.LENGTH_SHORT).show()
+                    val errorBody = response.errorBody()?.string()
+                    android.util.Log.e("GesucheFragment", "Error: ${response.code()} - $errorBody")
+                    Toast.makeText(requireContext(), "Fehler beim Laden: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -173,7 +181,7 @@ class GesucheFragment : Fragment() {
         val usernameText = TextView(requireContext()).apply {
             text = meeting.author?.username ?: "Unbekannt"
             textSize = 16f
-            setTextColor(resources.getColor(R.color.text_primary, null))
+            setTextColor(resources.getColor(R.color.text_on_light, null))
             setTypeface(null, android.graphics.Typeface.BOLD)
         }
         userInfoLayout.addView(usernameText)
@@ -181,7 +189,7 @@ class GesucheFragment : Fragment() {
         val cityText = TextView(requireContext()).apply {
             text = meeting.author?.city ?: ""
             textSize = 14f
-            setTextColor(resources.getColor(R.color.text_secondary, null))
+            setTextColor(resources.getColor(R.color.text_on_light, null))
         }
         userInfoLayout.addView(cityText)
 
@@ -198,7 +206,7 @@ class GesucheFragment : Fragment() {
         val locationText = TextView(requireContext()).apply {
             text = locationInfo
             textSize = 14f
-            setTextColor(resources.getColor(R.color.text_secondary, null))
+            setTextColor(resources.getColor(R.color.text_on_light, null))
             setPadding(0, 8, 0, 0)
         }
         contentLayout.addView(locationText)
@@ -207,7 +215,7 @@ class GesucheFragment : Fragment() {
         val titleText = TextView(requireContext()).apply {
             text = meeting.title ?: "Kein Titel"
             textSize = 18f
-            setTextColor(resources.getColor(R.color.text_primary, null))
+            setTextColor(resources.getColor(R.color.text_on_light, null))
             setTypeface(null, android.graphics.Typeface.BOLD)
             setPadding(0, 12, 0, 0)
         }
@@ -217,7 +225,7 @@ class GesucheFragment : Fragment() {
         val dateText = TextView(requireContext()).apply {
             text = formatMeetingDate(meeting)
             textSize = 14f
-            setTextColor(resources.getColor(R.color.text_secondary, null))
+            setTextColor(resources.getColor(R.color.text_on_light, null))
             setPadding(0, 8, 0, 0)
         }
         contentLayout.addView(dateText)
@@ -227,7 +235,7 @@ class GesucheFragment : Fragment() {
             val descriptionText = TextView(requireContext()).apply {
                 text = meeting.description
                 textSize = 14f
-                setTextColor(resources.getColor(R.color.text_primary, null))
+                setTextColor(resources.getColor(R.color.text_on_light, null))
                 setPadding(0, 8, 0, 0)
             }
             contentLayout.addView(descriptionText)

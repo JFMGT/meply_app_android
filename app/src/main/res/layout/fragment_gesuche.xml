@@ -41,7 +41,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Deine Spielergesuche"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/text_on_light"
                             android:textSize="24sp"
                             android:textStyle="bold" />
 
@@ -50,7 +50,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="Erstelle Gesuche um andere Spieler für Events, Locations oder freie Treffen zu finden."
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/text_on_light"
                             android:textSize="14sp" />
 
                         <com.google.android.material.button.MaterialButton

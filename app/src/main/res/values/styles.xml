@@ -59,4 +59,14 @@
     <style name="Theme.Meply.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">@color/text_primary</item>
     </style>
+
+    <!-- DatePicker Theme - Dark text on calendar -->
+    <style name="Theme.Meply.DatePicker" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/text_on_light</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/text_on_light</item>
+        <item name="android:textColorPrimary">@color/text_on_light</item>
+        <item name="android:textColorSecondary">@color/text_on_light</item>
+    </style>
 </resources>

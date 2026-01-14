@@ -8,8 +8,10 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.meeting.CreateMeetingRequest
-import de.meply.meply.data.meeting.MeetingData
+import de.meply.meply.data.meeting.MeetingDataRequest
+import de.meply.meply.data.meeting.MeetingDatesRequest
 import de.meply.meply.data.meeting.MeetingResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
@@ -83,8 +85,8 @@ class CreateMeetingActivity : AppCompatActivity() {
 
     private fun setupDateTypeSpinner() {
         val dateTypes = arrayOf("Spezifisches Datum", "Zeitraum", "Wiederkehrend")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, dateTypes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = ArrayAdapter(this, R.layout.spinner_item, dateTypes)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         spinnerDateType.adapter = adapter
 
         spinnerDateType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -106,8 +108,8 @@ class CreateMeetingActivity : AppCompatActivity() {
 
     private fun setupFrequencySpinner() {
         val frequencies = arrayOf("Wöchentlich", "Alle zwei Wochen", "Monatlich")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, frequencies)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = ArrayAdapter(this, R.layout.spinner_item, frequencies)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         spinnerFrequency.adapter = adapter
     }
 
@@ -143,7 +145,7 @@ class CreateMeetingActivity : AppCompatActivity() {
 
     private fun showDateTimePicker(onSelected: (Calendar) -> Unit) {
         val calendar = Calendar.getInstance()
-        DatePickerDialog(this, { _, year, month, day ->
+        DatePickerDialog(this, R.style.Theme_Meply_DatePicker, { _, year, month, day ->
             calendar.set(year, month, day)
             TimePickerDialog(this, { _, hour, minute ->
                 calendar.set(Calendar.HOUR_OF_DAY, hour)
@@ -155,7 +157,7 @@ class CreateMeetingActivity : AppCompatActivity() {
 
     private fun showDatePicker(onSelected: (Calendar) -> Unit) {
         val calendar = Calendar.getInstance()
-        DatePickerDialog(this, { _, year, month, day ->
+        DatePickerDialog(this, R.style.Theme_Meply_DatePicker, { _, year, month, day ->
             calendar.set(year, month, day)
             onSelected(calendar)
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
@@ -171,7 +173,7 @@ class CreateMeetingActivity : AppCompatActivity() {
         val description = inputDescription.text.toString().trim()
         val dateTypePosition = spinnerDateType.selectedItemPosition
 
-        val meetingData = when (dateTypePosition) {
+        val dateInfo: Pair<MeetingDatesRequest, String?> = when (dateTypePosition) {
             0 -> { // Fixed date
                 if (selectedDate == null) {
                     Toast.makeText(this, "Bitte wähle ein Datum aus", Toast.LENGTH_SHORT).show()
@@ -179,12 +181,13 @@ class CreateMeetingActivity : AppCompatActivity() {
                 }
                 val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.GERMAN)
                 format.timeZone = TimeZone.getTimeZone("UTC")
-                MeetingData(
-                    title = title,
-                    description = description.ifEmpty { null },
-                    dateType = "fixed",
-                    date = format.format(selectedDate!!.time)
+                val dateStr = format.format(selectedDate!!.time)
+
+                val datesObj = MeetingDatesRequest(
+                    type = "fixed",
+                    value = mapOf("date" to dateStr)
                 )
+                Pair(datesObj, dateStr)
             }
             1 -> { // Date range
                 if (selectedDateFrom == null || selectedDateTo == null) {
@@ -192,13 +195,14 @@ class CreateMeetingActivity : AppCompatActivity() {
                     return
                 }
                 val format = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN)
-                MeetingData(
-                    title = title,
-                    description = description.ifEmpty { null },
-                    dateType = "range",
-                    dateFrom = format.format(selectedDateFrom!!.time),
-                    dateTo = format.format(selectedDateTo!!.time)
+                val startDate = format.format(selectedDateFrom!!.time)
+                val endDate = format.format(selectedDateTo!!.time)
+
+                val datesObj = MeetingDatesRequest(
+                    type = "range",
+                    value = mapOf("start" to startDate, "end" to endDate)
                 )
+                Pair(datesObj, endDate)
             }
             2 -> { // Recurring
                 val selectedDays = mutableListOf<String>()
@@ -222,21 +226,34 @@ class CreateMeetingActivity : AppCompatActivity() {
                     else -> "weekly"
                 }
 
-                MeetingData(
-                    title = title,
-                    description = description.ifEmpty { null },
-                    dateType = "recurring",
-                    recurringDays = selectedDays,
-                    recurringFrequency = frequency
+                val datesObj = MeetingDatesRequest(
+                    type = "recurring",
+                    value = mapOf("days" to selectedDays, "frequency" to frequency)
                 )
+                Pair(datesObj, null)
             }
             else -> return
         }
+        val (dates, filterDate) = dateInfo
+
+        val profileId = AuthManager.getProfileDocumentId(this)
+        if (profileId == null) {
+            Toast.makeText(this, "Nicht angemeldet", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val meetingData = MeetingDataRequest(
+            title = title,
+            description = description.ifEmpty { null },
+            dates = dates,
+            date = filterDate,
+            author = profileId
+        )
 
         createMeeting(meetingData)
     }
 
-    private fun createMeeting(meetingData: MeetingData) {
+    private fun createMeeting(meetingData: MeetingDataRequest) {
         progressBar.visibility = View.VISIBLE
         btnSave.isEnabled = false
 
