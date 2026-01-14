@@ -420,53 +420,61 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <!-- Headline Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     app:cardBackgroundColor="#FFFFFF"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="16dp"
+                        android:text="Gesuche"
+                        android:textColor="@color/text_on_light"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Suchanfragen des Nutzers"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <ProgressBar
-                            android:id="@+id/meetings_progress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="16dp"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/meetings_empty_message"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Keine Spieltreffen gefunden."
-                            android:textColor="@color/text_secondary"
-                            android:visibility="gone" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/meetings_recycler"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:visibility="gone" />
-
-                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Progress -->
+                <ProgressBar
+                    android:id="@+id/meetings_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:visibility="gone" />
+
+                <!-- Empty Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/meetings_empty_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
+
+                    <TextView
+                        android:id="@+id/meetings_empty_message"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:text="Hat noch keine Gesuche veröffentlicht."
+                        android:textColor="@color/text_secondary" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Meetings RecyclerView (items have their own cards) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/meetings_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

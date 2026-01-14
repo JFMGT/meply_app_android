@@ -86,6 +86,7 @@ class UserProfileActivity : BaseDetailActivity() {
 
     // Meetings tab elements
     private lateinit var meetingsProgress: ProgressBar
+    private lateinit var meetingsEmptyCard: MaterialCardView
     private lateinit var meetingsEmptyMessage: TextView
     private lateinit var meetingsRecycler: RecyclerView
     private lateinit var meetingsAdapter: MeetingsAdapter
@@ -166,6 +167,7 @@ class UserProfileActivity : BaseDetailActivity() {
 
         // Meetings tab
         meetingsProgress = findViewById(R.id.meetings_progress)
+        meetingsEmptyCard = findViewById(R.id.meetings_empty_card)
         meetingsEmptyMessage = findViewById(R.id.meetings_empty_message)
         meetingsRecycler = findViewById(R.id.meetings_recycler)
 
@@ -647,7 +649,7 @@ class UserProfileActivity : BaseDetailActivity() {
         val profileDocId = profileData?.documentId ?: return
 
         meetingsProgress.visibility = View.VISIBLE
-        meetingsEmptyMessage.visibility = View.GONE
+        meetingsEmptyCard.visibility = View.GONE
         meetingsRecycler.visibility = View.GONE
 
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -669,17 +671,17 @@ class UserProfileActivity : BaseDetailActivity() {
                         meetingsAdapter.submitList(userMeetings)
                         meetingsRecycler.visibility = View.VISIBLE
                     } else {
-                        meetingsEmptyMessage.visibility = View.VISIBLE
+                        meetingsEmptyCard.visibility = View.VISIBLE
                     }
                 } else {
-                    meetingsEmptyMessage.visibility = View.VISIBLE
+                    meetingsEmptyCard.visibility = View.VISIBLE
                     Log.e(TAG, "Error loading meetings: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<StrapiListResponse<MeetingData>>, t: Throwable) {
                 meetingsProgress.visibility = View.GONE
-                meetingsEmptyMessage.visibility = View.VISIBLE
+                meetingsEmptyCard.visibility = View.VISIBLE
                 Log.e(TAG, "Error loading meetings", t)
             }
         })
