@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.meeting.CreateMeetingRequest
 import de.meply.meply.data.meeting.MeetingDataRequest
 import de.meply.meply.data.meeting.MeetingDatesRequest
@@ -172,7 +173,7 @@ class CreateMeetingActivity : AppCompatActivity() {
         val description = inputDescription.text.toString().trim()
         val dateTypePosition = spinnerDateType.selectedItemPosition
 
-        val (dates, filterDate) = when (dateTypePosition) {
+        val (dates, filterDate): Pair<MeetingDatesRequest, String?> = when (dateTypePosition) {
             0 -> { // Fixed date
                 if (selectedDate == null) {
                     Toast.makeText(this, "Bitte wähle ein Datum aus", Toast.LENGTH_SHORT).show()
