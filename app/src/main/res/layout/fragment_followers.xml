@@ -83,9 +83,7 @@
                     app:tabGravity="center"
                     app:tabIndicatorHeight="0dp"
                     app:tabMaxWidth="20dp"
-                    app:tabMinWidth="20dp"
-                    app:tabPaddingStart="5dp"
-                    app:tabPaddingEnd="5dp" />
+                    app:tabMinWidth="20dp" />
 
                 <!-- Progress Bar -->
                 <ProgressBar
