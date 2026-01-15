@@ -1,5 +1,7 @@
 package de.meply.meply.ui.collection
 
+import android.graphics.Canvas
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,7 +16,9 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.widget.NestedScrollView
@@ -101,6 +105,86 @@ class MyCollectionFragment : Fragment() {
         )
         gamesRecycler.layoutManager = LinearLayoutManager(requireContext())
         gamesRecycler.adapter = collectionAdapter
+
+        // Setup swipe to sell
+        setupSwipeToSell()
+    }
+
+    private fun setupSwipeToSell() {
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            private val backgroundColor = ColorDrawable(ContextCompat.getColor(requireContext(), R.color.primary))
+            private val sellIcon = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_share)
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                if (position != RecyclerView.NO_POSITION && position < displayedGames.size) {
+                    val game = displayedGames[position]
+                    // Reset the item position (don't actually remove it)
+                    collectionAdapter.notifyItemChanged(position)
+                    // Open sell bottom sheet
+                    openSellBottomSheet(game)
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                val itemView = viewHolder.itemView
+                val iconMargin = (itemView.height - (sellIcon?.intrinsicHeight ?: 0)) / 2
+
+                // Draw yellow background
+                if (dX > 0) {
+                    backgroundColor.setBounds(
+                        itemView.left,
+                        itemView.top,
+                        itemView.left + dX.toInt(),
+                        itemView.bottom
+                    )
+                    backgroundColor.draw(c)
+
+                    // Draw sell icon
+                    sellIcon?.let { icon ->
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + icon.intrinsicHeight
+                        val iconLeft = itemView.left + iconMargin
+                        val iconRight = iconLeft + icon.intrinsicWidth
+
+                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        icon.setTint(ContextCompat.getColor(requireContext(), R.color.text_on_primary))
+                        icon.draw(c)
+                    }
+                }
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
+        }
+
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(gamesRecycler)
+    }
+
+    private fun openSellBottomSheet(game: UserBoardgame) {
+        val bottomSheet = SellGameBottomSheet.newInstance(game)
+        bottomSheet.setOnSaleUpdatedListener {
+            // Update the game in the list
+            val index = displayedGames.indexOfFirst { it.id == game.id }
+            if (index >= 0) {
+                // Refresh the collection to get updated data
+                loadCollection(resetList = true)
+            }
+        }
+        bottomSheet.show(parentFragmentManager, "sellGame")
     }
 
     private fun setupSearch() {
