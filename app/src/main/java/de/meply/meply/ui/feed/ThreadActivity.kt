@@ -34,6 +34,9 @@ class ThreadActivity : BaseDetailActivity() {
     private var documentId: String? = null
     private var rootPost: Post? = null
 
+    // Track posts that were modified (liked/unliked) to sync back to parent
+    private val modifiedPosts = mutableMapOf<String, Post>()
+
     private val createPostLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -168,6 +171,10 @@ class ThreadActivity : BaseDetailActivity() {
                             likeCount = newLikeCount
                         )
                         threadAdapter.updatePost(updatedPost)
+
+                        // Track modified post to sync back to Feed
+                        modifiedPosts[updatedPost.documentId] = updatedPost
+                        Log.d("ThreadActivity", "Tracked modified post: ${updatedPost.documentId}, liked=${updatedPost.liked}")
                     }
                 } else {
                     Toast.makeText(
@@ -329,5 +336,18 @@ class ThreadActivity : BaseDetailActivity() {
             "Image ${startPosition + 1} of ${images.size}",
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    override fun finish() {
+        // Return modified posts to the calling activity/fragment
+        if (modifiedPosts.isNotEmpty()) {
+            val gson = com.google.gson.Gson()
+            val modifiedPostsList = modifiedPosts.values.toList()
+            val resultIntent = Intent()
+            resultIntent.putExtra("modifiedPosts", gson.toJson(modifiedPostsList))
+            setResult(Activity.RESULT_OK, resultIntent)
+            Log.d("ThreadActivity", "Returning ${modifiedPostsList.size} modified posts")
+        }
+        super.finish()
     }
 }

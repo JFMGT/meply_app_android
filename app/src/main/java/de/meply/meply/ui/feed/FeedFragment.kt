@@ -44,6 +44,28 @@ class FeedFragment : Fragment() {
         }
     }
 
+    private val threadLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Update modified posts from thread view
+            val modifiedPostsJson = result.data?.getStringExtra("modifiedPosts")
+            if (!modifiedPostsJson.isNullOrEmpty()) {
+                try {
+                    val gson = com.google.gson.Gson()
+                    val type = object : com.google.gson.reflect.TypeToken<List<Post>>() {}.type
+                    val modifiedPosts: List<Post> = gson.fromJson(modifiedPostsJson, type)
+                    modifiedPosts.forEach { post ->
+                        feedAdapter.updatePost(post)
+                        Log.d("FeedFragment", "Updated post from thread: ${post.documentId}, liked=${post.liked}, likeCount=${post.likeCount}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("FeedFragment", "Error parsing modified posts", e)
+                }
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -268,7 +290,7 @@ class FeedFragment : Fragment() {
     private fun showThread(post: Post) {
         val intent = Intent(requireContext(), ThreadActivity::class.java)
         intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
+        threadLauncher.launch(intent)
     }
 
     private fun showOptionsMenu(post: Post, anchorView: View) {
