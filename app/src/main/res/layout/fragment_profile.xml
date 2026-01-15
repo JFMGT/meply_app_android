@@ -282,50 +282,72 @@
             android:layout_marginBottom="16dp"
             android:nestedScrollingEnabled="false" />
 
-        <!-- Weitere Optionen -->
+        <!-- Konto-Einstellungen -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
-            android:text="Weitere Optionen"
+            android:text="Konto"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Profilfoto hochladen"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
+        <!-- Deletion Warning Card (only visible when account is marked for deletion) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/deletion_warning_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Das Hochladen von Fotos ist derzeit nur über die Website möglich. Bitte besuche https://dev.meply.de"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
+            android:visibility="gone"
+            app:cardBackgroundColor="#FF5252"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Konto löschen"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-        <TextView
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Konto zur Löschung vorgemerkt"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/deletion_warning_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Dein Konto wird am XX.XX.XXXX gelöscht."
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/btn_cancel_deletion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:backgroundTint="@android:color/white"
+                    android:text="Löschung abbrechen"
+                    android:textColor="#FF5252" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/btn_delete_account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
-            android:text="Das Löschen des Kontos ist derzeit nur über die Website möglich. Bitte besuche https://dev.meply.de"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
+            android:backgroundTint="#FF5252"
+            android:text="Konto löschen"
+            android:textColor="@android:color/white"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

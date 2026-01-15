@@ -10,6 +10,8 @@ object AuthManager {
     private const val KEY_PROFILE_DOCUMENT_ID = "profile_document_id"
     private const val KEY_PROFILE_ID = "profile_id"
     private const val KEY_USER_DOCUMENT_ID = "user_document_id"
+    private const val KEY_SCHEDULED_DELETION_AT = "scheduled_deletion_at"
+    private const val KEY_DELETION_WARNING_SHOWN = "deletion_warning_shown"
 
     // Hilfsmethode, um die Standard-SharedPreferences zu bekommen
     private fun getSharedPreferences(context: Context): SharedPreferences {
@@ -66,6 +68,30 @@ object AuthManager {
     fun getUserDocumentId(context: Context): String? {
         return getSharedPreferences(context)
             .getString(KEY_USER_DOCUMENT_ID, null)
+    }
+
+    fun saveScheduledDeletionAt(context: Context, deletionDate: String?) {
+        getSharedPreferences(context)
+            .edit()
+            .putString(KEY_SCHEDULED_DELETION_AT, deletionDate)
+            .apply()
+    }
+
+    fun getScheduledDeletionAt(context: Context): String? {
+        return getSharedPreferences(context)
+            .getString(KEY_SCHEDULED_DELETION_AT, null)
+    }
+
+    fun setDeletionWarningShown(context: Context, shown: Boolean) {
+        getSharedPreferences(context)
+            .edit()
+            .putBoolean(KEY_DELETION_WARNING_SHOWN, shown)
+            .apply()
+    }
+
+    fun isDeletionWarningShown(context: Context): Boolean {
+        return getSharedPreferences(context)
+            .getBoolean(KEY_DELETION_WARNING_SHOWN, false)
     }
 
     fun clear(context: Context) {

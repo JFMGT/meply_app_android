@@ -23,6 +23,8 @@ import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
+import de.meply.meply.LoginActivity
+import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.feed.ImageUploadResponse
 import de.meply.meply.data.feed.StrapiUploadResponse
 import de.meply.meply.data.profile.InviteCodesResponse
@@ -33,6 +35,11 @@ import de.meply.meply.data.profile.UpdateProfileRequest
 import de.meply.meply.network.ApiClient
 import de.meply.meply.network.ApiService
 import de.meply.meply.utils.AvatarUtils
+import android.content.Intent
+import com.google.android.material.card.MaterialCardView
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -62,8 +69,13 @@ class ProfileFragment : Fragment() {
     private lateinit var btnSave: Button
     private lateinit var inviteCodesInfo: TextView
     private lateinit var inviteCodesRecycler: RecyclerView
+    private lateinit var deletionWarningCard: MaterialCardView
+    private lateinit var deletionWarningText: TextView
+    private lateinit var btnCancelDeletion: Button
+    private lateinit var btnDeleteAccount: Button
 
     private var loadedProfile: ProfileItem? = null
+    private var currentScheduledDeletionAt: String? = null
     private var currentProfileId: String? = null
     private var currentAvatarUploadId: Int? = null
     private var photoUri: Uri? = null
@@ -121,12 +133,18 @@ class ProfileFragment : Fragment() {
         btnSave = view.findViewById(R.id.btn_save)
         inviteCodesInfo = view.findViewById(R.id.invite_codes_info)
         inviteCodesRecycler = view.findViewById(R.id.invite_codes_recycler)
+        deletionWarningCard = view.findViewById(R.id.deletion_warning_card)
+        deletionWarningText = view.findViewById(R.id.deletion_warning_text)
+        btnCancelDeletion = view.findViewById(R.id.btn_cancel_deletion)
+        btnDeleteAccount = view.findViewById(R.id.btn_delete_account)
 
         setupGenderSpinner()
         setupInviteCodesRecycler()
 
         btnSave.setOnClickListener { saveProfile() }
         btnChangeAvatar.setOnClickListener { showAvatarOptions() }
+        btnDeleteAccount.setOnClickListener { confirmDeleteAccount() }
+        btnCancelDeletion.setOnClickListener { cancelAccountDeletion() }
 
         loadProfile()
         loadInviteCodes()
@@ -169,6 +187,12 @@ class ProfileFragment : Fragment() {
                             currentProfileId = profileMeData.id.toString()
                             loadedProfile = profileMeData.toProfileItem()
                             Log.d("ProfileFragment", "Converted ProfileItem attributes: ${loadedProfile?.attributes}")
+
+                            // Handle scheduled deletion
+                            currentScheduledDeletionAt = profileMeData.scheduledDeletionAt
+                            AuthManager.saveScheduledDeletionAt(requireContext(), currentScheduledDeletionAt)
+                            updateDeletionUI()
+
                             showProfile(loadedProfile!!)
                         } else {
                             Log.e("ProfileFragment", "Profile data is null in response")
@@ -697,6 +721,140 @@ class ProfileFragment : Fragment() {
                     Toast.makeText(requireContext(), "Netzwerkfehler", Toast.LENGTH_SHORT).show()
                 }
             })
+    }
+
+    // ===== ACCOUNT DELETION METHODS =====
+
+    private fun updateDeletionUI() {
+        if (!currentScheduledDeletionAt.isNullOrEmpty()) {
+            // Account is marked for deletion
+            deletionWarningCard.visibility = View.VISIBLE
+            btnDeleteAccount.visibility = View.GONE
+
+            // Format the deletion date
+            val formattedDate = formatDeletionDate(currentScheduledDeletionAt!!)
+            deletionWarningText.text = "Dein Konto wird am $formattedDate gelöscht."
+        } else {
+            // Account is not marked for deletion
+            deletionWarningCard.visibility = View.GONE
+            btnDeleteAccount.visibility = View.VISIBLE
+        }
+    }
+
+    private fun formatDeletionDate(isoDate: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY)
+            val outputFormat = SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
+            val date = inputFormat.parse(isoDate.substring(0, 10))
+            outputFormat.format(date!!)
+        } catch (e: Exception) {
+            isoDate
+        }
+    }
+
+    private fun confirmDeleteAccount() {
+        MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Meply_AlertDialog)
+            .setTitle("Konto löschen")
+            .setMessage("Bist du sicher, dass du dein Konto löschen möchtest?\n\nDein Konto wird in 14 Tagen endgültig gelöscht. Bis dahin kannst du die Löschung jederzeit abbrechen.")
+            .setPositiveButton("Konto löschen") { _, _ ->
+                requestAccountDeletion()
+            }
+            .setNegativeButton("Abbrechen", null)
+            .show()
+    }
+
+    private fun requestAccountDeletion() {
+        showLoading(true)
+
+        // Calculate deletion date (14 days from now)
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_MONTH, 14)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY)
+        val deletionDate = dateFormat.format(calendar.time)
+
+        val updateMap = mutableMapOf<String, Any?>(
+            "scheduledDeletionAt" to deletionDate
+        )
+
+        val request = UpdateProfileRequest(updateMap)
+
+        ApiClient.retrofit.updateMyProfile(request)
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
+                override fun onResponse(
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
+                ) {
+                    showLoading(false)
+                    if (response.isSuccessful) {
+                        // Save deletion date and log out
+                        AuthManager.saveScheduledDeletionAt(requireContext(), deletionDate)
+                        AuthManager.setDeletionWarningShown(requireContext(), false) // Reset warning flag
+
+                        Toast.makeText(
+                            requireContext(),
+                            "Dein Konto wird in 14 Tagen gelöscht. Du wirst jetzt ausgeloggt.",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        // Log out user
+                        logoutUser()
+                    } else {
+                        Toast.makeText(requireContext(), "Fehler beim Löschen: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Log.e("ProfileFragment", "Error requesting deletion: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
+                    showLoading(false)
+                    Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("ProfileFragment", "Network error requesting deletion", t)
+                }
+            })
+    }
+
+    private fun cancelAccountDeletion() {
+        showLoading(true)
+
+        val updateMap = mutableMapOf<String, Any?>(
+            "scheduledDeletionAt" to null
+        )
+
+        val request = UpdateProfileRequest(updateMap)
+
+        ApiClient.retrofit.updateMyProfile(request)
+            .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
+                override fun onResponse(
+                    call: Call<ProfileResponse<ProfileMeData>>,
+                    response: Response<ProfileResponse<ProfileMeData>>
+                ) {
+                    showLoading(false)
+                    if (response.isSuccessful) {
+                        currentScheduledDeletionAt = null
+                        AuthManager.saveScheduledDeletionAt(requireContext(), null)
+                        updateDeletionUI()
+                        Toast.makeText(requireContext(), "Löschung abgebrochen. Dein Konto bleibt aktiv.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Fehler: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Log.e("ProfileFragment", "Error cancelling deletion: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
+                    showLoading(false)
+                    Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("ProfileFragment", "Network error cancelling deletion", t)
+                }
+            })
+    }
+
+    private fun logoutUser() {
+        AuthManager.clear(requireContext())
+
+        // Navigate to login screen
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        activity?.finish()
     }
 }
 
