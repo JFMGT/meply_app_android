@@ -140,7 +140,7 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun showDiscardConfirmation() {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Meply_AlertDialog)
             .setTitle("Änderungen verwerfen?")
             .setMessage("Du hast ungespeicherte Änderungen. Möchtest du wirklich abbrechen?")
             .setNegativeButton("Weiter bearbeiten", null)
