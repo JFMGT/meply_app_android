@@ -114,32 +114,46 @@
                     android:clipToPadding="false"
                     android:nestedScrollingEnabled="false" />
 
-                <!-- All Loaded Footer -->
-                <TextView
-                    android:id="@+id/all_loaded_text"
+                <!-- Loading/Status Footer Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/status_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp"
-                    android:visibility="gone" />
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/primary"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:padding="16dp">
+
+                        <ProgressBar
+                            android:id="@+id/status_spinner"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="12dp"
+                            android:indeterminateTint="@color/text_on_primary"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/status_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_on_primary"
+                            android:textSize="14sp"
+                            android:text="Es wird versucht, weitere Einträge zu laden..." />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <!-- Floating Load More Spinner - bottom right corner -->
-    <ProgressBar
-        android:id="@+id/load_more_spinner"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:padding="8dp"
-        android:background="@drawable/rounded_corner_background"
-        android:elevation="4dp"
-        android:visibility="gone" />
 
 </FrameLayout>

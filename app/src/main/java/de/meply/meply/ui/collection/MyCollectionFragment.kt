@@ -42,8 +42,9 @@ class MyCollectionFragment : Fragment() {
     private lateinit var loadingProgress: ProgressBar
     private lateinit var emptyCard: MaterialCardView
     private lateinit var gamesRecycler: RecyclerView
-    private lateinit var loadMoreSpinner: ProgressBar
-    private lateinit var allLoadedText: TextView
+    private lateinit var statusCard: MaterialCardView
+    private lateinit var statusSpinner: ProgressBar
+    private lateinit var statusText: TextView
 
     private lateinit var collectionAdapter: CollectionAdapter
 
@@ -83,8 +84,9 @@ class MyCollectionFragment : Fragment() {
         loadingProgress = view.findViewById(R.id.loading_progress)
         emptyCard = view.findViewById(R.id.empty_card)
         gamesRecycler = view.findViewById(R.id.games_recycler)
-        loadMoreSpinner = view.findViewById(R.id.load_more_spinner)
-        allLoadedText = view.findViewById(R.id.all_loaded_text)
+        statusCard = view.findViewById(R.id.status_card)
+        statusSpinner = view.findViewById(R.id.status_spinner)
+        statusText = view.findViewById(R.id.status_text)
 
         swipeRefresh.setOnRefreshListener {
             loadCollection(resetList = true)
@@ -150,12 +152,12 @@ class MyCollectionFragment : Fragment() {
             loadingProgress.visibility = View.VISIBLE
             emptyCard.visibility = View.GONE
             gamesRecycler.visibility = View.GONE
-            loadMoreSpinner.visibility = View.GONE
-            allLoadedText.visibility = View.GONE
+            statusCard.visibility = View.GONE
         } else {
-            // Loading more - show floating spinner
-            loadMoreSpinner.visibility = View.VISIBLE
-            allLoadedText.visibility = View.GONE
+            // Loading more - show status card with spinner
+            statusCard.visibility = View.VISIBLE
+            statusSpinner.visibility = View.VISIBLE
+            statusText.text = "Es wird versucht, weitere Einträge zu laden..."
         }
 
         val searchTitle = currentSearchQuery.ifEmpty { null }
@@ -173,7 +175,7 @@ class MyCollectionFragment : Fragment() {
 
                 isLoading = false
                 loadingProgress.visibility = View.GONE
-                loadMoreSpinner.visibility = View.GONE
+                statusSpinner.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 if (response.isSuccessful) {
@@ -200,10 +202,16 @@ class MyCollectionFragment : Fragment() {
 
                 isLoading = false
                 loadingProgress.visibility = View.GONE
-                loadMoreSpinner.visibility = View.GONE
+                statusSpinner.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
                 Log.e(TAG, "Error loading collection: ${t.message}", t)
                 Toast.makeText(requireContext(), "Fehler: ${t.message}", Toast.LENGTH_LONG).show()
+
+                // Show error in status card
+                if (displayedGames.isNotEmpty()) {
+                    statusCard.visibility = View.VISIBLE
+                    statusText.text = "Fehler beim Laden weiterer Einträge"
+                }
             }
         })
     }
@@ -212,7 +220,7 @@ class MyCollectionFragment : Fragment() {
         if (displayedGames.isEmpty()) {
             emptyCard.visibility = View.VISIBLE
             gamesRecycler.visibility = View.GONE
-            allLoadedText.visibility = View.GONE
+            statusCard.visibility = View.GONE
             if (currentSearchQuery.isNotEmpty()) {
                 collectionStats.text = "Keine Treffer für \"$currentSearchQuery\""
             } else {
@@ -230,12 +238,15 @@ class MyCollectionFragment : Fragment() {
 
             collectionAdapter.submitList(displayedGames.toList())
 
-            // Show "all loaded" footer when no more pages
-            if (!hasMorePages && displayedGames.isNotEmpty()) {
-                allLoadedText.visibility = View.VISIBLE
-                allLoadedText.text = "${displayedGames.size} von $totalGames Spielen geladen"
+            // Update status card
+            statusCard.visibility = View.VISIBLE
+            statusSpinner.visibility = View.GONE
+            if (!hasMorePages) {
+                // All loaded
+                statusText.text = "${displayedGames.size} von $totalGames Spielen geladen - Keine weiteren Einträge"
             } else {
-                allLoadedText.visibility = View.GONE
+                // More available - will show loading text when triggered
+                statusText.text = "Scrolle nach unten für weitere Einträge"
             }
         }
     }
