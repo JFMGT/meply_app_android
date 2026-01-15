@@ -1,22 +1,27 @@
 package de.meply.meply.ui.events
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
 import de.meply.meply.data.events.StrapiListResponse
+import de.meply.meply.data.feed.LikeToggleRequest
+import de.meply.meply.data.feed.LikeToggleResponse
 import de.meply.meply.data.meetings.MeetingData
 import de.meply.meply.data.messages.CreateConversationRequest
 import de.meply.meply.data.messages.SendMessageResponse
@@ -32,36 +37,73 @@ import de.meply.meply.data.events.FlatEventData
 class EventDetailActivity : BaseDetailActivity() {
 
     private var eventSlugOrId: String? = null
+
+    // Header Card
     private lateinit var titleTextView: TextView
-    private lateinit var descriptionTextView: TextView
+    private lateinit var likesContainer: LinearLayout
+    private lateinit var likeIcon: ImageView
+    private lateinit var likeCount: TextView
+    private lateinit var headerMeetingCount: TextView
+
+    // Info Card
     private lateinit var dateTextView: TextView
     private lateinit var locationTextView: TextView
     private lateinit var organizerTextView: TextView
+    private lateinit var urlContainer: LinearLayout
+    private lateinit var urlDivider: View
+    private lateinit var urlTextView: TextView
+
+    // Description Card
+    private lateinit var descriptionCard: MaterialCardView
+    private lateinit var descriptionTextView: TextView
+
+    // Progress
     private lateinit var progressBar: ProgressBar
 
     // Meetings UI elements
     private lateinit var meetingsProgressBar: ProgressBar
+    private lateinit var meetingsErrorCard: MaterialCardView
     private lateinit var meetingsErrorTextView: TextView
+    private lateinit var noMeetingsCard: MaterialCardView
     private lateinit var noMeetingsTextView: TextView
     private lateinit var meetingsRecycler: RecyclerView
     private lateinit var meetingsAdapter: MeetingsAdapter
 
     private var currentEventDocumentId: String? = null
+    private var currentLikeCount: Int = 0
+    private var isLiked: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_event_detail)
 
+        // Header Card
         titleTextView = findViewById(R.id.detail_event_title)
-        descriptionTextView = findViewById(R.id.detail_event_description)
+        likesContainer = findViewById(R.id.likesContainer)
+        likeIcon = findViewById(R.id.likeIcon)
+        likeCount = findViewById(R.id.likeCount)
+        headerMeetingCount = findViewById(R.id.headerMeetingCount)
+
+        // Info Card
         dateTextView = findViewById(R.id.detail_event_date)
         locationTextView = findViewById(R.id.detail_event_location)
         organizerTextView = findViewById(R.id.detail_event_organizer)
+        urlContainer = findViewById(R.id.urlContainer)
+        urlDivider = findViewById(R.id.urlDivider)
+        urlTextView = findViewById(R.id.detail_event_url)
+
+        // Description Card
+        descriptionCard = findViewById(R.id.descriptionCard)
+        descriptionTextView = findViewById(R.id.detail_event_description)
+
+        // Progress
         progressBar = findViewById(R.id.detail_event_progress_bar)
 
         // Initialize meetings UI elements
         meetingsProgressBar = findViewById(R.id.detail_meetings_progress_bar)
+        meetingsErrorCard = findViewById(R.id.meetings_error_card)
         meetingsErrorTextView = findViewById(R.id.detail_meetings_error_textview)
+        noMeetingsCard = findViewById(R.id.no_meetings_card)
         noMeetingsTextView = findViewById(R.id.detail_no_meetings_textview)
         meetingsRecycler = findViewById(R.id.detail_meetings_recycler)
 
@@ -72,6 +114,11 @@ class EventDetailActivity : BaseDetailActivity() {
         )
         meetingsRecycler.layoutManager = LinearLayoutManager(this)
         meetingsRecycler.adapter = meetingsAdapter
+
+        // Setup like button click
+        likesContainer.setOnClickListener {
+            toggleLike()
+        }
 
         // Setup toolbar with back button and user menu
         setupDetailToolbar()
@@ -89,7 +136,47 @@ class EventDetailActivity : BaseDetailActivity() {
         fetchEventDetails(eventSlugOrId!!)
     }
 
-    // HINZUGEFÜGT: Funktion zum Abrufen des heutigen Datums
+    private fun toggleLike() {
+        val documentId = currentEventDocumentId ?: return
+
+        val request = LikeToggleRequest(
+            targetDocumentId = documentId,
+            targetType = "event"
+        )
+
+        ApiClient.retrofit.toggleLike(request).enqueue(object : Callback<LikeToggleResponse> {
+            override fun onResponse(
+                call: Call<LikeToggleResponse>,
+                response: Response<LikeToggleResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+                    currentLikeCount = result?.getActualLikeCount() ?: currentLikeCount
+                    isLiked = result?.status == "liked"
+                    updateLikeUI()
+                    Log.d("EventDetailActivity", "Like toggled: ${result?.status}, count: $currentLikeCount")
+                } else {
+                    Log.e("EventDetailActivity", "Failed to toggle like: ${response.code()}")
+                    Toast.makeText(this@EventDetailActivity, "Fehler beim Liken", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
+                Log.e("EventDetailActivity", "Error toggling like", t)
+                Toast.makeText(this@EventDetailActivity, "Netzwerkfehler", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun updateLikeUI() {
+        likeCount.text = currentLikeCount.toString()
+        if (isLiked) {
+            likeIcon.setImageResource(android.R.drawable.btn_star_big_on)
+        } else {
+            likeIcon.setImageResource(android.R.drawable.btn_star_big_off)
+        }
+    }
+
     private fun getTodayDateString(): String {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY)
         return sdf.format(Date())
@@ -116,7 +203,7 @@ class EventDetailActivity : BaseDetailActivity() {
                     if (meetingsResponse != null && meetingsResponse.data != null) {
                         Log.i("EventDetailActivity_Meetings", "Successfully fetched ${meetingsResponse.data.size} meetings.")
                         displayMeetings(meetingsResponse.data)
-                    } else if (meetingsResponse?.data == null && meetingsResponse?.meta != null) { // meetingsResponse.meta statt response.meta
+                    } else if (meetingsResponse?.data == null && meetingsResponse?.meta != null) {
                         Log.i("EventDetailActivity_Meetings", "No meetings found (data is null, but meta present).")
                         displayMeetings(emptyList())
                     } else {
@@ -141,32 +228,36 @@ class EventDetailActivity : BaseDetailActivity() {
     private fun showMeetingsLoading(isLoading: Boolean) {
         meetingsProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         if (isLoading) {
-            meetingsErrorTextView.visibility = View.GONE
-            noMeetingsTextView.visibility = View.GONE
+            meetingsErrorCard.visibility = View.GONE
+            noMeetingsCard.visibility = View.GONE
             meetingsRecycler.visibility = View.GONE
         }
         Log.d("EventDetailActivity", "showMeetingsLoading: $isLoading")
     }
 
     private fun displayMeetings(meetings: List<MeetingData>) {
+        // Update header meeting count
+        val count = meetings.size
+        headerMeetingCount.text = if (count == 1) "1 Gesuch" else "$count Gesuche"
+
         if (meetings.isEmpty()) {
             Log.i("EventDetailActivity", "No meetings to display.")
-            noMeetingsTextView.visibility = View.VISIBLE
+            noMeetingsCard.visibility = View.VISIBLE
             meetingsRecycler.visibility = View.GONE
-            meetingsErrorTextView.visibility = View.GONE
+            meetingsErrorCard.visibility = View.GONE
         } else {
             Log.i("EventDetailActivity", "Displaying ${meetings.size} meetings.")
-            noMeetingsTextView.visibility = View.GONE
+            noMeetingsCard.visibility = View.GONE
             meetingsRecycler.visibility = View.VISIBLE
-            meetingsErrorTextView.visibility = View.GONE
+            meetingsErrorCard.visibility = View.GONE
             meetingsAdapter.submitList(meetings)
         }
     }
 
     private fun showMeetingsError(message: String) {
         meetingsErrorTextView.text = message
-        meetingsErrorTextView.visibility = View.VISIBLE
-        noMeetingsTextView.visibility = View.GONE
+        meetingsErrorCard.visibility = View.VISIBLE
+        noMeetingsCard.visibility = View.GONE
         meetingsRecycler.visibility = View.GONE
         Log.e("EventDetailActivity", "showMeetingsError: $message")
     }
@@ -174,12 +265,11 @@ class EventDetailActivity : BaseDetailActivity() {
     private fun fetchEventDetails(slug: String) {
         showLoading(true)
         ApiClient.retrofit.getEventBySlug(slug = slug)
-            .enqueue(object : Callback<StrapiListResponse<FlatEventData>> { // KORREKTER TYP hier
+            .enqueue(object : Callback<StrapiListResponse<FlatEventData>> {
 
-                // KORREKTE onResponse SIGNATUR
                 override fun onResponse(
-                    call: Call<StrapiListResponse<FlatEventData>>, // Muss mit dem Typ im Callback übereinstimmen
-                    response: Response<StrapiListResponse<FlatEventData>> // Muss mit dem Typ im Callback übereinstimmen
+                    call: Call<StrapiListResponse<FlatEventData>>,
+                    response: Response<StrapiListResponse<FlatEventData>>
                 ) {
                     showLoading(false)
                     if (response.isSuccessful) {
@@ -196,9 +286,8 @@ class EventDetailActivity : BaseDetailActivity() {
                     }
                 }
 
-                // KORREKTE onFailure SIGNATUR
                 override fun onFailure(
-                    call: Call<StrapiListResponse<FlatEventData>>, // Muss mit dem Typ im Callback übereinstimmen
+                    call: Call<StrapiListResponse<FlatEventData>>,
                     t: Throwable
                 ) {
                     showLoading(false)
@@ -208,12 +297,18 @@ class EventDetailActivity : BaseDetailActivity() {
             })
     }
 
-    // ÜBERARBEITET: Ruft jetzt auch fetchMeetingsForEvent auf
     private fun displayEventDetails(eventData: FlatEventData) {
+        // Title
         titleTextView.text = eventData.title ?: "Ohne Titel"
-        descriptionTextView.text = eventData.description?.replace("<br />", "\n") ?: "Keine Beschreibung vorhanden."
+
+        // Like count
+        currentLikeCount = eventData.likes ?: 0
+        updateLikeUI()
+
+        // Date
         dateTextView.text = formatEventDate(eventData)
 
+        // Location
         val addressParts = mutableListOf<String>()
         val streetLine = listOfNotNull(eventData.street, eventData.streetNumber).joinToString(" ").trim()
         if (streetLine.isNotBlank()) {
@@ -223,21 +318,49 @@ class EventDetailActivity : BaseDetailActivity() {
         if (cityLine.isNotBlank()) {
             addressParts.add(cityLine)
         }
-        if (!eventData.country.isNullOrBlank()) {
+        if (!eventData.country.isNullOrBlank() && eventData.country != "Deutschland") {
             addressParts.add(eventData.country!!)
         }
 
         if (addressParts.isNotEmpty()) {
-            locationTextView.text = "Ort: ${addressParts.joinToString(", ")}"
-        } else if (!eventData.city.isNullOrBlank()){
-            locationTextView.text = "Ort: ${eventData.city}"
+            locationTextView.text = addressParts.joinToString(", ")
+        } else if (!eventData.city.isNullOrBlank()) {
+            locationTextView.text = eventData.city
         } else {
-            locationTextView.text = "Ort: Keine Angabe"
+            locationTextView.text = "Keine Angabe"
         }
-        organizerTextView.text = "Veranstalter: Keine Angabe" // Bleibt vorerst so
 
-        // NEU: currentEventDocumentId setzen und Meetings abrufen
-        // Stellen Sie sicher, dass FlatEventData ein Feld 'documentId' hat
+        // Organizer (currently not in API response, show generic text)
+        organizerTextView.text = "Veranstalter"
+
+        // URL
+        if (!eventData.url.isNullOrBlank()) {
+            urlDivider.visibility = View.VISIBLE
+            urlContainer.visibility = View.VISIBLE
+            urlTextView.text = eventData.url
+            urlTextView.setOnClickListener {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(eventData.url))
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Kann Link nicht öffnen", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            urlDivider.visibility = View.GONE
+            urlContainer.visibility = View.GONE
+        }
+
+        // Description
+        val description = eventData.description?.replace("<br />", "\n")?.replace("<br>", "\n")
+        if (!description.isNullOrBlank()) {
+            descriptionCard.visibility = View.VISIBLE
+            descriptionTextView.text = description
+        } else {
+            descriptionCard.visibility = View.GONE
+        }
+
+        // Fetch meetings
         eventData.documentId?.let { docId ->
             if (docId.isNotBlank()) {
                 currentEventDocumentId = docId
@@ -253,7 +376,6 @@ class EventDetailActivity : BaseDetailActivity() {
     }
 
     private fun formatEventDate(eventData: FlatEventData): String {
-        // ... (Ihre bestehende formatEventDate-Logik - unverändert gelassen)
         val isoFormat = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY)
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.GERMANY)
         val outputDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
@@ -266,20 +388,20 @@ class EventDetailActivity : BaseDetailActivity() {
                 var dateStr = outputDateFormat.format(startDateObj)
                 if (!eventData.endDate.isNullOrBlank() && eventData.endDate != eventData.startDate) {
                     val endDateObj = isoFormat.parse(eventData.endDate!!)
-                    dateStr += " – ${outputDateFormat.format(endDateObj)}"
+                    dateStr += " - ${outputDateFormat.format(endDateObj)}"
                 }
                 if (!eventData.startTime.isNullOrBlank()) {
                     val startTimeObj = timeFormat.parse(eventData.startTime!!)
                     dateStr += " | ${outputTimeFormat.format(startTimeObj)}"
                     if (!eventData.endTime.isNullOrBlank() && eventData.endTime != eventData.startTime) {
                         val endTimeObj = timeFormat.parse(eventData.endTime!!)
-                        dateStr += " – ${outputTimeFormat.format(endTimeObj)}"
+                        dateStr += " - ${outputTimeFormat.format(endTimeObj)}"
                     }
                 }
                 return dateStr
             } catch (e: Exception) {
                 Log.e("EventDetailActivity", "Error formatting date for eventData: $eventData -> ${e.message}", e)
-                return eventData.datePlaceholder ?: "Termin folgt (Formatierungsfehler)"
+                return eventData.datePlaceholder ?: "Termin folgt"
             }
         } else {
             return eventData.datePlaceholder ?: "Termin folgt"
@@ -288,21 +410,11 @@ class EventDetailActivity : BaseDetailActivity() {
 
     private fun showLoading(isLoading: Boolean) {
         progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        val contentVisibility = if (isLoading) View.INVISIBLE else View.VISIBLE
-        titleTextView.visibility = contentVisibility
-        descriptionTextView.visibility = contentVisibility
-        dateTextView.visibility = contentVisibility
-        locationTextView.visibility = contentVisibility
-        organizerTextView.visibility = contentVisibility
     }
 
     private fun showError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         titleTextView.text = message
-        descriptionTextView.visibility = View.GONE
-        dateTextView.visibility = View.GONE
-        locationTextView.visibility = View.GONE
-        organizerTextView.visibility = View.GONE
     }
 
     private fun onContactMeeting(meeting: MeetingData) {
@@ -319,8 +431,9 @@ class EventDetailActivity : BaseDetailActivity() {
         val messageInput = EditText(this)
         messageInput.hint = "Deine Nachricht"
         messageInput.maxLines = 5
+        messageInput.setPadding(48, 32, 48, 32)
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this, R.style.Theme_Meply_AlertDialog)
             .setTitle("Nachricht an $authorName")
             .setMessage("Schreibe eine Nachricht zum Spieltreffen \"${meeting.title ?: "Spieltreffen"}\"")
             .setView(messageInput)

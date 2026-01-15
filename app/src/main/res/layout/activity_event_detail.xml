@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:fitsSystemWindows="true"
     tools:context=".ui.events.EventDetailActivity">
 
@@ -16,7 +17,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -29,93 +30,381 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/detail_event_title"
+            <!-- Event Header Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                tools:text="Event Titel" />
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/background_card"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
 
-            <TextView
-                android:id="@+id/detail_event_date"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Title Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/detail_event_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_on_light"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            tools:text="Spieletreff Gütersloh" />
+
+                    </LinearLayout>
+
+                    <!-- Yellow Footer with Like -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="@color/primary"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp"
+                        android:gravity="center_vertical">
+
+                        <!-- Like Button -->
+                        <LinearLayout
+                            android:id="@+id/likesContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackground">
+
+                            <ImageView
+                                android:id="@+id/likeIcon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@android:drawable/btn_star_big_off"
+                                app:tint="@color/text_on_light"
+                                android:contentDescription="Gefällt mir" />
+
+                            <TextView
+                                android:id="@+id/likeCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="0"
+                                android:textColor="@color/text_on_light"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:text="Gefällt mir"
+                                android:textColor="@color/text_on_light"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <!-- Meeting Count -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                app:tint="@color/text_on_light"
+                                android:contentDescription="Mitspielergesuche" />
+
+                            <TextView
+                                android:id="@+id/headerMeetingCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="0 Gesuche"
+                                android:textColor="@color/text_on_light"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Event Info Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/text_primary"
-                tools:text="01.01.2024 - 02.01.2024 | 10:00 - 18:00" />
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/background_card"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-            <TextView
-                android:id="@+id/detail_event_location"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Date/Time Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_menu_my_calendar"
+                            app:tint="@color/primary"
+                            android:contentDescription="Datum" />
+
+                        <TextView
+                            android:id="@+id/detail_event_date"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:textColor="@color/text_on_light"
+                            android:textSize="15sp"
+                            tools:text="01.01.2026 - 02.01.2026 | 10:00 - 18:00" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="12dp"
+                        android:background="@color/divider_light" />
+
+                    <!-- Location Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_menu_mapmode"
+                            app:tint="@color/primary"
+                            android:contentDescription="Ort" />
+
+                        <TextView
+                            android:id="@+id/detail_event_location"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:textColor="@color/text_on_light"
+                            android:textSize="15sp"
+                            tools:text="Musterstraße 1, 33330 Gütersloh" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="12dp"
+                        android:background="@color/divider_light" />
+
+                    <!-- Organizer Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_menu_info_details"
+                            app:tint="@color/primary"
+                            android:contentDescription="Veranstalter" />
+
+                        <TextView
+                            android:id="@+id/detail_event_organizer"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:textColor="@color/text_on_light"
+                            android:textSize="15sp"
+                            tools:text="Spieletreff e.V." />
+
+                    </LinearLayout>
+
+                    <!-- URL Row (optional, hidden by default) -->
+                    <View
+                        android:id="@+id/urlDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="12dp"
+                        android:background="@color/divider_light"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/urlContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_menu_view"
+                            app:tint="@color/primary"
+                            android:contentDescription="Webseite" />
+
+                        <TextView
+                            android:id="@+id/detail_event_url"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:textColor="#0066CC"
+                            android:textSize="15sp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            tools:text="https://example.com" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Description Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/descriptionCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/text_primary"
-                tools:text="Ort: Musterstadt" />
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/background_card"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-            <TextView
-                android:id="@+id/detail_event_organizer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/text_primary"
-                tools:text="Veranstalter: Musterfirma" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <TextView
-                android:id="@+id/detail_event_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textColor="@color/text_primary"
-                tools:text="Dies ist eine lange Beschreibung des Events mit vielen Details." />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Beschreibung"
+                        android:textColor="@color/text_on_light"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-            <!-- Meetings Section -->
+                    <TextView
+                        android:id="@+id/detail_event_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/text_on_light"
+                        android:textSize="15sp"
+                        android:lineSpacingMultiplier="1.3"
+                        tools:text="Dies ist eine lange Beschreibung des Events mit vielen Details über die Veranstaltung." />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Meetings Section Header -->
             <TextView
                 android:id="@+id/detail_meetings_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
                 android:text="Mitspielergesuche"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <!-- Meetings Loading -->
             <ProgressBar
                 android:id="@+id/detail_meetings_progress_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="16dp"
                 android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/detail_meetings_error_textview"
-                android:layout_width="wrap_content"
+            <!-- Meetings Error -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/meetings_error_card"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Fehler beim Laden der Spieltreffen."
-                android:textColor="@android:color/holo_red_dark"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/background_card"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-            <TextView
-                android:id="@+id/detail_no_meetings_textview"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/detail_meetings_error_textview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="Fehler beim Laden der Spieltreffen."
+                    android:textColor="@color/error"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- No Meetings Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/no_meetings_card"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Keine Spieltreffen für dieses Event gefunden."
-                android:textColor="@color/text_secondary"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/background_card"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
+                <TextView
+                    android:id="@+id/detail_no_meetings_textview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="Noch keine Mitspielergesuche für dieses Event."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Meetings RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/detail_meetings_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:nestedScrollingEnabled="false"
                 android:visibility="gone" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- Progress Bar (zentriert) -->
+    <!-- Main Progress Bar (center) -->
     <ProgressBar
         android:id="@+id/detail_event_progress_bar"
         android:layout_width="wrap_content"
