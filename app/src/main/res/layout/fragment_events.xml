@@ -1,151 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Filter Summary (Collapsed State) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/filter_summary_card"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerEvents"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="72dp" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp">
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/filter_summary_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Events in deiner Nähe"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:drawableEnd="@android:drawable/arrow_down_float"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Filter Card (Expanded State) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/filter_expanded_card"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/emptyView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp">
+        android:layout_gravity="center"
+        android:text="Keine Events gefunden."
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Events in deiner Nähe"
-                android:textColor="@color/text_disabled"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:hint="PLZ"
-                    app:hintEnabled="true"
-                    app:hintAnimationEnabled="false"
-                    app:expandedHintEnabled="false"
-                    app:hintTextColor="@color/text_secondary"
-                    app:boxBackgroundMode="outline"
-                    app:boxStrokeColor="@color/primary" >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_zip"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:maxLength="5"
-                        android:imeOptions="actionDone"
-                        android:textColor="@color/text_disabled"
-                        />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Radius (km)"
-                    app:hintEnabled="true"
-                    app:hintAnimationEnabled="false"
-                    app:expandedHintEnabled="false"
-                    app:hintTextColor="@color/text_disabled"
-                    app:boxBackgroundMode="outline"
-                    app:boxStrokeColor="@color/primary"
-                    >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_radius"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:imeOptions="actionDone"
-                        android:textColor="@color/text_disabled" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btn_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Suchen" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Events List -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerEvents"
-            android:layout_width="match_parent"
-            android:layout_height="582dp"
-            android:clipToPadding="false"
-            android:paddingBottom="72dp" />
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/emptyView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Keine Events gefunden."
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
-            android:visibility="gone" />
-    </FrameLayout>
-</LinearLayout>
+</FrameLayout>

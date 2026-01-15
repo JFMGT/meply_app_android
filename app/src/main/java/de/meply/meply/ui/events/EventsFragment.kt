@@ -2,24 +2,20 @@ package de.meply.meply.ui.events
 
 import android.content.Context
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.textfield.TextInputEditText
+import android.util.Log
 import de.meply.meply.R
 import de.meply.meply.data.events.EventItem
 import de.meply.meply.data.events.StrapiListResponse
+import de.meply.meply.data.feed.LikeToggleRequest
+import de.meply.meply.data.feed.LikeToggleResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -27,7 +23,7 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import de.meply.meply.ui.events.EventDetailActivity
+
 class EventsFragment : Fragment() {
 
     private val DEFAULT_ZIP = "33334"
@@ -36,30 +32,23 @@ class EventsFragment : Fragment() {
     private lateinit var recycler: RecyclerView
     private lateinit var progress: ProgressBar
     private lateinit var empty: TextView
-    private lateinit var filterSummaryCard: MaterialCardView
-    private lateinit var filterSummaryText: TextView
-    private lateinit var filterExpandedCard: MaterialCardView
-    private lateinit var editZip: TextInputEditText
-    private lateinit var editRadius: TextInputEditText
-    private lateinit var btnSearch: Button
-    private val adapter = EventsAdapter { item -> onEventClicked(item) }
+    private val adapter = EventsAdapter(
+        onClick = { item -> onEventClicked(item) },
+        onLikeClick = { item, position -> onEventLikeClicked(item, position) }
+    )
+
+    // Cache of loaded events (for updating liked state)
+    private val loadedEvents = mutableListOf<EventItem>()
 
     private var currentZip: String? = null
     private var currentRadius: Double? = null
-    private var isFilterExpanded = false
     private var hasUserSetFilter = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val v = inflater.inflate(R.layout.fragment_events, container, false)
         recycler = v.findViewById(R.id.recyclerEvents)
         progress = v.findViewById(R.id.progress)
-        empty    = v.findViewById(R.id.emptyView)
-        filterSummaryCard = v.findViewById(R.id.filter_summary_card)
-        filterSummaryText = v.findViewById(R.id.filter_summary_text)
-        filterExpandedCard = v.findViewById(R.id.filter_expanded_card)
-        editZip = v.findViewById(R.id.edit_zip)
-        editRadius = v.findViewById(R.id.edit_radius)
-        btnSearch = v.findViewById(R.id.btn_search)
+        empty = v.findViewById(R.id.emptyView)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
@@ -68,45 +57,6 @@ class EventsFragment : Fragment() {
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val savedZip = prefs.getString("postalCode", null)
         val savedRadius = prefs.getInt("searchRadius", 0)
-
-        // Pre-fill filter fields
-        if (!savedZip.isNullOrEmpty()) {
-            editZip.setText(savedZip)
-        }
-        if (savedRadius > 0) {
-            editRadius.setText(savedRadius.toString())
-        }
-
-        // Set up filter toggle
-        filterSummaryCard.setOnClickListener {
-            toggleFilter()
-        }
-
-        // Set up search button
-        btnSearch.setOnClickListener {
-            performSearch()
-        }
-
-        // Set up Enter key handling for both input fields
-        editZip.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_DONE ||
-                (event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER)) {
-                hideKeyboard()
-                true
-            } else {
-                false
-            }
-        }
-
-        editRadius.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_DONE ||
-                (event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER)) {
-                hideKeyboard()
-                true
-            } else {
-                false
-            }
-        }
 
         // Load events with default or saved values
         val initialZip = if (!savedZip.isNullOrEmpty()) savedZip else DEFAULT_ZIP
@@ -117,66 +67,32 @@ class EventsFragment : Fragment() {
 
         currentZip = initialZip
         currentRadius = initialRadius
-        updateFilterSummary()
         loadEvents(zip = initialZip, radiusKm = initialRadius)
 
         return v
     }
 
-    private fun toggleFilter() {
-        isFilterExpanded = !isFilterExpanded
-        if (isFilterExpanded) {
-            filterSummaryCard.visibility = View.GONE
-            filterExpandedCard.visibility = View.VISIBLE
-        } else {
-            filterExpandedCard.visibility = View.GONE
-            filterSummaryCard.visibility = View.VISIBLE
-        }
-    }
+    fun showFilterBottomSheet() {
+        val bottomSheet = EventFilterBottomSheet.newInstance(
+            zip = if (hasUserSetFilter) currentZip else null,
+            radius = if (hasUserSetFilter) currentRadius?.toInt() else null
+        )
 
-    private fun updateFilterSummary() {
-        val summaryText = if (hasUserSetFilter && currentZip != null && currentRadius != null) {
-            "Events im Umkreis von ${currentRadius?.toInt()} km rund um ${currentZip}"
-        } else {
-            "Events in deiner Nähe"
-        }
-        filterSummaryText.text = summaryText
-    }
-
-    private fun hideKeyboard() {
-        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view?.windowToken, 0)
-    }
-
-    private fun performSearch() {
-        val zip = editZip.text.toString().trim()
-        val radiusStr = editRadius.text.toString().trim()
-
-        if (zip.isEmpty() || zip.length != 5) {
-            Toast.makeText(requireContext(), "Bitte gib eine 5-stellige PLZ ein", Toast.LENGTH_SHORT).show()
-            return
+        bottomSheet.setOnFilterAppliedListener { zip, radius ->
+            currentZip = zip
+            currentRadius = radius
+            hasUserSetFilter = true
+            loadEvents(zip = zip, radiusKm = radius)
         }
 
-        val radius = radiusStr.toDoubleOrNull()
-        if (radius == null || radius <= 0) {
-            Toast.makeText(requireContext(), "Bitte gib einen gültigen Radius ein", Toast.LENGTH_SHORT).show()
-            return
+        bottomSheet.setOnFilterResetListener {
+            currentZip = DEFAULT_ZIP
+            currentRadius = DEFAULT_RADIUS_KM
+            hasUserSetFilter = false
+            loadEvents(zip = DEFAULT_ZIP, radiusKm = DEFAULT_RADIUS_KM)
         }
 
-        // Update current filter values
-        currentZip = zip
-        currentRadius = radius
-        hasUserSetFilter = true
-
-        // Hide keyboard and collapse filter
-        hideKeyboard()
-        isFilterExpanded = false
-        filterExpandedCard.visibility = View.GONE
-        filterSummaryCard.visibility = View.VISIBLE
-        updateFilterSummary()
-
-        // Load events with new filter
-        loadEvents(zip = zip, radiusKm = radius)
+        bottomSheet.show(parentFragmentManager, "eventFilter")
     }
 
     private fun loadEvents(zip: String, radiusKm: Double) {
@@ -204,16 +120,19 @@ class EventsFragment : Fragment() {
                             set(Calendar.MILLISECOND, 0)
                         }.timeInMillis
                         val start = parseIso(ev.attributes.startDate)
-                        val end   = parseIso(ev.attributes.endDate)
+                        val end = parseIso(ev.attributes.endDate)
                         (end != null && end >= todayMidnight) || (start != null && start >= todayMidnight)
                     }
 
                     if (items.isEmpty()) {
                         empty.text = "Keine Events gefunden."
                         empty.visibility = View.VISIBLE
+                        loadedEvents.clear()
                         adapter.submit(emptyList())
                     } else {
                         empty.visibility = View.GONE
+                        loadedEvents.clear()
+                        loadedEvents.addAll(items)
                         adapter.submit(items)
                     }
                 } else {
@@ -242,6 +161,50 @@ class EventsFragment : Fragment() {
             ?: item.id.toString()
 
         EventDetailActivity.start(requireContext(), eventId)
+    }
+
+    private fun onEventLikeClicked(item: EventItem, position: Int) {
+        val documentId = item.attributes.documentId ?: return
+
+        val request = LikeToggleRequest(
+            targetDocumentId = documentId,
+            targetType = "event"
+        )
+
+        ApiClient.retrofit.toggleLike(request).enqueue(object : Callback<LikeToggleResponse> {
+            override fun onResponse(
+                call: Call<LikeToggleResponse>,
+                response: Response<LikeToggleResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+                    val newLikeCount = result?.getActualLikeCount() ?: 0
+                    val isLiked = result?.status == "liked"
+
+                    // Update the local cached event
+                    if (position in loadedEvents.indices) {
+                        val oldEvent = loadedEvents[position]
+                        val updatedAttributes = oldEvent.attributes.copy(
+                            likes = newLikeCount,
+                            liked = isLiked
+                        )
+                        val updatedEvent = oldEvent.copy(attributes = updatedAttributes)
+                        loadedEvents[position] = updatedEvent
+
+                        // Refresh the list
+                        adapter.submit(loadedEvents.toList())
+                    }
+
+                    Log.d("EventsFragment", "Like toggled: ${result?.status}, count: $newLikeCount")
+                } else {
+                    Log.e("EventsFragment", "Failed to toggle like: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
+                Log.e("EventsFragment", "Error toggling like", t)
+            }
+        })
     }
 
     private fun showLoading(show: Boolean) {

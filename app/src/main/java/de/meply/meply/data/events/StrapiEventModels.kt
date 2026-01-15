@@ -100,7 +100,9 @@ data class EventAttributes(
     val organizer: RelationOne<OrganizerData>?,
 
     // Sonstiges
-    @SerializedName("meetingCount") val meetingCount: Int?
+    @SerializedName("meetingCount") val meetingCount: Int?,
+    val likes: Int?,
+    @SerializedName(value = "liked", alternate = ["isLiked"]) val liked: Boolean = false
 )
 
 // ---------- Generische One-to-One-Relation (Strapi) ----------

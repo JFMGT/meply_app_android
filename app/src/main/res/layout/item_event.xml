@@ -10,33 +10,105 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/title"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/text_disabled"
+        <!-- Content Area -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/meta"
-            android:textSize="13sp"
-            android:textColor="@color/text_disabled"
-            android:layout_marginTop="4dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/title"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/text_disabled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-        <TextView
-            android:id="@+id/desc"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:textColor="@color/text_disabled"
-            android:layout_marginTop="8dp"
+            <TextView
+                android:id="@+id/meta"
+                android:textSize="13sp"
+                android:textColor="@color/text_disabled"
+                android:layout_marginTop="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/desc"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:textColor="@color/text_disabled"
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Yellow Footer with Likes and Meetings -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/primary"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:gravity="center_vertical">
+
+            <!-- Likes (links) -->
+            <LinearLayout
+                android:id="@+id/likesContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="start|center_vertical">
+
+                <ImageView
+                    android:id="@+id/likeIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/btn_star_big_off"
+                    app:tint="@color/text_on_light"
+                    android:contentDescription="Likes" />
+
+                <TextView
+                    android:id="@+id/likeCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="0"
+                    android:textColor="@color/text_on_light"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Meetings/Gesuche (rechts) -->
+            <LinearLayout
+                android:id="@+id/meetingsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end|center_vertical">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    app:tint="@color/text_on_light"
+                    android:contentDescription="Mitspielergesuche" />
+
+                <TextView
+                    android:id="@+id/meetingCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="0 Gesuche"
+                    android:textColor="@color/text_on_light"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
