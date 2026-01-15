@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.meply.meply.R
@@ -80,6 +81,14 @@ class ConversationAdapter(
         } else {
             View.GONE
         }
+
+        // Set meeting info background color based on read/unread status
+        val meetingInfoBgColor = if (conversation.hasUnread) {
+            ContextCompat.getColor(context, R.color.primary_light)
+        } else {
+            ContextCompat.getColor(context, R.color.surface_light)
+        }
+        holder.meetingInfo.setBackgroundColor(meetingInfoBgColor)
 
         // Meeting info (always visible - show "Direktnachricht" if no meeting)
         if (conversation.meeting != null) {
