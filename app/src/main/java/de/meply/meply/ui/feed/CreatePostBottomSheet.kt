@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -13,10 +14,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
+import com.yalantis.ucrop.UCrop
 import de.meply.meply.R
 import de.meply.meply.data.feed.*
 import de.meply.meply.network.ApiClient
@@ -45,9 +48,10 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     private var parentDocumentId: String? = null
     private var replyToUsername: String? = null
     private var onPostCreated: (() -> Unit)? = null
+    private var cropImageIndex: Int = -1
 
     data class SelectedImage(
-        val uri: Uri,
+        var uri: Uri,
         var altText: String = ""
     )
 
@@ -55,6 +59,25 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
         ActivityResultContracts.GetMultipleContents()
     ) { uris: List<Uri> ->
         handleSelectedImages(uris)
+    }
+
+    private val cropLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && cropImageIndex >= 0 && cropImageIndex < selectedImages.size) {
+            val resultUri = UCrop.getOutput(result.data!!)
+            if (resultUri != null) {
+                // Ersetze das Original mit dem zugeschnittenen Bild
+                selectedImages[cropImageIndex] = selectedImages[cropImageIndex].copy(uri = resultUri)
+                updateImagesUI()
+                Toast.makeText(requireContext(), "Bild zugeschnitten", Toast.LENGTH_SHORT).show()
+            }
+        } else if (result.resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(result.data!!)
+            Log.e("CreatePost", "Crop error", cropError)
+            Toast.makeText(requireContext(), "Fehler beim Zuschneiden", Toast.LENGTH_SHORT).show()
+        }
+        cropImageIndex = -1
     }
 
     companion object {
@@ -253,7 +276,39 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
             updateImagesUI()
         }
 
+        bottomSheet.setOnCropListener { uri ->
+            startCrop(index, uri)
+        }
+
         bottomSheet.show(parentFragmentManager, "imageEdit")
+    }
+
+    private fun startCrop(index: Int, sourceUri: Uri) {
+        cropImageIndex = index
+
+        // Erstelle Ziel-URI für das zugeschnittene Bild
+        val destinationFileName = "cropped_${System.currentTimeMillis()}.jpg"
+        val destinationFile = File(requireContext().cacheDir, destinationFileName)
+        val destinationUri = Uri.fromFile(destinationFile)
+
+        // UCrop Optionen konfigurieren
+        val options = UCrop.Options().apply {
+            setCompressionFormat(Bitmap.CompressFormat.JPEG)
+            setCompressionQuality(90)
+            setHideBottomControls(false)
+            setFreeStyleCropEnabled(true)
+            setToolbarTitle("Bild zuschneiden")
+            setToolbarColor(Color.parseColor("#2C2C2C"))
+            setStatusBarColor(Color.parseColor("#2C2C2C"))
+            setToolbarWidgetColor(Color.WHITE)
+            setActiveControlsWidgetColor(Color.parseColor("#FFC107"))
+        }
+
+        val intent = UCrop.of(sourceUri, destinationUri)
+            .withOptions(options)
+            .getIntent(requireContext())
+
+        cropLauncher.launch(intent)
     }
 
     private fun createPost() {

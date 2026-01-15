@@ -34,6 +34,17 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Zuschneiden Button -->
+    <Button
+        android:id="@+id/editCropButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Bild zuschneiden"
+        android:drawableStart="@android:drawable/ic_menu_crop"
+        android:drawablePadding="8dp"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
     <!-- Alt-Text Beschreibung -->
     <TextView
         android:layout_width="match_parent"

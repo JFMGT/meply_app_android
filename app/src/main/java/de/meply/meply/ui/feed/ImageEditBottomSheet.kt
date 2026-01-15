@@ -21,6 +21,7 @@ class ImageEditBottomSheet : BottomSheetDialogFragment() {
     private var currentAltText: String = ""
     private var onSave: ((String) -> Unit)? = null
     private var onDelete: (() -> Unit)? = null
+    private var onCrop: ((Uri) -> Unit)? = null
 
     companion object {
         private const val ARG_IMAGE_URI = "imageUri"
@@ -42,6 +43,10 @@ class ImageEditBottomSheet : BottomSheetDialogFragment() {
 
     fun setOnDeleteListener(listener: () -> Unit) {
         onDelete = listener
+    }
+
+    fun setOnCropListener(listener: (Uri) -> Unit) {
+        onCrop = listener
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +91,7 @@ class ImageEditBottomSheet : BottomSheetDialogFragment() {
         val altTextInput = view.findViewById<TextInputEditText>(R.id.editAltTextInput)
         val deleteButton = view.findViewById<Button>(R.id.editDeleteButton)
         val saveButton = view.findViewById<Button>(R.id.editSaveButton)
+        val cropButton = view.findViewById<Button>(R.id.editCropButton)
         val charCounter = view.findViewById<TextView>(R.id.charCounter)
 
         // Setze Bild
@@ -103,6 +109,14 @@ class ImageEditBottomSheet : BottomSheetDialogFragment() {
                 updateCharCounter(charCounter, s?.length ?: 0)
             }
         })
+
+        // Zuschneiden
+        cropButton.setOnClickListener {
+            imageUri?.let { uri ->
+                onCrop?.invoke(uri)
+                dismiss()
+            }
+        }
 
         // Löschen
         deleteButton.setOnClickListener {
