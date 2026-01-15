@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
-        app:cardBackgroundColor="#FFFFFF"
+        app:cardBackgroundColor="@color/primary"
         app:cardCornerRadius="8dp"
         app:cardElevation="2dp">
 
@@ -22,99 +22,12 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:text="Events in deiner Nähe"
-            android:textColor="#000000"
+            android:textColor="@color/text_on_light"
             android:textSize="16sp"
-            android:drawableEnd="@android:drawable/arrow_down_float"
+            android:drawableEnd="@android:drawable/ic_menu_edit"
+            android:drawableTint="@color/text_on_light"
             android:drawablePadding="8dp"
             android:gravity="center_vertical" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Filter Card (Expanded State) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/filter_expanded_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Events in deiner Nähe"
-                android:textColor="@color/text_disabled"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:hint="PLZ"
-                    app:hintEnabled="true"
-                    app:hintAnimationEnabled="false"
-                    app:expandedHintEnabled="false"
-                    app:hintTextColor="@color/text_secondary"
-                    app:boxBackgroundMode="outline"
-                    app:boxStrokeColor="@color/primary" >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_zip"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:maxLength="5"
-                        android:imeOptions="actionDone"
-                        android:textColor="@color/text_disabled"
-                        />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Radius (km)"
-                    app:hintEnabled="true"
-                    app:hintAnimationEnabled="false"
-                    app:expandedHintEnabled="false"
-                    app:hintTextColor="@color/text_disabled"
-                    app:boxBackgroundMode="outline"
-                    app:boxStrokeColor="@color/primary"
-                    >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edit_radius"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:imeOptions="actionDone"
-                        android:textColor="@color/text_disabled" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btn_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Suchen" />
-        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Events List -->
