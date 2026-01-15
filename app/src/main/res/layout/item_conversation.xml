@@ -13,15 +13,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="vertical">
 
-        <!-- Header: Avatar + Name + Time -->
+        <!-- Header: Avatar + Name + Time (white section) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:padding="12dp">
 
             <ImageView
                 android:id="@+id/conversationAvatar"
@@ -31,52 +31,47 @@
                 android:scaleType="centerCrop"
                 tools:src="@android:drawable/ic_menu_myplaces" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/conversationPartnerName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:layout_marginStart="12dp"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="Partner Name" />
 
-                <TextView
-                    android:id="@+id/conversationPartnerName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    tools:text="Partner Name" />
-
-                <TextView
-                    android:id="@+id/conversationLastMessageTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="?android:attr/textColorSecondary"
-                    tools:text="vor 2 Stunden" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/conversationLastMessageTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textSize="12sp"
+                android:textColor="?android:attr/textColorSecondary"
+                tools:text="vor 2 Stunden" />
 
             <!-- Unread Indicator -->
             <View
                 android:id="@+id/conversationUnreadIndicator"
                 android:layout_width="12dp"
                 android:layout_height="12dp"
+                android:layout_marginStart="8dp"
                 android:background="@color/primary"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
         </LinearLayout>
 
-        <!-- Meeting Info (if available) -->
+        <!-- Meeting Info (yellow section - always visible) -->
         <LinearLayout
             android:id="@+id/conversationMeetingInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="8dp"
-            android:padding="8dp"
-            android:background="@color/primary_light"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:padding="12dp"
+            android:background="@color/primary_light">
 
             <TextView
                 android:id="@+id/conversationMeetingTitle"
