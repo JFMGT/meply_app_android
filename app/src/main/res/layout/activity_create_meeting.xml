@@ -27,6 +27,44 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Event Info Card (only visible when creating for event) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/eventInfoCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/primary"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        app:tint="@color/text_on_light"
+                        android:contentDescription="Event" />
+
+                    <TextView
+                        android:id="@+id/eventInfoText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:textColor="@color/text_on_light"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -243,6 +281,24 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp" />
+                    </LinearLayout>
+
+                    <!-- Event Days Layout (for event-linked meetings) -->
+                    <LinearLayout
+                        android:id="@+id/layoutEventDays"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Dein Gesuch gilt automatisch für alle Tage der Veranstaltung."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp" />
+
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton

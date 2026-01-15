@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
-        <include layout="@layout/toolbar_detail" />
+        <include layout="@layout/toolbar_event_detail" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
