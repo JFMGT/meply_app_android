@@ -61,8 +61,8 @@ class CollectionAdapter(
             stars.forEachIndexed { index, star ->
                 val starNumber = index + 1
                 star.setImageResource(
-                    if (starNumber <= rating) android.R.drawable.btn_star_big_on
-                    else android.R.drawable.btn_star_big_off
+                    if (starNumber <= rating) R.drawable.ic_star_filled
+                    else R.drawable.ic_star_outline
                 )
                 star.setOnClickListener {
                     onRatingChanged(game, starNumber)
@@ -89,8 +89,8 @@ class CollectionAdapter(
             stars.forEachIndexed { index, star ->
                 val starNumber = index + 1
                 star.setImageResource(
-                    if (starNumber <= newRating) android.R.drawable.btn_star_big_on
-                    else android.R.drawable.btn_star_big_off
+                    if (starNumber <= newRating) R.drawable.ic_star_filled
+                    else R.drawable.ic_star_outline
                 )
             }
         }

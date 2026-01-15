@@ -51,8 +51,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_delete"
-                android:tint="@color/text_secondary"
+                android:src="@drawable/ic_trash"
                 android:contentDescription="Entfernen" />
 
         </LinearLayout>
@@ -74,37 +73,37 @@
 
                 <ImageView
                     android:id="@+id/star1"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_star_outline"
                     android:contentDescription="1 Stern" />
 
                 <ImageView
                     android:id="@+id/star2"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_star_outline"
                     android:contentDescription="2 Sterne" />
 
                 <ImageView
                     android:id="@+id/star3"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_star_outline"
                     android:contentDescription="3 Sterne" />
 
                 <ImageView
                     android:id="@+id/star4"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_star_outline"
                     android:contentDescription="4 Sterne" />
 
                 <ImageView
                     android:id="@+id/star5"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_star_outline"
                     android:contentDescription="5 Sterne" />
 
             </LinearLayout>

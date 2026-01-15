@@ -158,7 +158,7 @@ class GesucheFragment : Fragment() {
                 topMargin = (8 * dp).toInt()
                 rightMargin = (8 * dp).toInt()
             }
-            setImageResource(android.R.drawable.ic_menu_delete)
+            setImageResource(R.drawable.ic_trash)
             setColorFilter(resources.getColor(R.color.text_on_primary, null))
             setBackgroundResource(R.drawable.bg_tab_active)
             backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.primary, null))
