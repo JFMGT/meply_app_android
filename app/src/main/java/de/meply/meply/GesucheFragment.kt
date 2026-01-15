@@ -232,8 +232,6 @@ class GesucheFragment : Fragment() {
                 textSize = 14f
                 setTextColor(resources.getColor(R.color.text_on_light, null))
                 setPadding(0, (8 * dp).toInt(), 0, 0)
-                maxLines = 2
-                ellipsize = android.text.TextUtils.TruncateAt.END
             }
             contentLayout.addView(descriptionText)
         }
