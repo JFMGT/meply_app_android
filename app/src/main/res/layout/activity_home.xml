@@ -30,13 +30,13 @@
             android:id="@+id/nav_host"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="64dp"
+            android:paddingBottom="56dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNav"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:background="@color/background_header"
             app:itemIconTint="@color/bottom_nav_color"

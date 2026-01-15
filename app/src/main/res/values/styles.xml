@@ -70,8 +70,7 @@
         <item name="android:textColorSecondary">@color/text_on_light</item>
     </style>
 
-    <!-- Compact Bottom Navigation Style -->
+    <!-- Bottom Navigation Style -->
     <style name="Widget.Meply.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="android:minHeight">64dp</item>
     </style>
 </resources>
