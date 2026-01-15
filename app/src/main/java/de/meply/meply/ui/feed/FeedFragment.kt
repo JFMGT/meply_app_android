@@ -202,22 +202,29 @@ class FeedFragment : Fragment() {
             targetType = "post"
         )
 
+        Log.d("FeedFragment", "toggleLike called for post: ${post.documentId}, current likeCount: ${post.likeCount}, liked: ${post.liked}")
+
         api.toggleLike(request).enqueue(object : Callback<LikeToggleResponse> {
             override fun onResponse(
                 call: Call<LikeToggleResponse>,
                 response: Response<LikeToggleResponse>
             ) {
+                Log.d("FeedFragment", "toggleLike response: ${response.code()}, successful: ${response.isSuccessful}")
                 if (response.isSuccessful) {
                     val likeResponse = response.body()
+                    Log.d("FeedFragment", "toggleLike body: status=${likeResponse?.status}, likeCount=${likeResponse?.likeCount}")
                     if (likeResponse != null) {
                         // Update post in adapter
                         val updatedPost = post.copy(
                             liked = likeResponse.status == "liked",
                             likeCount = likeResponse.likeCount
                         )
+                        Log.d("FeedFragment", "Updating post with new likeCount: ${updatedPost.likeCount}")
                         feedAdapter.updatePost(updatedPost)
                     }
                 } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("FeedFragment", "toggleLike error: ${response.code()} - $errorBody")
                     Toast.makeText(
                         requireContext(),
                         "Fehler beim Liken",
@@ -227,6 +234,7 @@ class FeedFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
+                Log.e("FeedFragment", "toggleLike network error", t)
                 Toast.makeText(
                     requireContext(),
                     "Netzwerkfehler",

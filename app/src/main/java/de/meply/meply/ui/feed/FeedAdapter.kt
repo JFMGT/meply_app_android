@@ -1,5 +1,6 @@
 package de.meply.meply.ui.feed
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -185,9 +186,13 @@ class FeedAdapter(
 
     fun updatePost(updatedPost: Post) {
         val index = posts.indexOfFirst { it.documentId == updatedPost.documentId }
+        Log.d("FeedAdapter", "updatePost called: documentId=${updatedPost.documentId}, index=$index, newLikeCount=${updatedPost.likeCount}, liked=${updatedPost.liked}")
         if (index != -1) {
             posts[index] = updatedPost
+            Log.d("FeedAdapter", "Calling notifyItemChanged($index)")
             notifyItemChanged(index)
+        } else {
+            Log.w("FeedAdapter", "Post not found in list: ${updatedPost.documentId}")
         }
     }
 
