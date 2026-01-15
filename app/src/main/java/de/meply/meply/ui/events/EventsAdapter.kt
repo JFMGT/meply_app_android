@@ -3,6 +3,8 @@ package de.meply.meply.ui.events
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.meply.meply.R
@@ -12,7 +14,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class EventsAdapter(
-    private val onClick: (EventItem) -> Unit
+    private val onClick: (EventItem) -> Unit,
+    private val onLikeClick: ((EventItem, Int) -> Unit)? = null
 ) : RecyclerView.Adapter<EventsAdapter.VH>() {
 
     private val items = mutableListOf<EventItem>()
@@ -21,6 +24,12 @@ class EventsAdapter(
         items.clear()
         items.addAll(list)
         notifyDataSetChanged()
+    }
+
+    fun updateLikeCount(position: Int, newCount: Int, isLiked: Boolean) {
+        if (position in items.indices) {
+            notifyItemChanged(position)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -32,24 +41,33 @@ class EventsAdapter(
         val item = items[position]
         holder.bind(item.attributes)
         holder.itemView.setOnClickListener { onClick(item) }
+
+        // Like click handler
+        holder.likesContainer.setOnClickListener {
+            onLikeClick?.invoke(item, position)
+        }
     }
 
     override fun getItemCount() = items.size
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
         private val title = v.findViewById<TextView>(R.id.title)
-        private val meta  = v.findViewById<TextView>(R.id.meta)
-        private val desc  = v.findViewById<TextView>(R.id.desc)
+        private val meta = v.findViewById<TextView>(R.id.meta)
+        private val desc = v.findViewById<TextView>(R.id.desc)
+        private val likeIcon = v.findViewById<ImageView>(R.id.likeIcon)
+        private val likeCount = v.findViewById<TextView>(R.id.likeCount)
+        private val meetingCount = v.findViewById<TextView>(R.id.meetingCount)
+        val likesContainer: LinearLayout = v.findViewById(R.id.likesContainer)
 
         private val iso = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        private val de  = SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
+        private val de = SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
 
         fun bind(a: EventAttributes) {
             title.text = a.title ?: "Ohne Titel"
-            desc.text  = a.description ?: ""
+            desc.text = a.description ?: ""
 
             val start = a.startDate?.let { runCatching { iso.parse(it) }.getOrNull() }
-            val end   = a.endDate?.let { runCatching { iso.parse(it) }.getOrNull() }
+            val end = a.endDate?.let { runCatching { iso.parse(it) }.getOrNull() }
 
             val dateText = when {
                 start != null && end != null -> "${de.format(start)} bis ${de.format(end)}"
@@ -58,6 +76,21 @@ class EventsAdapter(
             }
             val city = a.city?.trim().orEmpty().ifEmpty { "Unbekannter Ort" }
             meta.text = "$city • $dateText"
+
+            // Likes
+            val likes = a.likes ?: 0
+            likeCount.text = likes.toString()
+
+            // Like icon based on liked state
+            if (a.liked) {
+                likeIcon.setImageResource(android.R.drawable.btn_star_big_on)
+            } else {
+                likeIcon.setImageResource(android.R.drawable.btn_star_big_off)
+            }
+
+            // Meeting count
+            val meetings = a.meetingCount ?: 0
+            meetingCount.text = if (meetings == 1) "1 Gesuch" else "$meetings Gesuche"
         }
     }
 }

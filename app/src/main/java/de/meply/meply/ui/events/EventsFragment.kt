@@ -10,9 +10,12 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.util.Log
 import de.meply.meply.R
 import de.meply.meply.data.events.EventItem
 import de.meply.meply.data.events.StrapiListResponse
+import de.meply.meply.data.feed.LikeToggleRequest
+import de.meply.meply.data.feed.LikeToggleResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -29,7 +32,13 @@ class EventsFragment : Fragment() {
     private lateinit var recycler: RecyclerView
     private lateinit var progress: ProgressBar
     private lateinit var empty: TextView
-    private val adapter = EventsAdapter { item -> onEventClicked(item) }
+    private val adapter = EventsAdapter(
+        onClick = { item -> onEventClicked(item) },
+        onLikeClick = { item, position -> onEventLikeClicked(item, position) }
+    )
+
+    // Cache of loaded events (for updating liked state)
+    private val loadedEvents = mutableListOf<EventItem>()
 
     private var currentZip: String? = null
     private var currentRadius: Double? = null
@@ -118,9 +127,12 @@ class EventsFragment : Fragment() {
                     if (items.isEmpty()) {
                         empty.text = "Keine Events gefunden."
                         empty.visibility = View.VISIBLE
+                        loadedEvents.clear()
                         adapter.submit(emptyList())
                     } else {
                         empty.visibility = View.GONE
+                        loadedEvents.clear()
+                        loadedEvents.addAll(items)
                         adapter.submit(items)
                     }
                 } else {
@@ -149,6 +161,50 @@ class EventsFragment : Fragment() {
             ?: item.id.toString()
 
         EventDetailActivity.start(requireContext(), eventId)
+    }
+
+    private fun onEventLikeClicked(item: EventItem, position: Int) {
+        val documentId = item.attributes.documentId ?: return
+
+        val request = LikeToggleRequest(
+            targetDocumentId = documentId,
+            targetType = "event"
+        )
+
+        ApiClient.retrofit.toggleLike(request).enqueue(object : Callback<LikeToggleResponse> {
+            override fun onResponse(
+                call: Call<LikeToggleResponse>,
+                response: Response<LikeToggleResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+                    val newLikeCount = result?.getActualLikeCount() ?: 0
+                    val isLiked = result?.status == "liked"
+
+                    // Update the local cached event
+                    if (position in loadedEvents.indices) {
+                        val oldEvent = loadedEvents[position]
+                        val updatedAttributes = oldEvent.attributes.copy(
+                            likes = newLikeCount,
+                            liked = isLiked
+                        )
+                        val updatedEvent = oldEvent.copy(attributes = updatedAttributes)
+                        loadedEvents[position] = updatedEvent
+
+                        // Refresh the list
+                        adapter.submit(loadedEvents.toList())
+                    }
+
+                    Log.d("EventsFragment", "Like toggled: ${result?.status}, count: $newLikeCount")
+                } else {
+                    Log.e("EventsFragment", "Failed to toggle like: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
+                Log.e("EventsFragment", "Error toggling like", t)
+            }
+        })
     }
 
     private fun showLoading(show: Boolean) {
