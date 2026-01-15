@@ -42,7 +42,7 @@ class MyCollectionFragment : Fragment() {
     private lateinit var loadingProgress: ProgressBar
     private lateinit var emptyCard: MaterialCardView
     private lateinit var gamesRecycler: RecyclerView
-    private lateinit var loadMoreFooter: View
+    private lateinit var loadMoreSpinner: ProgressBar
     private lateinit var allLoadedText: TextView
 
     private lateinit var collectionAdapter: CollectionAdapter
@@ -83,7 +83,7 @@ class MyCollectionFragment : Fragment() {
         loadingProgress = view.findViewById(R.id.loading_progress)
         emptyCard = view.findViewById(R.id.empty_card)
         gamesRecycler = view.findViewById(R.id.games_recycler)
-        loadMoreFooter = view.findViewById(R.id.load_more_footer)
+        loadMoreSpinner = view.findViewById(R.id.load_more_spinner)
         allLoadedText = view.findViewById(R.id.all_loaded_text)
 
         swipeRefresh.setOnRefreshListener {
@@ -150,11 +150,11 @@ class MyCollectionFragment : Fragment() {
             loadingProgress.visibility = View.VISIBLE
             emptyCard.visibility = View.GONE
             gamesRecycler.visibility = View.GONE
-            loadMoreFooter.visibility = View.GONE
+            loadMoreSpinner.visibility = View.GONE
             allLoadedText.visibility = View.GONE
         } else {
-            // Loading more - show footer spinner
-            loadMoreFooter.visibility = View.VISIBLE
+            // Loading more - show floating spinner
+            loadMoreSpinner.visibility = View.VISIBLE
             allLoadedText.visibility = View.GONE
         }
 
@@ -173,7 +173,7 @@ class MyCollectionFragment : Fragment() {
 
                 isLoading = false
                 loadingProgress.visibility = View.GONE
-                loadMoreFooter.visibility = View.GONE
+                loadMoreSpinner.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
 
                 if (response.isSuccessful) {
@@ -200,7 +200,7 @@ class MyCollectionFragment : Fragment() {
 
                 isLoading = false
                 loadingProgress.visibility = View.GONE
-                loadMoreFooter.visibility = View.GONE
+                loadMoreSpinner.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
                 Log.e(TAG, "Error loading collection: ${t.message}", t)
                 Toast.makeText(requireContext(), "Fehler: ${t.message}", Toast.LENGTH_LONG).show()
