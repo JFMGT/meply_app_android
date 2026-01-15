@@ -113,7 +113,7 @@ class MyCollectionFragment : Fragment() {
     private fun setupSwipeToSell() {
         val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             private val backgroundColor = ColorDrawable(ContextCompat.getColor(requireContext(), R.color.primary))
-            private val sellIcon = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_share)
+            private val sellIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_tag)
 
             override fun onMove(
                 recyclerView: RecyclerView,
