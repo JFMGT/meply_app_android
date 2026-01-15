@@ -52,6 +52,8 @@ class FeedAdapter(
         val post = posts[position]
         val context = holder.itemView.context
 
+        Log.d("FeedAdapter", "onBindViewHolder position=$position, documentId=${post.documentId}, likeCount=${post.likeCount}, liked=${post.liked}")
+
         // Username
         holder.username.text = post.author.username
 
@@ -189,11 +191,29 @@ class FeedAdapter(
         Log.d("FeedAdapter", "updatePost called: documentId=${updatedPost.documentId}, index=$index, newLikeCount=${updatedPost.likeCount}, liked=${updatedPost.liked}")
         if (index != -1) {
             posts[index] = updatedPost
-            Log.d("FeedAdapter", "Calling notifyItemChanged($index)")
-            notifyItemChanged(index)
+            Log.d("FeedAdapter", "Calling notifyItemChanged($index) with payload")
+            notifyItemChanged(index, PAYLOAD_LIKE_UPDATE)
         } else {
             Log.w("FeedAdapter", "Post not found in list: ${updatedPost.documentId}")
         }
+    }
+
+    override fun onBindViewHolder(holder: PostViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty() && payloads.contains(PAYLOAD_LIKE_UPDATE)) {
+            // Partial update - only update like related views
+            val post = posts[position]
+            Log.d("FeedAdapter", "Partial bind (like update) position=$position, likeCount=${post.likeCount}, liked=${post.liked}")
+            val likeIcon = if (post.liked) R.drawable.ic_star_filled else R.drawable.ic_star_outline
+            holder.likeButton.setImageResource(likeIcon)
+            holder.likeCount.text = post.likeCount.toString()
+        } else {
+            // Full bind
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
+    companion object {
+        private const val PAYLOAD_LIKE_UPDATE = "like_update"
     }
 
     fun removePost(documentId: String) {
