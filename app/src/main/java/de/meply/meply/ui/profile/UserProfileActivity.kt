@@ -706,7 +706,7 @@ class UserProfileActivity : BaseDetailActivity() {
                         // Update post in adapter
                         val updatedPost = post.copy(
                             liked = likeResponse.status == "liked",
-                            likeCount = likeResponse.likeCount
+                            likeCount = likeResponse.getActualLikeCount()
                         )
                         postsAdapter.updatePost(updatedPost)
                     }

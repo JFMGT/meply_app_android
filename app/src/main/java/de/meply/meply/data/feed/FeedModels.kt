@@ -111,9 +111,15 @@ data class LikeToggleRequest(
  * Response from POST /api/likes/toggle
  */
 data class LikeToggleResponse(
-    @SerializedName("status") val status: String, // "liked" or "unliked"
-    @SerializedName("likeCount") val likeCount: Int
-)
+    @SerializedName("status") val status: String?, // "liked" or "unliked"
+    @SerializedName("likeCount") val likeCount: Int?,
+    @SerializedName("likesCount") val likesCount: Int?, // Alternative field name
+    @SerializedName("likes_count") val likes_count: Int?, // Another alternative
+    @SerializedName("count") val count: Int? // Another alternative
+) {
+    // Get the actual like count from whichever field is present
+    fun getActualLikeCount(): Int = likeCount ?: likesCount ?: likes_count ?: count ?: 0
+}
 
 /**
  * Request for POST /api/post-report

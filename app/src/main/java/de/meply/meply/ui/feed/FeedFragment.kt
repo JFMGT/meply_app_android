@@ -212,12 +212,21 @@ class FeedFragment : Fragment() {
                 Log.d("FeedFragment", "toggleLike response: ${response.code()}, successful: ${response.isSuccessful}")
                 if (response.isSuccessful) {
                     val likeResponse = response.body()
-                    Log.d("FeedFragment", "toggleLike body: status=${likeResponse?.status}, likeCount=${likeResponse?.likeCount}")
+                    // Log all possible field values
+                    Log.d("FeedFragment", "toggleLike body: status=${likeResponse?.status}, " +
+                            "likeCount=${likeResponse?.likeCount}, " +
+                            "likesCount=${likeResponse?.likesCount}, " +
+                            "likes_count=${likeResponse?.likes_count}, " +
+                            "count=${likeResponse?.count}")
                     if (likeResponse != null) {
+                        val actualLikeCount = likeResponse.getActualLikeCount()
+                        val isLiked = likeResponse.status == "liked"
+                        Log.d("FeedFragment", "Computed: actualLikeCount=$actualLikeCount, isLiked=$isLiked")
+
                         // Update post in adapter
                         val updatedPost = post.copy(
-                            liked = likeResponse.status == "liked",
-                            likeCount = likeResponse.likeCount
+                            liked = isLiked,
+                            likeCount = actualLikeCount
                         )
                         Log.d("FeedFragment", "Updating post with new likeCount: ${updatedPost.likeCount}")
                         feedAdapter.updatePost(updatedPost)

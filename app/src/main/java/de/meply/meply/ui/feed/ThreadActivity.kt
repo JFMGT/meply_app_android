@@ -147,7 +147,7 @@ class ThreadActivity : BaseDetailActivity() {
                     if (likeResponse != null) {
                         val updatedPost = post.copy(
                             liked = likeResponse.status == "liked",
-                            likeCount = likeResponse.likeCount
+                            likeCount = likeResponse.getActualLikeCount()
                         )
                         threadAdapter.updatePost(updatedPost)
                     }
