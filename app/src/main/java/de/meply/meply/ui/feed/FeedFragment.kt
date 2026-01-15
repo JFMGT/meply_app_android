@@ -44,6 +44,28 @@ class FeedFragment : Fragment() {
         }
     }
 
+    private val threadLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Update modified posts from thread view
+            val modifiedPostsJson = result.data?.getStringExtra("modifiedPosts")
+            if (!modifiedPostsJson.isNullOrEmpty()) {
+                try {
+                    val gson = com.google.gson.Gson()
+                    val type = object : com.google.gson.reflect.TypeToken<List<Post>>() {}.type
+                    val modifiedPosts: List<Post> = gson.fromJson(modifiedPostsJson, type)
+                    modifiedPosts.forEach { post ->
+                        feedAdapter.updatePost(post)
+                        Log.d("FeedFragment", "Updated post from thread: ${post.documentId}, liked=${post.liked}, likeCount=${post.likeCount}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("FeedFragment", "Error parsing modified posts", e)
+                }
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -202,22 +224,44 @@ class FeedFragment : Fragment() {
             targetType = "post"
         )
 
+        Log.d("FeedFragment", "toggleLike called for post: ${post.documentId}, current likeCount: ${post.likeCount}, liked: ${post.liked}")
+
         api.toggleLike(request).enqueue(object : Callback<LikeToggleResponse> {
             override fun onResponse(
                 call: Call<LikeToggleResponse>,
                 response: Response<LikeToggleResponse>
             ) {
+                Log.d("FeedFragment", "toggleLike response: ${response.code()}, successful: ${response.isSuccessful}")
                 if (response.isSuccessful) {
                     val likeResponse = response.body()
+                    Log.d("FeedFragment", "toggleLike body: status=${likeResponse?.status}")
                     if (likeResponse != null) {
+                        val isLiked = likeResponse.status == "liked"
+
+                        // API doesn't return likeCount, so calculate it ourselves
+                        val newLikeCount = if (likeResponse.hasLikeCount()) {
+                            likeResponse.getActualLikeCount()
+                        } else {
+                            // Calculate based on toggle action
+                            when {
+                                isLiked && !post.liked -> post.likeCount + 1  // Added like
+                                !isLiked && post.liked -> post.likeCount - 1  // Removed like
+                                else -> post.likeCount  // No change
+                            }
+                        }
+
+                        Log.d("FeedFragment", "Computed: newLikeCount=$newLikeCount, isLiked=$isLiked")
+
                         // Update post in adapter
                         val updatedPost = post.copy(
-                            liked = likeResponse.status == "liked",
-                            likeCount = likeResponse.likeCount
+                            liked = isLiked,
+                            likeCount = newLikeCount
                         )
                         feedAdapter.updatePost(updatedPost)
                     }
                 } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("FeedFragment", "toggleLike error: ${response.code()} - $errorBody")
                     Toast.makeText(
                         requireContext(),
                         "Fehler beim Liken",
@@ -227,6 +271,7 @@ class FeedFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<LikeToggleResponse>, t: Throwable) {
+                Log.e("FeedFragment", "toggleLike network error", t)
                 Toast.makeText(
                     requireContext(),
                     "Netzwerkfehler",
@@ -245,7 +290,7 @@ class FeedFragment : Fragment() {
     private fun showThread(post: Post) {
         val intent = Intent(requireContext(), ThreadActivity::class.java)
         intent.putExtra("documentId", post.documentId)
-        startActivity(intent)
+        threadLauncher.launch(intent)
     }
 
     private fun showOptionsMenu(post: Post, anchorView: View) {

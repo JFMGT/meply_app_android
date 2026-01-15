@@ -34,6 +34,9 @@ class ThreadActivity : BaseDetailActivity() {
     private var documentId: String? = null
     private var rootPost: Post? = null
 
+    // Track posts that were modified (liked/unliked) to sync back to parent
+    private val modifiedPosts = mutableMapOf<String, Post>()
+
     private val createPostLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -103,6 +106,11 @@ class ThreadActivity : BaseDetailActivity() {
                     val post = response.body()
                     if (post != null) {
                         rootPost = post
+                        // Debug logging to see like data
+                        Log.d("ThreadActivity", "Root post: documentId=${post.documentId}, liked=${post.liked}, likeCount=${post.likeCount}")
+                        post.children?.forEachIndexed { index, child ->
+                            Log.d("ThreadActivity", "Child $index: documentId=${child.documentId}, liked=${child.liked}, likeCount=${child.likeCount}")
+                        }
                         threadAdapter.updateThread(post)
                         Log.d("ThreadActivity", "Thread loaded successfully")
                     }
@@ -145,11 +153,28 @@ class ThreadActivity : BaseDetailActivity() {
                 if (response.isSuccessful) {
                     val likeResponse = response.body()
                     if (likeResponse != null) {
+                        val isLiked = likeResponse.status == "liked"
+
+                        // API doesn't return likeCount, so calculate it ourselves
+                        val newLikeCount = if (likeResponse.hasLikeCount()) {
+                            likeResponse.getActualLikeCount()
+                        } else {
+                            when {
+                                isLiked && !post.liked -> post.likeCount + 1
+                                !isLiked && post.liked -> post.likeCount - 1
+                                else -> post.likeCount
+                            }
+                        }
+
                         val updatedPost = post.copy(
-                            liked = likeResponse.status == "liked",
-                            likeCount = likeResponse.likeCount
+                            liked = isLiked,
+                            likeCount = newLikeCount
                         )
                         threadAdapter.updatePost(updatedPost)
+
+                        // Track modified post to sync back to Feed
+                        modifiedPosts[updatedPost.documentId] = updatedPost
+                        Log.d("ThreadActivity", "Tracked modified post: ${updatedPost.documentId}, liked=${updatedPost.liked}")
                     }
                 } else {
                     Toast.makeText(
@@ -311,5 +336,18 @@ class ThreadActivity : BaseDetailActivity() {
             "Image ${startPosition + 1} of ${images.size}",
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    override fun finish() {
+        // Return modified posts to the calling activity/fragment
+        if (modifiedPosts.isNotEmpty()) {
+            val gson = com.google.gson.Gson()
+            val modifiedPostsList = modifiedPosts.values.toList()
+            val resultIntent = Intent()
+            resultIntent.putExtra("modifiedPosts", gson.toJson(modifiedPostsList))
+            setResult(Activity.RESULT_OK, resultIntent)
+            Log.d("ThreadActivity", "Returning ${modifiedPostsList.size} modified posts")
+        }
+        super.finish()
     }
 }

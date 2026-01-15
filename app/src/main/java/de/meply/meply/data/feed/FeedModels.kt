@@ -22,12 +22,12 @@ data class FeedCursor(
  */
 data class Post(
     @SerializedName("documentId") val documentId: String,
-    @SerializedName("id") val id: Int,
+    @SerializedName("id") val id: Int = 0,
     @SerializedName("content") val content: String?,
     @SerializedName("visibility") val visibility: String = "members", // public, members, follower
     @SerializedName("createdAt") val createdAt: String?,
-    @SerializedName("liked") val liked: Boolean = false,
-    @SerializedName("likeCount") val likeCount: Int = 0,
+    @SerializedName(value = "liked", alternate = ["isLiked"]) val liked: Boolean = false,
+    @SerializedName(value = "likeCount", alternate = ["likes"]) val likeCount: Int = 0,
     @SerializedName("replyCount") val replyCount: Int = 0,
     @SerializedName("author") val author: PostAuthor,
     @SerializedName("image") val image: List<PostImage>? = null,
@@ -111,9 +111,18 @@ data class LikeToggleRequest(
  * Response from POST /api/likes/toggle
  */
 data class LikeToggleResponse(
-    @SerializedName("status") val status: String, // "liked" or "unliked"
-    @SerializedName("likeCount") val likeCount: Int
-)
+    @SerializedName("status") val status: String?, // "liked" or "unliked"
+    @SerializedName("likeCount") val likeCount: Int?,
+    @SerializedName("likesCount") val likesCount: Int?, // Alternative field name
+    @SerializedName("likes_count") val likes_count: Int?, // Another alternative
+    @SerializedName("count") val count: Int? // Another alternative
+) {
+    // Check if any like count field is present in the response
+    fun hasLikeCount(): Boolean = likeCount != null || likesCount != null || likes_count != null || count != null
+
+    // Get the actual like count from whichever field is present
+    fun getActualLikeCount(): Int = likeCount ?: likesCount ?: likes_count ?: count ?: 0
+}
 
 /**
  * Request for POST /api/post-report

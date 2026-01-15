@@ -2,17 +2,14 @@ package de.meply.meply
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
@@ -23,7 +20,6 @@ import de.meply.meply.data.meeting.Meeting
 import de.meply.meply.data.meeting.MeetingsResponse
 import de.meply.meply.network.ApiClient
 import de.meply.meply.auth.AuthManager
-import de.meply.meply.ui.profile.UserProfileActivity
 import de.meply.meply.utils.AvatarUtils
 import retrofit2.Call
 import retrofit2.Callback
@@ -63,6 +59,8 @@ class GesucheFragment : Fragment() {
         btnCreateMeeting.setOnClickListener {
             openCreateMeeting()
         }
+
+        loadMeetings()
     }
 
     private fun loadMeetings() {
@@ -123,167 +121,126 @@ class GesucheFragment : Fragment() {
     }
 
     private fun createMeetingCard(meeting: Meeting): View {
-        // Outer FrameLayout to allow absolute positioning of delete button
-        val outerFrame = FrameLayout(requireContext()).apply {
+        val cardView = MaterialCardView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                setMargins(0, 0, 0, dpToPx(12))
+                bottomMargin = (12 * resources.displayMetrics.density).toInt()
             }
+            radius = 8 * resources.displayMetrics.density
+            cardElevation = 2 * resources.displayMetrics.density
+            setCardBackgroundColor(resources.getColor(R.color.background_card, null))
         }
 
-        val cardView = MaterialCardView(requireContext()).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+        val dp = resources.displayMetrics.density
+
+        // Use FrameLayout to position delete button absolutely
+        val frameLayout = android.widget.FrameLayout(requireContext()).apply {
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
             )
-            radius = dpToPx(12).toFloat()
-            cardElevation = dpToPx(2).toFloat()
-            setCardBackgroundColor(resources.getColor(R.color.background_card, null))
         }
 
         val contentLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dpToPx(20), dpToPx(20), dpToPx(20), dpToPx(20))
+            setPadding((16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt())
         }
 
-        // Header: Username, City, Type in one line
-        val headerLayout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        val usernameText = TextView(requireContext()).apply {
-            text = meeting.author?.username ?: "Unbekannt"
-            textSize = 14f
-            setTextColor(resources.getColor(R.color.text_on_light, null))
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            isClickable = true
-            isFocusable = true
-
-            // Make username clickable to open profile
-            setOnClickListener {
-                val userSlug = meeting.author?.userslug ?: meeting.author?.documentId
-                if (!userSlug.isNullOrEmpty()) {
-                    UserProfileActivity.start(requireContext(), userSlug)
-                }
+        // Delete button - top right, yellow background with trash icon only
+        val deleteButton = ImageView(requireContext()).apply {
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                (36 * dp).toInt(),
+                (36 * dp).toInt()
+            ).apply {
+                gravity = android.view.Gravity.TOP or android.view.Gravity.END
+                topMargin = (8 * dp).toInt()
+                rightMargin = (8 * dp).toInt()
             }
-
-            // Add padding to increase clickable area
-            setPadding(0, dpToPx(4), dpToPx(8), dpToPx(4))
+            setImageResource(R.drawable.ic_trash)
+            setColorFilter(resources.getColor(R.color.text_on_primary, null))
+            setBackgroundResource(R.drawable.bg_tab_active)
+            backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.primary, null))
+            setPadding((8 * dp).toInt(), (8 * dp).toInt(), (8 * dp).toInt(), (8 * dp).toInt())
+            setOnClickListener {
+                deleteMeeting(meeting)
+            }
         }
-        headerLayout.addView(usernameText)
 
-        // Separator dot
-        val separatorText1 = TextView(requireContext()).apply {
-            text = " • "
-            textSize = 14f
-            setTextColor(resources.getColor(R.color.text_on_light, null))
-        }
-        headerLayout.addView(separatorText1)
-
-        // City
-        val cityText = TextView(requireContext()).apply {
-            text = meeting.author?.city ?: "Unbekannt"
-            textSize = 14f
-            setTextColor(resources.getColor(R.color.text_on_light, null))
-        }
-        headerLayout.addView(cityText)
-
-        // Separator dot
-        val separatorText2 = TextView(requireContext()).apply {
-            text = " • "
-            textSize = 14f
-            setTextColor(resources.getColor(R.color.text_on_light, null))
-        }
-        headerLayout.addView(separatorText2)
-
-        // Location/Event type
-        val locationInfo = when {
-            meeting.location != null -> meeting.location.titel ?: meeting.location.ort ?: "Freies Gesuch"
-            meeting.event != null -> meeting.event.title ?: "Event"
+        // First line: Name • Ort • Art
+        val meetingType = when {
+            meeting.location != null -> "Standort"
+            meeting.event != null -> "Event"
             else -> "Freies Gesuch"
         }
 
-        val locationTypeText = TextView(requireContext()).apply {
-            text = locationInfo
-            textSize = 14f
-            setTextColor(resources.getColor(R.color.text_on_light, null))
+        val locationName = when {
+            meeting.location != null -> meeting.location.titel ?: meeting.location.ort ?: ""
+            meeting.event != null -> meeting.event.title ?: ""
+            else -> ""
         }
-        headerLayout.addView(locationTypeText)
 
-        contentLayout.addView(headerLayout)
+        val firstLineText = TextView(requireContext()).apply {
+            val parts = listOfNotNull(
+                meeting.author?.username,
+                meeting.author?.city,
+                meetingType
+            ).filter { it.isNotEmpty() }
+            text = parts.joinToString(" • ")
+            textSize = 13f
+            setTextColor(resources.getColor(R.color.text_secondary, null))
+            // Leave space for delete button
+            setPadding(0, 0, (44 * dp).toInt(), 0)
+        }
+        contentLayout.addView(firstLineText)
 
         // Title
         val titleText = TextView(requireContext()).apply {
             text = meeting.title ?: "Kein Titel"
-            textSize = 18f
+            textSize = 16f
             setTextColor(resources.getColor(R.color.text_on_light, null))
             setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(0, dpToPx(12), 0, 0)
+            setPadding(0, (8 * dp).toInt(), (44 * dp).toInt(), 0)
         }
         contentLayout.addView(titleText)
+
+        // Location name if applicable
+        if (locationName.isNotEmpty()) {
+            val locationText = TextView(requireContext()).apply {
+                text = locationName
+                textSize = 14f
+                setTextColor(resources.getColor(R.color.text_on_light, null))
+                setPadding(0, (4 * dp).toInt(), 0, 0)
+            }
+            contentLayout.addView(locationText)
+        }
 
         // Date info
         val dateText = TextView(requireContext()).apply {
             text = formatMeetingDate(meeting)
-            textSize = 14f
-            setTextColor(resources.getColor(R.color.text_on_light, null))
-            setPadding(0, dpToPx(8), 0, 0)
+            textSize = 13f
+            setTextColor(resources.getColor(R.color.text_secondary, null))
+            setPadding(0, (4 * dp).toInt(), 0, 0)
         }
         contentLayout.addView(dateText)
 
-        // Description
+        // Description (if present)
         if (!meeting.description.isNullOrEmpty()) {
             val descriptionText = TextView(requireContext()).apply {
                 text = meeting.description
                 textSize = 14f
                 setTextColor(resources.getColor(R.color.text_on_light, null))
-                setPadding(0, dpToPx(8), 0, 0)
+                setPadding(0, (8 * dp).toInt(), 0, 0)
             }
             contentLayout.addView(descriptionText)
         }
 
-        cardView.addView(contentLayout)
-        outerFrame.addView(cardView)
+        frameLayout.addView(contentLayout)
+        frameLayout.addView(deleteButton)
+        cardView.addView(frameLayout)
 
-        // Delete button - positioned absolutely in top right corner
-        val deleteButton = MaterialButton(requireContext()).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                dpToPx(40),
-                dpToPx(40)
-            ).apply {
-                gravity = Gravity.TOP or Gravity.END
-                setMargins(0, dpToPx(12), dpToPx(12), 0)
-            }
-
-            // Yellow circle background
-            setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary))
-            cornerRadius = dpToPx(20)
-
-            // Only icon, no text
-            icon = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_delete)
-            iconTint = null // Remove tint to keep original icon color
-            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
-            iconPadding = 0
-            insetTop = 0
-            insetBottom = 0
-
-            setOnClickListener {
-                deleteMeeting(meeting)
-            }
-        }
-        outerFrame.addView(deleteButton)
-
-        return outerFrame
-    }
-
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
+        return cardView
     }
 
     private fun formatMeetingDate(meeting: Meeting): String {
