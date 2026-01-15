@@ -275,7 +275,10 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun loadBottomNavAvatar(bottomNav: BottomNavigationView, avatarUrl: String) {
-        val size = (24 * resources.displayMetrics.density).toInt()
+        // Größeres Icon (40dp) um den Platz von Icon + Label zu füllen
+        val size = (40 * resources.displayMetrics.density).toInt()
+
+        Log.d("HomeActivity", "Loading bottom nav avatar: $avatarUrl, size: $size")
 
         Glide.with(this)
             .asBitmap()
@@ -286,12 +289,23 @@ class HomeActivity : AppCompatActivity() {
                     resource: android.graphics.Bitmap,
                     transition: com.bumptech.glide.request.transition.Transition<in android.graphics.Bitmap>?
                 ) {
+                    Log.d("HomeActivity", "Bottom nav avatar loaded successfully: ${resource.width}x${resource.height}")
                     val drawable = android.graphics.drawable.BitmapDrawable(resources, resource)
-                    bottomNav.menu.findItem(R.id.nav_user)?.icon = drawable
+                    drawable.setBounds(0, 0, size, size)
+
+                    val menuItem = bottomNav.menu.findItem(R.id.nav_user)
+                    menuItem?.icon = drawable
+
+                    // Deaktiviere Icon-Tinting für das Avatar
+                    bottomNav.itemIconTintList = null
                 }
 
                 override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {
                     // Keep current icon
+                }
+
+                override fun onLoadFailed(errorDrawable: android.graphics.drawable.Drawable?) {
+                    Log.e("HomeActivity", "Failed to load bottom nav avatar")
                 }
             })
     }
