@@ -44,6 +44,7 @@ class CreateMeetingBottomSheet : BottomSheetDialogFragment() {
     private var eventEndDate: String? = null
 
     private val selectedDays = mutableSetOf<String>()
+    private val allEventDays = mutableListOf<String>() // Track all available event days
     private var onMeetingCreated: (() -> Unit)? = null
 
     companion object {
@@ -178,6 +179,10 @@ class CreateMeetingBottomSheet : BottomSheetDialogFragment() {
             return
         }
 
+        // Store all event days for comparison later
+        allEventDays.clear()
+        allEventDays.addAll(days)
+
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY)
         val displayFormat = SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.GERMANY)
 
@@ -273,12 +278,25 @@ class CreateMeetingBottomSheet : BottomSheetDialogFragment() {
         val filterDate: String?
 
         if (eventDaysContainer.visibility == View.VISIBLE && selectedDays.isNotEmpty()) {
-            // eventDays type with specific selected days
-            dates = MeetingDatesRequest(
-                type = "eventDays",
-                value = mapOf("days" to selectedDays.sorted())
-            )
-            filterDate = selectedDays.maxOrNull() // Use last day for filtering
+            // Check if all days are selected
+            val allDaysSelected = selectedDays.size == allEventDays.size &&
+                    selectedDays.containsAll(allEventDays)
+
+            if (allDaysSelected) {
+                // All event days selected - send empty map (displays "An allen Eventtagen")
+                dates = MeetingDatesRequest(
+                    type = "eventDays",
+                    value = emptyMap()
+                )
+                filterDate = allEventDays.maxOrNull()
+            } else {
+                // Only specific days selected - send the selected days
+                dates = MeetingDatesRequest(
+                    type = "eventDays",
+                    value = mapOf("days" to selectedDays.sorted())
+                )
+                filterDate = selectedDays.maxOrNull()
+            }
         } else {
             // Fallback: all event days
             dates = MeetingDatesRequest(

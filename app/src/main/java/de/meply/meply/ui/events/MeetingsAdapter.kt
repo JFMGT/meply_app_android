@@ -108,7 +108,7 @@ class MeetingsAdapter(
                         return "📅 $frequency"
                     }
                     "eventDays" -> {
-                        return "📅 An den Event-Tagen"
+                        return formatEventDays(dates.value?.daysList)
                     }
                 }
             }
@@ -126,6 +126,49 @@ class MeetingsAdapter(
             return try {
                 val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN)
                 val outputFormat = SimpleDateFormat("dd.MM.yyyy", Locale.GERMAN)
+                val date = inputFormat.parse(dateString)
+                if (date != null) {
+                    outputFormat.format(date)
+                } else {
+                    dateString
+                }
+            } catch (e: Exception) {
+                dateString
+            }
+        }
+
+        private fun formatEventDays(daysList: List<Any>?): String {
+            // If no specific days are stored, show "all event days"
+            if (daysList.isNullOrEmpty()) {
+                return "📅 An allen Eventtagen"
+            }
+
+            // Convert to list of date strings
+            val dateStrings = daysList.mapNotNull { it as? String }
+
+            if (dateStrings.isEmpty()) {
+                return "📅 An allen Eventtagen"
+            }
+
+            // Format dates
+            val formattedDates = dateStrings.sorted().map { formatDateShort(it) }
+
+            return when {
+                formattedDates.size == 1 -> "📅 ${formattedDates[0]}"
+                formattedDates.size == 2 -> "📅 ${formattedDates[0]} & ${formattedDates[1]}"
+                formattedDates.size <= 3 -> "📅 ${formattedDates.joinToString(", ")}"
+                else -> {
+                    // For more than 3 days, show first two and count
+                    val remaining = formattedDates.size - 2
+                    "📅 ${formattedDates[0]}, ${formattedDates[1]} +$remaining weitere"
+                }
+            }
+        }
+
+        private fun formatDateShort(dateString: String): String {
+            return try {
+                val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN)
+                val outputFormat = SimpleDateFormat("dd.MM.", Locale.GERMAN)
                 val date = inputFormat.parse(dateString)
                 if (date != null) {
                     outputFormat.format(date)
