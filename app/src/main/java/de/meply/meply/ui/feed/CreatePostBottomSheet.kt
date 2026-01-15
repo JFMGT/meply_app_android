@@ -43,6 +43,7 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     private val selectedImages = mutableListOf<SelectedImage>()
     private val maxImages = 4
     private var parentDocumentId: String? = null
+    private var replyToUsername: String? = null
     private var onPostCreated: (() -> Unit)? = null
 
     data class SelectedImage(
@@ -58,11 +59,13 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
         private const val ARG_PARENT_ID = "parentDocumentId"
+        private const val ARG_REPLY_USERNAME = "replyToUsername"
 
-        fun newInstance(parentDocumentId: String? = null): CreatePostBottomSheet {
+        fun newInstance(parentDocumentId: String? = null, replyToUsername: String? = null): CreatePostBottomSheet {
             return CreatePostBottomSheet().apply {
                 arguments = Bundle().apply {
                     parentDocumentId?.let { putString(ARG_PARENT_ID, it) }
+                    replyToUsername?.let { putString(ARG_REPLY_USERNAME, it) }
                 }
             }
         }
@@ -75,6 +78,7 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parentDocumentId = arguments?.getString(ARG_PARENT_ID)
+        replyToUsername = arguments?.getString(ARG_REPLY_USERNAME)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -119,9 +123,16 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
         progressBar = view.findViewById(R.id.createPostProgressBar)
         imagesContainer = view.findViewById(R.id.selectedImagesContainer)
         closeButton = view.findViewById(R.id.closeButton)
+        val sheetTitle = view.findViewById<TextView>(R.id.sheetTitle)
 
-        // Update hint text based on whether this is a reply
+        // Update UI based on whether this is a reply
         if (parentDocumentId != null) {
+            val title = if (!replyToUsername.isNullOrEmpty()) {
+                "Antwort auf $replyToUsername"
+            } else {
+                "Antwort"
+            }
+            sheetTitle.text = title
             contentInput.hint = "Deine Antwort..."
             submitButton.text = "Antworten"
         }

@@ -28,7 +28,7 @@ import de.meply.meply.data.feed.FeedResponse
 import de.meply.meply.data.feed.LikeToggleRequest
 import de.meply.meply.data.feed.LikeToggleResponse
 import de.meply.meply.data.feed.Post
-import de.meply.meply.ui.feed.CreatePostActivity
+import de.meply.meply.ui.feed.CreatePostBottomSheet
 import de.meply.meply.ui.feed.ThreadActivity
 import de.meply.meply.data.meetings.MeetingData
 import de.meply.meply.data.messages.CreateConversationRequest
@@ -734,9 +734,13 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun showReplyDialog(post: Post) {
-        val intent = Intent(this, CreatePostActivity::class.java)
-        intent.putExtra("parentDocumentId", post.documentId)
-        startActivity(intent)
+        val username = post.author.username ?: post.author.userslug
+        val bottomSheet = CreatePostBottomSheet.newInstance(post.documentId, username)
+        bottomSheet.setOnPostCreatedListener {
+            // Refresh posts when a new reply is created
+            loadUserPosts()
+        }
+        bottomSheet.show(supportFragmentManager, "createReply")
     }
 
     private fun showThread(post: Post) {
