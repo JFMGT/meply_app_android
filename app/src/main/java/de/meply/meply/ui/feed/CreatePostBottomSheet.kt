@@ -98,7 +98,33 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
             }
         }
 
+        // Prevent dismiss when clicking outside if there's content
+        dialog.setCanceledOnTouchOutside(false)
+
         return dialog
+    }
+
+    private fun hasUnsavedContent(): Boolean {
+        return !contentInput.text.isNullOrBlank() || selectedImages.isNotEmpty()
+    }
+
+    private fun showDiscardConfirmation() {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Änderungen verwerfen?")
+            .setMessage("Du hast ungespeicherte Änderungen. Möchtest du wirklich abbrechen?")
+            .setNegativeButton("Weiter bearbeiten", null)
+            .setPositiveButton("Verwerfen") { _, _ ->
+                dismiss()
+            }
+            .show()
+    }
+
+    fun tryDismiss() {
+        if (hasUnsavedContent()) {
+            showDiscardConfirmation()
+        } else {
+            dismiss()
+        }
     }
 
     override fun onCreateView(
@@ -140,7 +166,7 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupListeners() {
         closeButton.setOnClickListener {
-            dismiss()
+            tryDismiss()
         }
 
         selectImagesButton.setOnClickListener {
