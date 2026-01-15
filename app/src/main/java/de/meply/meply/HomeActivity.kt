@@ -44,6 +44,7 @@ class HomeActivity : AppCompatActivity() {
     private val collection by lazy { MyCollectionFragment() }
 
     private lateinit var drawerLayout: DrawerLayout
+    private lateinit var toolbarCreateButton: View
     private var currentUserSlug: String? = null
 
     private val createPostLauncher = registerForActivityResult(
@@ -82,11 +83,21 @@ class HomeActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbarCreateButton = findViewById(R.id.toolbarCreateButton)
 
         // Burger menu click
         toolbar.setNavigationOnClickListener {
             showDrawerMenu(toolbar)
         }
+
+        // Create button click - opens CreatePostActivity
+        toolbarCreateButton.setOnClickListener {
+            val intent = Intent(this, CreatePostActivity::class.java)
+            createPostLauncher.launch(intent)
+        }
+
+        // Show create button initially (Feed is default)
+        toolbarCreateButton.visibility = View.VISIBLE
     }
 
     private fun showDrawerMenu(anchor: MaterialToolbar) {
@@ -161,14 +172,17 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun openFollowers() {
+        toolbarCreateButton.visibility = View.GONE
         switchTo(followers, "followers")
     }
 
     private fun openGesuche() {
+        toolbarCreateButton.visibility = View.GONE
         switchTo(gesuche, "gesuche")
     }
 
     private fun openCollection() {
+        toolbarCreateButton.visibility = View.GONE
         switchTo(collection, "collection")
     }
 
@@ -190,14 +204,18 @@ class HomeActivity : AppCompatActivity() {
         val bottom = findViewById<BottomNavigationView>(R.id.bottomNav)
         bottom.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_feed    -> switchTo(feed, "feed")
-                R.id.nav_events  -> switchTo(events, "events")
-                R.id.nav_create  -> {
-                    val intent = Intent(this, CreatePostActivity::class.java)
-                    createPostLauncher.launch(intent)
-                    false // Don't select this item
+                R.id.nav_feed    -> {
+                    toolbarCreateButton.visibility = View.VISIBLE
+                    switchTo(feed, "feed")
                 }
-                R.id.nav_pm      -> switchTo(pm, "pm")
+                R.id.nav_events  -> {
+                    toolbarCreateButton.visibility = View.GONE
+                    switchTo(events, "events")
+                }
+                R.id.nav_pm      -> {
+                    toolbarCreateButton.visibility = View.GONE
+                    switchTo(pm, "pm")
+                }
                 R.id.nav_user    -> {
                     openUserDrawer()
                     false // Don't select this item, just open drawer
@@ -217,6 +235,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun navigateToProfile() {
+        toolbarCreateButton.visibility = View.GONE
         switchTo(profile, "profile")
     }
 
