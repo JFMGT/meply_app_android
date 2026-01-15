@@ -29,7 +29,7 @@ data class Post(
     @SerializedName(value = "liked", alternate = ["isLiked"]) val liked: Boolean = false,
     @SerializedName(value = "likeCount", alternate = ["likes"]) val likeCount: Int = 0,
     @SerializedName("replyCount") val replyCount: Int = 0,
-    @SerializedName("author") val author: PostAuthor,
+    @SerializedName("author") val author: PostAuthor? = null,
     @SerializedName("image") val image: List<PostImage>? = null,
     @SerializedName("parent") val parent: PostParent? = null,
     @SerializedName("children") val children: List<Post>? = null // For thread view

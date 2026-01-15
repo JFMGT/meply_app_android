@@ -54,11 +54,14 @@ class FeedAdapter(
 
         Log.d("FeedAdapter", "onBindViewHolder position=$position, documentId=${post.documentId}, likeCount=${post.likeCount}, liked=${post.liked}")
 
+        // Author kann null sein wenn z.B. der Elternbeitrag gelöscht wurde
+        val author = post.author
+
         // Username
-        holder.username.text = post.author.username
+        holder.username.text = author?.username ?: "Unbekannt"
 
         // Make username clickable if callback is provided
-        val authorUserslug = post.author.userslug
+        val authorUserslug = author?.userslug
         if (onAuthorClick != null && !authorUserslug.isNullOrEmpty()) {
             holder.username.setTextColor(context.getColor(android.R.color.holo_blue_dark))
             holder.username.setOnClickListener {
@@ -71,7 +74,7 @@ class FeedAdapter(
         }
 
         // Avatar
-        val avatarUrl = post.author.avatar?.firstOrNull()?.formats?.thumbnail?.url
+        val avatarUrl = author?.avatar?.firstOrNull()?.formats?.thumbnail?.url
         if (avatarUrl != null) {
             // User has uploaded avatar
             Glide.with(context)
@@ -81,7 +84,7 @@ class FeedAdapter(
                 .into(holder.avatar)
         } else {
             // Generate default avatar based on userId (matching PHP implementation)
-            val userId = post.author.userId ?: post.author.documentId
+            val userId = author?.userId ?: author?.documentId ?: "default"
             val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
             Glide.with(context)
                 .load(defaultAvatarUrl)

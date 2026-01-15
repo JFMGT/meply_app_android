@@ -66,11 +66,14 @@ class ThreadAdapter(
         layoutParams.marginStart = indentPx
         holder.itemView.layoutParams = layoutParams
 
+        // Author kann null sein wenn z.B. der Elternbeitrag gelöscht wurde
+        val author = post.author
+
         // Username
-        holder.username.text = post.author.username
+        holder.username.text = author?.username ?: "Unbekannt"
 
         // Avatar
-        val avatarUrl = post.author.avatar?.firstOrNull()?.formats?.thumbnail?.url
+        val avatarUrl = author?.avatar?.firstOrNull()?.formats?.thumbnail?.url
         if (avatarUrl != null) {
             Glide.with(context)
                 .load(imageBaseUrl + avatarUrl)
@@ -78,7 +81,7 @@ class ThreadAdapter(
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.avatar)
         } else {
-            val hash = post.author.id.hashCode()
+            val hash = author?.id?.hashCode() ?: 0
             val avatarIndex = (Math.abs(hash) % 8) + 1
             holder.avatar.setImageResource(R.drawable.ic_launcher_foreground)
         }
