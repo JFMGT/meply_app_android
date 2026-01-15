@@ -74,6 +74,7 @@ data class ProfileMeData(
     @SerializedName("id") val id: Int,
     @SerializedName("documentId") val documentId: String?,
     @SerializedName("username") val username: String?,
+    @SerializedName("userslug") val userslug: String?,
     @SerializedName("birthDate") val birthDate: String?,
     @SerializedName("postalCode") val postalCode: String?,
     @SerializedName("city") val city: String?,
