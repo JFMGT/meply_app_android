@@ -2,12 +2,20 @@ package de.meply.meply
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.card.MaterialCardView
+import java.text.SimpleDateFormat
+import java.util.Locale
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
@@ -45,6 +53,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toolbarCreateButton: View
     private lateinit var toolbarFilterButton: View
+    private lateinit var deletionWarningBanner: MaterialCardView
     private var currentUserSlug: String? = null
 
 
@@ -65,11 +74,13 @@ class HomeActivity : AppCompatActivity() {
         }
 
         drawerLayout = findViewById(R.id.drawerLayout)
+        deletionWarningBanner = findViewById(R.id.deletionWarningBanner)
 
         setupToolbar()
         setupBottomNavigation()
         setupDrawer()
         setupDrawerWidth()
+        setupDeletionWarningBanner()
         loadUserData()
     }
 
@@ -163,6 +174,62 @@ class HomeActivity : AppCompatActivity() {
         val params = drawer.layoutParams
         params.width = drawerWidth
         drawer.layoutParams = params
+    }
+
+    private fun setupDeletionWarningBanner() {
+        // Close banner button
+        findViewById<ImageButton>(R.id.btnCloseDeletionBanner).setOnClickListener {
+            hideDeletionWarningBanner()
+        }
+
+        // Go to profile button
+        findViewById<Button>(R.id.btnGoToProfile).setOnClickListener {
+            hideDeletionWarningBanner()
+            navigateToProfile()
+        }
+    }
+
+    private fun showDeletionWarningBanner(deletionDate: String) {
+        // Don't show if already shown this session
+        if (AuthManager.isDeletionWarningShown(this)) {
+            return
+        }
+
+        // Format the deletion date for display
+        val formattedDate = try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY)
+            val outputFormat = SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
+            val date = inputFormat.parse(deletionDate)
+            date?.let { outputFormat.format(it) } ?: deletionDate
+        } catch (e: Exception) {
+            deletionDate
+        }
+
+        // Update banner text
+        val bannerText = findViewById<TextView>(R.id.deletionBannerText)
+        bannerText.text = "Dein Konto wird am $formattedDate gelöscht. Besuche dein Profil um die Löschung abzubrechen."
+
+        // Show banner with slide-in animation
+        deletionWarningBanner.visibility = View.VISIBLE
+        deletionWarningBanner.animate()
+            .translationY(0f)
+            .setDuration(500)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
+
+        // Mark as shown
+        AuthManager.setDeletionWarningShown(this, true)
+    }
+
+    private fun hideDeletionWarningBanner() {
+        deletionWarningBanner.animate()
+            .translationY(-deletionWarningBanner.height.toFloat() - 100f)
+            .setDuration(300)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .withEndAction {
+                deletionWarningBanner.visibility = View.GONE
+            }
+            .start()
     }
 
     private fun openUserDrawer() {
@@ -279,6 +346,18 @@ class HomeActivity : AppCompatActivity() {
                         val avatarUrl = profileData?.avatar?.firstOrNull()?.url
                         val username = profileData?.username ?: "Benutzer"
                         currentUserSlug = profileData?.userslug
+                        val scheduledDeletionAt = profileData?.scheduledDeletionAt
+
+                        // Save deletion status to AuthManager
+                        AuthManager.saveScheduledDeletionAt(this@HomeActivity, scheduledDeletionAt)
+
+                        // Show deletion warning banner if account is marked for deletion
+                        if (!scheduledDeletionAt.isNullOrEmpty()) {
+                            // Delay showing banner slightly so it slides in nicely after UI is ready
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                showDeletionWarningBanner(scheduledDeletionAt)
+                            }, 500)
+                        }
 
                         // Update drawer username
                         drawerUserName.text = username

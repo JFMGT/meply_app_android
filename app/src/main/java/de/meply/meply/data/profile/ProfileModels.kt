@@ -90,7 +90,8 @@ data class ProfileMeData(
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?,
     @SerializedName("cords") val cords: Any?,  // Can be String or Object
-    @SerializedName("avatar") val avatar: List<AvatarUpload>?
+    @SerializedName("avatar") val avatar: List<AvatarUpload>?,
+    @SerializedName("scheduledDeletionAt") val scheduledDeletionAt: String? // Deletion date if account is marked for deletion
 ) {
     /**
      * Convert ProfileMeData to ProfileAttributes for use in ProfileItem
