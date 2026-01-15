@@ -186,7 +186,7 @@ class ThreadActivity : BaseDetailActivity() {
     }
 
     private fun showReplyDialog(post: Post) {
-        val username = post.author.username ?: post.author.userslug
+        val username = post.author?.username ?: post.author?.userslug
         val bottomSheet = CreatePostBottomSheet.newInstance(post.documentId, username)
         bottomSheet.setOnPostCreatedListener {
             // Refresh thread when a new reply is created
@@ -198,7 +198,7 @@ class ThreadActivity : BaseDetailActivity() {
     private fun showOptionsMenu(post: Post, anchorView: View) {
         // Check if current user is the post author
         val currentUserId = AuthManager.getProfileDocumentId(this)
-        val isOwnPost = currentUserId != null && currentUserId == post.author.documentId
+        val isOwnPost = currentUserId != null && post.author != null && currentUserId == post.author.documentId
 
         val options = mutableListOf<String>()
 

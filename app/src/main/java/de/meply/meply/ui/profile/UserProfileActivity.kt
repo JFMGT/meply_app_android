@@ -734,7 +734,7 @@ class UserProfileActivity : BaseDetailActivity() {
     }
 
     private fun showReplyDialog(post: Post) {
-        val username = post.author.username ?: post.author.userslug
+        val username = post.author?.username ?: post.author?.userslug
         val bottomSheet = CreatePostBottomSheet.newInstance(post.documentId, username)
         bottomSheet.setOnPostCreatedListener {
             // Refresh posts when a new reply is created

@@ -98,7 +98,33 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
             }
         }
 
+        // Prevent dismiss when clicking outside if there's content
+        dialog.setCanceledOnTouchOutside(false)
+
         return dialog
+    }
+
+    private fun hasUnsavedContent(): Boolean {
+        return !contentInput.text.isNullOrBlank() || selectedImages.isNotEmpty()
+    }
+
+    private fun showDiscardConfirmation() {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Änderungen verwerfen?")
+            .setMessage("Du hast ungespeicherte Änderungen. Möchtest du wirklich abbrechen?")
+            .setNegativeButton("Weiter bearbeiten", null)
+            .setPositiveButton("Verwerfen") { _, _ ->
+                dismiss()
+            }
+            .show()
+    }
+
+    fun tryDismiss() {
+        if (hasUnsavedContent()) {
+            showDiscardConfirmation()
+        } else {
+            dismiss()
+        }
     }
 
     override fun onCreateView(
@@ -140,7 +166,7 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupListeners() {
         closeButton.setOnClickListener {
-            dismiss()
+            tryDismiss()
         }
 
         selectImagesButton.setOnClickListener {
@@ -215,37 +241,19 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun showImageEditDialog(index: Int, selectedImage: SelectedImage) {
-        val dialogView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.dialog_image_edit, null)
+        val bottomSheet = ImageEditBottomSheet.newInstance(selectedImage.uri, selectedImage.altText)
 
-        val imagePreview = dialogView.findViewById<ImageView>(R.id.dialogImagePreview)
-        val altTextInput = dialogView.findViewById<TextInputEditText>(R.id.dialogAltTextInput)
-        val deleteButton = dialogView.findViewById<Button>(R.id.dialogDeleteButton)
-        val saveButton = dialogView.findViewById<Button>(R.id.dialogSaveButton)
+        bottomSheet.setOnSaveListener { newAltText ->
+            selectedImages[index].altText = newAltText
+            updateImagesUI()
+        }
 
-        // Setze Bild und aktuellen Alt-Text
-        imagePreview.setImageURI(selectedImage.uri)
-        altTextInput.setText(selectedImage.altText)
-
-        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-            .setView(dialogView)
-            .create()
-
-        // Löschen-Button
-        deleteButton.setOnClickListener {
+        bottomSheet.setOnDeleteListener {
             selectedImages.removeAt(index)
             updateImagesUI()
-            dialog.dismiss()
         }
 
-        // Speichern-Button
-        saveButton.setOnClickListener {
-            selectedImages[index].altText = altTextInput.text?.toString() ?: ""
-            updateImagesUI()
-            dialog.dismiss()
-        }
-
-        dialog.show()
+        bottomSheet.show(parentFragmentManager, "imageEdit")
     }
 
     private fun createPost() {
