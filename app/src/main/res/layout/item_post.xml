@@ -107,11 +107,12 @@
 
             <ImageButton
                 android:id="@+id/postLikeButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Like"
-                android:src="@android:drawable/btn_star_big_off" />
+                android:src="@drawable/ic_star_outline"
+                android:scaleType="fitCenter" />
 
             <TextView
                 android:id="@+id/postLikeCount"
@@ -129,11 +130,12 @@
 
             <ImageButton
                 android:id="@+id/postReplyButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Reply"
-                android:src="@android:drawable/ic_menu_revert" />
+                android:src="@drawable/ic_comment"
+                android:scaleType="fitCenter" />
 
             <TextView
                 android:id="@+id/postReplyCount"

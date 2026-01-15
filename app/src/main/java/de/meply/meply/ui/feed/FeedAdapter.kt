@@ -131,9 +131,9 @@ class FeedAdapter(
 
         // Like button
         val likeIcon = if (post.liked) {
-            android.R.drawable.btn_star_big_on
+            R.drawable.ic_star_filled
         } else {
-            android.R.drawable.btn_star_big_off
+            R.drawable.ic_star_outline
         }
         holder.likeButton.setImageResource(likeIcon)
         holder.likeCount.text = post.likeCount.toString()
