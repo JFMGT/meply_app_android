@@ -703,10 +703,22 @@ class UserProfileActivity : BaseDetailActivity() {
                 if (response.isSuccessful) {
                     val likeResponse = response.body()
                     if (likeResponse != null) {
-                        // Update post in adapter
+                        val isLiked = likeResponse.status == "liked"
+
+                        // API doesn't return likeCount, so calculate it ourselves
+                        val newLikeCount = if (likeResponse.hasLikeCount()) {
+                            likeResponse.getActualLikeCount()
+                        } else {
+                            when {
+                                isLiked && !post.liked -> post.likeCount + 1
+                                !isLiked && post.liked -> post.likeCount - 1
+                                else -> post.likeCount
+                            }
+                        }
+
                         val updatedPost = post.copy(
-                            liked = likeResponse.status == "liked",
-                            likeCount = likeResponse.getActualLikeCount()
+                            liked = isLiked,
+                            likeCount = newLikeCount
                         )
                         postsAdapter.updatePost(updatedPost)
                     }

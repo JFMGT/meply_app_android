@@ -212,23 +212,29 @@ class FeedFragment : Fragment() {
                 Log.d("FeedFragment", "toggleLike response: ${response.code()}, successful: ${response.isSuccessful}")
                 if (response.isSuccessful) {
                     val likeResponse = response.body()
-                    // Log all possible field values
-                    Log.d("FeedFragment", "toggleLike body: status=${likeResponse?.status}, " +
-                            "likeCount=${likeResponse?.likeCount}, " +
-                            "likesCount=${likeResponse?.likesCount}, " +
-                            "likes_count=${likeResponse?.likes_count}, " +
-                            "count=${likeResponse?.count}")
+                    Log.d("FeedFragment", "toggleLike body: status=${likeResponse?.status}")
                     if (likeResponse != null) {
-                        val actualLikeCount = likeResponse.getActualLikeCount()
                         val isLiked = likeResponse.status == "liked"
-                        Log.d("FeedFragment", "Computed: actualLikeCount=$actualLikeCount, isLiked=$isLiked")
+
+                        // API doesn't return likeCount, so calculate it ourselves
+                        val newLikeCount = if (likeResponse.hasLikeCount()) {
+                            likeResponse.getActualLikeCount()
+                        } else {
+                            // Calculate based on toggle action
+                            when {
+                                isLiked && !post.liked -> post.likeCount + 1  // Added like
+                                !isLiked && post.liked -> post.likeCount - 1  // Removed like
+                                else -> post.likeCount  // No change
+                            }
+                        }
+
+                        Log.d("FeedFragment", "Computed: newLikeCount=$newLikeCount, isLiked=$isLiked")
 
                         // Update post in adapter
                         val updatedPost = post.copy(
                             liked = isLiked,
-                            likeCount = actualLikeCount
+                            likeCount = newLikeCount
                         )
-                        Log.d("FeedFragment", "Updating post with new likeCount: ${updatedPost.likeCount}")
                         feedAdapter.updatePost(updatedPost)
                     }
                 } else {

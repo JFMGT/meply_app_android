@@ -117,6 +117,9 @@ data class LikeToggleResponse(
     @SerializedName("likes_count") val likes_count: Int?, // Another alternative
     @SerializedName("count") val count: Int? // Another alternative
 ) {
+    // Check if any like count field is present in the response
+    fun hasLikeCount(): Boolean = likeCount != null || likesCount != null || likes_count != null || count != null
+
     // Get the actual like count from whichever field is present
     fun getActualLikeCount(): Int = likeCount ?: likesCount ?: likes_count ?: count ?: 0
 }
