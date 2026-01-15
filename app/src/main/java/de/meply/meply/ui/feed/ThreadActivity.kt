@@ -103,6 +103,11 @@ class ThreadActivity : BaseDetailActivity() {
                     val post = response.body()
                     if (post != null) {
                         rootPost = post
+                        // Debug logging to see like data
+                        Log.d("ThreadActivity", "Root post: documentId=${post.documentId}, liked=${post.liked}, likeCount=${post.likeCount}")
+                        post.children?.forEachIndexed { index, child ->
+                            Log.d("ThreadActivity", "Child $index: documentId=${child.documentId}, liked=${child.liked}, likeCount=${child.likeCount}")
+                        }
                         threadAdapter.updateThread(post)
                         Log.d("ThreadActivity", "Thread loaded successfully")
                     }
