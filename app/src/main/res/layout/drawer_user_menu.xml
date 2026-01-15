@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/primary_dark"
+    android:paddingTop="48dp">
+
+    <!-- User Header Section -->
+    <LinearLayout
+        android:id="@+id/drawerUserHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:id="@+id/drawerUserAvatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="User Avatar" />
+
+        <TextView
+            android:id="@+id/drawerUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/text_on_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Benutzername" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_on_primary"
+            android:textSize="12sp"
+            android:alpha="0.8"
+            android:text="Profil anzeigen" />
+
+    </LinearLayout>
+
+    <!-- Separator -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/text_on_primary"
+        android:alpha="0.3" />
+
+    <!-- Menu Items -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/menuProfile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:paddingStart="24dp"
+            android:text="Profil bearbeiten"
+            android:textColor="@color/text_on_primary"
+            android:textSize="16sp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/menuFollowers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:paddingStart="24dp"
+            android:text="Follower"
+            android:textColor="@color/text_on_primary"
+            android:textSize="16sp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/menuGesuche"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:paddingStart="24dp"
+            android:text="Meine Gesuche"
+            android:textColor="@color/text_on_primary"
+            android:textSize="16sp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/menuCollection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:paddingStart="24dp"
+            android:text="Meine Sammlung"
+            android:textColor="@color/text_on_primary"
+            android:textSize="16sp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- Spacer to push logout to bottom -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Separator before logout -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/text_on_primary"
+        android:alpha="0.3" />
+
+    <TextView
+        android:id="@+id/menuLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:paddingStart="24dp"
+        android:paddingBottom="24dp"
+        android:text="Logout"
+        android:textColor="@color/text_on_primary"
+        android:textSize="16sp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true" />
+
+</LinearLayout>

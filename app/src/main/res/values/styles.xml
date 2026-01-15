@@ -69,4 +69,8 @@
         <item name="android:textColorPrimary">@color/text_on_light</item>
         <item name="android:textColorSecondary">@color/text_on_light</item>
     </style>
+
+    <!-- Bottom Navigation Style -->
+    <style name="Widget.Meply.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+    </style>
 </resources>

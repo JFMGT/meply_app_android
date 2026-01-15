@@ -4,10 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -19,6 +23,7 @@ import de.meply.meply.ui.pm.PmFragment
 import de.meply.meply.ui.profile.ProfileFragment
 import de.meply.meply.ui.followers.FollowersFragment
 import de.meply.meply.ui.collection.MyCollectionFragment
+import de.meply.meply.ui.profile.UserProfileActivity
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -37,6 +42,10 @@ class HomeActivity : AppCompatActivity() {
     private val followers by lazy { FollowersFragment() }
     private val gesuche by lazy { GesucheFragment() }
     private val collection by lazy { MyCollectionFragment() }
+
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var toolbarCreateButton: View
+    private var currentUserSlug: String? = null
 
     private val createPostLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -63,24 +72,32 @@ class HomeActivity : AppCompatActivity() {
                 .commit()
         }
 
+        drawerLayout = findViewById(R.id.drawerLayout)
+
         setupToolbar()
         setupBottomNavigation()
-        loadUserAvatar()
+        setupDrawer()
+        setupDrawerWidth()
+        loadUserData()
     }
 
     private fun setupToolbar() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        val userIcon = findViewById<ImageView>(R.id.toolbarUserIcon)
+        toolbarCreateButton = findViewById(R.id.toolbarCreateButton)
 
         // Burger menu click
         toolbar.setNavigationOnClickListener {
             showDrawerMenu(toolbar)
         }
 
-        // User icon click
-        userIcon.setOnClickListener {
-            showUserMenu(userIcon)
+        // Create button click - opens CreatePostActivity
+        toolbarCreateButton.setOnClickListener {
+            val intent = Intent(this, CreatePostActivity::class.java)
+            createPostLauncher.launch(intent)
         }
+
+        // Show create button initially (Feed is default)
+        toolbarCreateButton.visibility = View.VISIBLE
     }
 
     private fun showDrawerMenu(anchor: MaterialToolbar) {
@@ -102,46 +119,70 @@ class HomeActivity : AppCompatActivity() {
         popup.show()
     }
 
-    private fun showUserMenu(anchor: ImageView) {
-        val popup = PopupMenu(this, anchor)
-        popup.menuInflater.inflate(R.menu.user_menu, popup.menu)
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.menu_profile -> {
-                    navigateToProfile()
-                    true
-                }
-                R.id.menu_followers -> {
-                    openFollowers()
-                    true
-                }
-                R.id.menu_gesuche -> {
-                    openGesuche()
-                    true
-                }
-                R.id.menu_collection -> {
-                    openCollection()
-                    true
-                }
-                R.id.menu_logout -> {
-                    logout()
-                    true
-                }
-                else -> false
+    private fun setupDrawer() {
+        // User header click - open own profile in visitor view
+        findViewById<View>(R.id.drawerUserHeader).setOnClickListener {
+            currentUserSlug?.let { slug ->
+                UserProfileActivity.start(this, slug)
             }
+            drawerLayout.closeDrawer(GravityCompat.END)
         }
-        popup.show()
+
+        // Menu item clicks
+        findViewById<TextView>(R.id.menuProfile).setOnClickListener {
+            navigateToProfile()
+            drawerLayout.closeDrawer(GravityCompat.END)
+        }
+
+        findViewById<TextView>(R.id.menuFollowers).setOnClickListener {
+            openFollowers()
+            drawerLayout.closeDrawer(GravityCompat.END)
+        }
+
+        findViewById<TextView>(R.id.menuGesuche).setOnClickListener {
+            openGesuche()
+            drawerLayout.closeDrawer(GravityCompat.END)
+        }
+
+        findViewById<TextView>(R.id.menuCollection).setOnClickListener {
+            openCollection()
+            drawerLayout.closeDrawer(GravityCompat.END)
+        }
+
+        findViewById<TextView>(R.id.menuLogout).setOnClickListener {
+            drawerLayout.closeDrawer(GravityCompat.END)
+            logout()
+        }
+    }
+
+    private fun setupDrawerWidth() {
+        // Set drawer width to 90% of screen width
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val drawerWidth = (screenWidth * 0.9).toInt()
+
+        val drawer = findViewById<View>(R.id.userDrawer)
+        val params = drawer.layoutParams
+        params.width = drawerWidth
+        drawer.layoutParams = params
+    }
+
+    private fun openUserDrawer() {
+        drawerLayout.openDrawer(GravityCompat.END)
     }
 
     private fun openFollowers() {
+        toolbarCreateButton.visibility = View.GONE
         switchTo(followers, "followers")
     }
 
     private fun openGesuche() {
+        toolbarCreateButton.visibility = View.GONE
         switchTo(gesuche, "gesuche")
     }
 
     private fun openCollection() {
+        toolbarCreateButton.visibility = View.GONE
         switchTo(collection, "collection")
     }
 
@@ -163,14 +204,22 @@ class HomeActivity : AppCompatActivity() {
         val bottom = findViewById<BottomNavigationView>(R.id.bottomNav)
         bottom.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_feed    -> switchTo(feed, "feed")
-                R.id.nav_events  -> switchTo(events, "events")
-                R.id.nav_create  -> {
-                    val intent = Intent(this, CreatePostActivity::class.java)
-                    createPostLauncher.launch(intent)
-                    false // Don't select this item
+                R.id.nav_feed    -> {
+                    toolbarCreateButton.visibility = View.VISIBLE
+                    switchTo(feed, "feed")
                 }
-                R.id.nav_pm      -> switchTo(pm, "pm")
+                R.id.nav_events  -> {
+                    toolbarCreateButton.visibility = View.GONE
+                    switchTo(events, "events")
+                }
+                R.id.nav_pm      -> {
+                    toolbarCreateButton.visibility = View.GONE
+                    switchTo(pm, "pm")
+                }
+                R.id.nav_user    -> {
+                    openUserDrawer()
+                    false // Don't select this item, just open drawer
+                }
                 else -> false
             }
         }
@@ -186,15 +235,18 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun navigateToProfile() {
+        toolbarCreateButton.visibility = View.GONE
         switchTo(profile, "profile")
     }
 
     fun refreshUserAvatar() {
-        loadUserAvatar()
+        loadUserData()
     }
 
-    private fun loadUserAvatar() {
-        val userIcon = findViewById<ImageView>(R.id.toolbarUserIcon)
+    private fun loadUserData() {
+        val drawerAvatar = findViewById<ImageView>(R.id.drawerUserAvatar)
+        val drawerUserName = findViewById<TextView>(R.id.drawerUserName)
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
 
         ApiClient.retrofit.getMyProfile()
             .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
@@ -206,42 +258,82 @@ class HomeActivity : AppCompatActivity() {
                         val profileData = response.body()?.data
                         val userId = profileData?.documentId ?: "default"
                         val avatarUrl = profileData?.avatar?.firstOrNull()?.url
+                        val username = profileData?.username ?: "Benutzer"
+                        currentUserSlug = profileData?.userslug
 
-                        if (!avatarUrl.isNullOrEmpty()) {
-                            // Uploaded avatar exists
-                            val fullUrl = "${ApiClient.STRAPI_IMAGE_BASE}$avatarUrl"
-                            Glide.with(this@HomeActivity)
-                                .load(fullUrl)
-                                .circleCrop()
-                                .placeholder(R.drawable.ic_launcher_foreground)
-                                .into(userIcon)
+                        // Update drawer username
+                        drawerUserName.text = username
+
+                        // Determine avatar URL
+                        val fullAvatarUrl = if (!avatarUrl.isNullOrEmpty()) {
+                            "${ApiClient.STRAPI_IMAGE_BASE}$avatarUrl"
                         } else {
-                            // Use generated avatar
-                            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
-                            Glide.with(this@HomeActivity)
-                                .load(defaultAvatarUrl)
-                                .circleCrop()
-                                .placeholder(R.drawable.ic_launcher_foreground)
-                                .into(userIcon)
+                            AvatarUtils.getDefaultAvatarUrl(userId)
                         }
+
+                        // Update drawer avatar
+                        Glide.with(this@HomeActivity)
+                            .load(fullAvatarUrl)
+                            .circleCrop()
+                            .placeholder(R.drawable.ic_launcher_foreground)
+                            .into(drawerAvatar)
+
+                        // Update bottom navigation avatar
+                        loadBottomNavAvatar(bottomNav, fullAvatarUrl)
                     } else {
                         Log.e("HomeActivity", "Failed to load profile: ${response.code()}")
-                        // Show placeholder on error
-                        Glide.with(this@HomeActivity)
-                            .load(R.drawable.ic_launcher_foreground)
-                            .circleCrop()
-                            .into(userIcon)
+                        drawerUserName.text = "Benutzer"
                     }
                 }
 
                 override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
-                    Log.e("HomeActivity", "Error loading profile avatar", t)
-                    // Show placeholder on error
-                    Glide.with(this@HomeActivity)
-                        .load(R.drawable.ic_launcher_foreground)
-                        .circleCrop()
-                        .into(userIcon)
+                    Log.e("HomeActivity", "Error loading profile", t)
+                    drawerUserName.text = "Benutzer"
                 }
             })
+    }
+
+    private fun loadBottomNavAvatar(bottomNav: BottomNavigationView, avatarUrl: String) {
+        // Größeres Icon (40dp) um den Platz von Icon + Label zu füllen
+        val size = (40 * resources.displayMetrics.density).toInt()
+
+        Log.d("HomeActivity", "Loading bottom nav avatar: $avatarUrl, size: $size")
+
+        Glide.with(this)
+            .asBitmap()
+            .load(avatarUrl)
+            .circleCrop()
+            .into(object : com.bumptech.glide.request.target.CustomTarget<android.graphics.Bitmap>(size, size) {
+                override fun onResourceReady(
+                    resource: android.graphics.Bitmap,
+                    transition: com.bumptech.glide.request.transition.Transition<in android.graphics.Bitmap>?
+                ) {
+                    Log.d("HomeActivity", "Bottom nav avatar loaded successfully: ${resource.width}x${resource.height}")
+                    val drawable = android.graphics.drawable.BitmapDrawable(resources, resource)
+                    drawable.setBounds(0, 0, size, size)
+
+                    val menuItem = bottomNav.menu.findItem(R.id.nav_user)
+                    menuItem?.icon = drawable
+
+                    // Deaktiviere Icon-Tinting für das Avatar
+                    bottomNav.itemIconTintList = null
+                }
+
+                override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {
+                    // Keep current icon
+                }
+
+                override fun onLoadFailed(errorDrawable: android.graphics.drawable.Drawable?) {
+                    Log.e("HomeActivity", "Failed to load bottom nav avatar")
+                }
+            })
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            drawerLayout.closeDrawer(GravityCompat.END)
+        } else {
+            super.onBackPressed()
+        }
     }
 }
