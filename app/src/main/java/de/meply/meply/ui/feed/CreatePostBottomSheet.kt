@@ -64,18 +64,26 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     private val cropLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == Activity.RESULT_OK && cropImageIndex >= 0 && cropImageIndex < selectedImages.size) {
-            val resultUri = UCrop.getOutput(result.data!!)
-            if (resultUri != null) {
-                // Ersetze das Original mit dem zugeschnittenen Bild
-                selectedImages[cropImageIndex] = selectedImages[cropImageIndex].copy(uri = resultUri)
-                updateImagesUI()
-                Toast.makeText(requireContext(), "Bild zugeschnitten", Toast.LENGTH_SHORT).show()
+        try {
+            if (result.resultCode == Activity.RESULT_OK && cropImageIndex >= 0 && cropImageIndex < selectedImages.size) {
+                result.data?.let { data ->
+                    val resultUri = UCrop.getOutput(data)
+                    if (resultUri != null) {
+                        // Ersetze das Original mit dem zugeschnittenen Bild
+                        selectedImages[cropImageIndex] = selectedImages[cropImageIndex].copy(uri = resultUri)
+                        updateImagesUI()
+                        Toast.makeText(requireContext(), "Bild zugeschnitten", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else if (result.resultCode == UCrop.RESULT_ERROR) {
+                result.data?.let { data ->
+                    val cropError = UCrop.getError(data)
+                    Log.e("CreatePost", "Crop error", cropError)
+                }
+                Toast.makeText(requireContext(), "Fehler beim Zuschneiden", Toast.LENGTH_SHORT).show()
             }
-        } else if (result.resultCode == UCrop.RESULT_ERROR) {
-            val cropError = UCrop.getError(result.data!!)
-            Log.e("CreatePost", "Crop error", cropError)
-            Toast.makeText(requireContext(), "Fehler beim Zuschneiden", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("CreatePost", "Error handling crop result", e)
         }
         cropImageIndex = -1
     }
@@ -291,6 +299,12 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
         val destinationFile = File(requireContext().cacheDir, destinationFileName)
         val destinationUri = Uri.fromFile(destinationFile)
 
+        // App-Farben
+        val toolbarColor = Color.parseColor("#1A1A1A")
+        val statusBarColor = Color.parseColor("#1A1A1A")
+        val activeColor = Color.parseColor("#FFC107")
+        val backgroundColor = Color.parseColor("#121212")
+
         // UCrop Optionen konfigurieren
         val options = UCrop.Options().apply {
             setCompressionFormat(Bitmap.CompressFormat.JPEG)
@@ -298,10 +312,13 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
             setHideBottomControls(false)
             setFreeStyleCropEnabled(true)
             setToolbarTitle("Bild zuschneiden")
-            setToolbarColor(Color.parseColor("#2C2C2C"))
-            setStatusBarColor(Color.parseColor("#2C2C2C"))
+            setToolbarColor(toolbarColor)
+            setStatusBarColor(statusBarColor)
             setToolbarWidgetColor(Color.WHITE)
-            setActiveControlsWidgetColor(Color.parseColor("#FFC107"))
+            setActiveControlsWidgetColor(activeColor)
+            setRootViewBackgroundColor(backgroundColor)
+            // Dimmed Layer (Bereich außerhalb des Zuschnitts)
+            setDimmedLayerColor(Color.parseColor("#99000000"))
         }
 
         val intent = UCrop.of(sourceUri, destinationUri)

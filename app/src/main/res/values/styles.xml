@@ -73,4 +73,21 @@
     <!-- Bottom Navigation Style -->
     <style name="Widget.Meply.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
     </style>
+
+    <!-- UCrop Theme - Dunkles Theme mit Navigation Bar Support -->
+    <style name="Theme.Meply.UCrop" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/background_card</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background_header</item>
+        <item name="android:navigationBarColor">@color/background_darkest</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <!-- Wichtig: UI nicht unter System Bars zeichnen -->
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
 </resources>
