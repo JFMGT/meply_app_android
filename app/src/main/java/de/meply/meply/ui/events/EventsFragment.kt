@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.card.MaterialCardView
 import de.meply.meply.R
 import de.meply.meply.data.events.EventItem
 import de.meply.meply.data.events.StrapiListResponse
@@ -30,8 +29,6 @@ class EventsFragment : Fragment() {
     private lateinit var recycler: RecyclerView
     private lateinit var progress: ProgressBar
     private lateinit var empty: TextView
-    private lateinit var filterSummaryCard: MaterialCardView
-    private lateinit var filterSummaryText: TextView
     private val adapter = EventsAdapter { item -> onEventClicked(item) }
 
     private var currentZip: String? = null
@@ -43,8 +40,6 @@ class EventsFragment : Fragment() {
         recycler = v.findViewById(R.id.recyclerEvents)
         progress = v.findViewById(R.id.progress)
         empty = v.findViewById(R.id.emptyView)
-        filterSummaryCard = v.findViewById(R.id.filter_summary_card)
-        filterSummaryText = v.findViewById(R.id.filter_summary_text)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
@@ -53,11 +48,6 @@ class EventsFragment : Fragment() {
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val savedZip = prefs.getString("postalCode", null)
         val savedRadius = prefs.getInt("searchRadius", 0)
-
-        // Set up filter click - opens BottomSheet
-        filterSummaryCard.setOnClickListener {
-            showFilterBottomSheet()
-        }
 
         // Load events with default or saved values
         val initialZip = if (!savedZip.isNullOrEmpty()) savedZip else DEFAULT_ZIP
@@ -68,13 +58,12 @@ class EventsFragment : Fragment() {
 
         currentZip = initialZip
         currentRadius = initialRadius
-        updateFilterSummary()
         loadEvents(zip = initialZip, radiusKm = initialRadius)
 
         return v
     }
 
-    private fun showFilterBottomSheet() {
+    fun showFilterBottomSheet() {
         val bottomSheet = EventFilterBottomSheet.newInstance(
             zip = if (hasUserSetFilter) currentZip else null,
             radius = if (hasUserSetFilter) currentRadius?.toInt() else null
@@ -84,7 +73,6 @@ class EventsFragment : Fragment() {
             currentZip = zip
             currentRadius = radius
             hasUserSetFilter = true
-            updateFilterSummary()
             loadEvents(zip = zip, radiusKm = radius)
         }
 
@@ -92,20 +80,10 @@ class EventsFragment : Fragment() {
             currentZip = DEFAULT_ZIP
             currentRadius = DEFAULT_RADIUS_KM
             hasUserSetFilter = false
-            updateFilterSummary()
             loadEvents(zip = DEFAULT_ZIP, radiusKm = DEFAULT_RADIUS_KM)
         }
 
         bottomSheet.show(parentFragmentManager, "eventFilter")
-    }
-
-    private fun updateFilterSummary() {
-        val summaryText = if (hasUserSetFilter && currentZip != null && currentRadius != null) {
-            "Events im Umkreis von ${currentRadius?.toInt()} km rund um $currentZip"
-        } else {
-            "Events in deiner Naehe"
-        }
-        filterSummaryText.text = summaryText
     }
 
     private fun loadEvents(zip: String, radiusKm: Double) {

@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import de.meply.meply.ui.feed.CreatePostBottomSheet
 import de.meply.meply.ui.feed.FeedFragment
 import de.meply.meply.ui.events.EventsFragment
+import de.meply.meply.ui.events.EventFilterBottomSheet
 import de.meply.meply.ui.pm.PmFragment
 import de.meply.meply.ui.profile.ProfileFragment
 import de.meply.meply.ui.followers.FollowersFragment
@@ -43,6 +44,7 @@ class HomeActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toolbarCreateButton: View
+    private lateinit var toolbarFilterButton: View
     private var currentUserSlug: String? = null
 
 
@@ -74,6 +76,7 @@ class HomeActivity : AppCompatActivity() {
     private fun setupToolbar() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         toolbarCreateButton = findViewById(R.id.toolbarCreateButton)
+        toolbarFilterButton = findViewById(R.id.toolbarFilterButton)
 
         // Burger menu click
         toolbar.setNavigationOnClickListener {
@@ -85,8 +88,14 @@ class HomeActivity : AppCompatActivity() {
             showCreatePostBottomSheet()
         }
 
+        // Filter button click - opens EventFilterBottomSheet
+        toolbarFilterButton.setOnClickListener {
+            showEventFilterBottomSheet()
+        }
+
         // Show create button initially (Feed is default)
         toolbarCreateButton.visibility = View.VISIBLE
+        toolbarFilterButton.visibility = View.GONE
     }
 
     private fun showDrawerMenu(anchor: MaterialToolbar) {
@@ -162,16 +171,19 @@ class HomeActivity : AppCompatActivity() {
 
     private fun openFollowers() {
         toolbarCreateButton.visibility = View.GONE
+        toolbarFilterButton.visibility = View.GONE
         switchTo(followers, "followers")
     }
 
     private fun openGesuche() {
         toolbarCreateButton.visibility = View.GONE
+        toolbarFilterButton.visibility = View.GONE
         switchTo(gesuche, "gesuche")
     }
 
     private fun openCollection() {
         toolbarCreateButton.visibility = View.GONE
+        toolbarFilterButton.visibility = View.GONE
         switchTo(collection, "collection")
     }
 
@@ -195,14 +207,17 @@ class HomeActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_feed    -> {
                     toolbarCreateButton.visibility = View.VISIBLE
+                    toolbarFilterButton.visibility = View.GONE
                     switchTo(feed, "feed")
                 }
                 R.id.nav_events  -> {
                     toolbarCreateButton.visibility = View.GONE
+                    toolbarFilterButton.visibility = View.VISIBLE
                     switchTo(events, "events")
                 }
                 R.id.nav_pm      -> {
                     toolbarCreateButton.visibility = View.GONE
+                    toolbarFilterButton.visibility = View.GONE
                     switchTo(pm, "pm")
                 }
                 R.id.nav_user    -> {
@@ -225,6 +240,7 @@ class HomeActivity : AppCompatActivity() {
 
     fun navigateToProfile() {
         toolbarCreateButton.visibility = View.GONE
+        toolbarFilterButton.visibility = View.GONE
         switchTo(profile, "profile")
     }
 
@@ -235,6 +251,11 @@ class HomeActivity : AppCompatActivity() {
             (supportFragmentManager.findFragmentByTag("feed") as? FeedFragment)?.refreshFeed()
         }
         bottomSheet.show(supportFragmentManager, "createPost")
+    }
+
+    private fun showEventFilterBottomSheet() {
+        val eventsFragment = supportFragmentManager.findFragmentByTag("events") as? EventsFragment
+        eventsFragment?.showFilterBottomSheet()
     }
 
     fun refreshUserAvatar() {

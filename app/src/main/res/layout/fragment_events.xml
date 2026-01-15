@@ -1,64 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Filter Summary (Collapsed State) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/filter_summary_card"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerEvents"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="72dp" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        app:cardBackgroundColor="@color/primary"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp">
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/filter_summary_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Events in deiner Nähe"
-            android:textColor="@color/text_on_light"
-            android:textSize="16sp"
-            android:drawableEnd="@android:drawable/ic_menu_edit"
-            android:drawableTint="@color/text_on_light"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical" />
-    </com.google.android.material.card.MaterialCardView>
+    <TextView
+        android:id="@+id/emptyView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Keine Events gefunden."
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
-    <!-- Events List -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerEvents"
-            android:layout_width="match_parent"
-            android:layout_height="582dp"
-            android:clipToPadding="false"
-            android:paddingBottom="72dp" />
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/emptyView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Keine Events gefunden."
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
-            android:visibility="gone" />
-    </FrameLayout>
-</LinearLayout>
+</FrameLayout>
