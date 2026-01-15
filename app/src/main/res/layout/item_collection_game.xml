@@ -114,14 +114,16 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <!-- Status Spinner -->
-            <Spinner
-                android:id="@+id/status_spinner"
+            <!-- Status Text (clickable) -->
+            <TextView
+                android:id="@+id/status_text"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:minWidth="120dp"
-                android:background="@android:drawable/btn_dropdown"
-                android:spinnerMode="dropdown" />
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"
+                tools:text="Keine Angabe" />
 
         </LinearLayout>
 

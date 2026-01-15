@@ -1,15 +1,12 @@
 package de.meply.meply.ui.collection
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.Spinner
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -44,7 +41,7 @@ class CollectionAdapter(
         private val title: TextView = itemView.findViewById(R.id.game_title)
         private val saleIndicator: ImageView = itemView.findViewById(R.id.sale_indicator)
         private val btnRemove: ImageButton = itemView.findViewById(R.id.btn_remove)
-        private val statusSpinner: Spinner = itemView.findViewById(R.id.status_spinner)
+        private val statusText: TextView = itemView.findViewById(R.id.status_text)
         private val stars: List<ImageView> = listOf(
             itemView.findViewById(R.id.star1),
             itemView.findViewById(R.id.star2),
@@ -53,11 +50,7 @@ class CollectionAdapter(
             itemView.findViewById(R.id.star5)
         )
 
-        private var isBinding = false
-
         fun bind(game: UserBoardgame) {
-            isBinding = true
-
             title.text = game.title ?: "Unbekanntes Spiel"
 
             // Sale indicator
@@ -77,15 +70,19 @@ class CollectionAdapter(
                 }
             }
 
-            // Status spinner
-            setupSpinner(itemView.context, game)
+            // Status text - show current state
+            val currentState = states.find { it.first == game.state }?.second ?: "Keine Angabe"
+            statusText.text = currentState
+
+            // Click to show selection dialog
+            statusText.setOnClickListener {
+                showStateSelectionDialog(game)
+            }
 
             // Remove button
             btnRemove.setOnClickListener {
                 onRemoveClick(game)
             }
-
-            isBinding = false
         }
 
         private fun updateStars(newRating: Int) {
@@ -98,33 +95,23 @@ class CollectionAdapter(
             }
         }
 
-        private fun setupSpinner(context: Context, game: UserBoardgame) {
-            val adapter = ArrayAdapter(
-                context,
-                android.R.layout.simple_spinner_item,
-                states.map { it.second }
-            )
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            statusSpinner.adapter = adapter
+        private fun showStateSelectionDialog(game: UserBoardgame) {
+            val context = itemView.context
+            val stateLabels = states.map { it.second }.toTypedArray()
+            val currentIndex = states.indexOfFirst { it.first == game.state }.coerceAtLeast(0)
 
-            // Set current state
-            val currentIndex = states.indexOfFirst { it.first == game.state }
-            if (currentIndex >= 0) {
-                statusSpinner.setSelection(currentIndex)
-            }
-
-            statusSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    if (!isBinding) {
-                        val newState = states[position].first
-                        if (newState != game.state) {
-                            onStateChanged(game, newState)
-                        }
+            AlertDialog.Builder(context, R.style.Theme_Meply_AlertDialog)
+                .setTitle("Status auswählen")
+                .setSingleChoiceItems(stateLabels, currentIndex) { dialog, which ->
+                    val newState = states[which].first
+                    if (newState != game.state) {
+                        statusText.text = states[which].second
+                        onStateChanged(game, newState)
                     }
+                    dialog.dismiss()
                 }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
+                .setNegativeButton("Abbrechen", null)
+                .show()
         }
     }
 
