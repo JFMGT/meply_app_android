@@ -22,12 +22,12 @@ data class FeedCursor(
  */
 data class Post(
     @SerializedName("documentId") val documentId: String,
-    @SerializedName("id") val id: Int,
+    @SerializedName("id") val id: Int = 0,
     @SerializedName("content") val content: String?,
     @SerializedName("visibility") val visibility: String = "members", // public, members, follower
     @SerializedName("createdAt") val createdAt: String?,
-    @SerializedName("liked") val liked: Boolean = false,
-    @SerializedName("likeCount") val likeCount: Int = 0,
+    @SerializedName(value = "liked", alternate = ["isLiked"]) val liked: Boolean = false,
+    @SerializedName(value = "likeCount", alternate = ["likes"]) val likeCount: Int = 0,
     @SerializedName("replyCount") val replyCount: Int = 0,
     @SerializedName("author") val author: PostAuthor,
     @SerializedName("image") val image: List<PostImage>? = null,
