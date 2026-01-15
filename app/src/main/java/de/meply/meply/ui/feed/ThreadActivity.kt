@@ -186,7 +186,8 @@ class ThreadActivity : BaseDetailActivity() {
     }
 
     private fun showReplyDialog(post: Post) {
-        val bottomSheet = CreatePostBottomSheet.newInstance(post.documentId)
+        val username = post.author.username ?: post.author.userslug
+        val bottomSheet = CreatePostBottomSheet.newInstance(post.documentId, username)
         bottomSheet.setOnPostCreatedListener {
             // Refresh thread when a new reply is created
             loadThread()

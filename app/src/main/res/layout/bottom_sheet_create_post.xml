@@ -14,6 +14,7 @@
         android:layout_marginBottom="16dp">
 
         <TextView
+            android:id="@+id/sheetTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -113,13 +114,14 @@
                 android:text="Bilder auswählen (max. 4)"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
-            <!-- Selected Images Container -->
+            <!-- Selected Images Container (horizontal thumbnails) -->
             <LinearLayout
                 android:id="@+id/selectedImagesContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="vertical" />
+                android:orientation="horizontal"
+                android:baselineAligned="false" />
 
         </LinearLayout>
 

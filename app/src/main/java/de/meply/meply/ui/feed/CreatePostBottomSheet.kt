@@ -43,6 +43,7 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     private val selectedImages = mutableListOf<SelectedImage>()
     private val maxImages = 4
     private var parentDocumentId: String? = null
+    private var replyToUsername: String? = null
     private var onPostCreated: (() -> Unit)? = null
 
     data class SelectedImage(
@@ -58,11 +59,13 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
         private const val ARG_PARENT_ID = "parentDocumentId"
+        private const val ARG_REPLY_USERNAME = "replyToUsername"
 
-        fun newInstance(parentDocumentId: String? = null): CreatePostBottomSheet {
+        fun newInstance(parentDocumentId: String? = null, replyToUsername: String? = null): CreatePostBottomSheet {
             return CreatePostBottomSheet().apply {
                 arguments = Bundle().apply {
                     parentDocumentId?.let { putString(ARG_PARENT_ID, it) }
+                    replyToUsername?.let { putString(ARG_REPLY_USERNAME, it) }
                 }
             }
         }
@@ -75,6 +78,7 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parentDocumentId = arguments?.getString(ARG_PARENT_ID)
+        replyToUsername = arguments?.getString(ARG_REPLY_USERNAME)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -119,9 +123,16 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
         progressBar = view.findViewById(R.id.createPostProgressBar)
         imagesContainer = view.findViewById(R.id.selectedImagesContainer)
         closeButton = view.findViewById(R.id.closeButton)
+        val sheetTitle = view.findViewById<TextView>(R.id.sheetTitle)
 
-        // Update hint text based on whether this is a reply
+        // Update UI based on whether this is a reply
         if (parentDocumentId != null) {
+            val title = if (!replyToUsername.isNullOrEmpty()) {
+                "Antwort auf $replyToUsername"
+            } else {
+                "Antwort"
+            }
+            sheetTitle.text = title
             contentInput.hint = "Deine Antwort..."
             submitButton.text = "Antworten"
         }
@@ -171,32 +182,70 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     private fun updateImagesUI() {
         imagesContainer.removeAllViews()
 
+        // Berechne Thumbnail-Größe (1:1 Format, 4 passen nebeneinander)
+        val screenWidth = resources.displayMetrics.widthPixels
+        val padding = (32 * resources.displayMetrics.density).toInt() // 16dp padding auf jeder Seite
+        val spacing = (4 * resources.displayMetrics.density).toInt() * 3 // 4dp zwischen 4 Bildern
+        val thumbnailSize = (screenWidth - padding - spacing) / 4
+
         for ((index, selectedImage) in selectedImages.withIndex()) {
-            val imageView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.item_selected_image, imagesContainer, false)
+            val thumbnailView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.item_image_thumbnail, imagesContainer, false)
 
-            val imageViewWidget = imageView.findViewById<ImageView>(R.id.selectedImageView)
-            val removeButton = imageView.findViewById<ImageButton>(R.id.removeImageButton)
-            val altTextInput = imageView.findViewById<TextInputEditText>(R.id.altTextInput)
+            val imageViewWidget = thumbnailView.findViewById<ImageView>(R.id.thumbnailImage)
+            val altTextIndicator = thumbnailView.findViewById<ImageView>(R.id.altTextIndicator)
 
+            // Setze feste Größe für 1:1 Format
+            imageViewWidget.layoutParams.height = thumbnailSize
+            imageViewWidget.layoutParams.width = thumbnailSize
+
+            // Lade Bild
             imageViewWidget.setImageURI(selectedImage.uri)
-            altTextInput.setText(selectedImage.altText)
 
-            altTextInput.addTextChangedListener(object : android.text.TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: android.text.Editable?) {
-                    selectedImages[index].altText = s?.toString() ?: ""
-                }
-            })
+            // Zeige Indikator wenn Alt-Text vorhanden
+            altTextIndicator.visibility = if (selectedImage.altText.isNotEmpty()) View.VISIBLE else View.GONE
 
-            removeButton.setOnClickListener {
-                selectedImages.removeAt(index)
-                updateImagesUI()
+            // Klick öffnet Bearbeitungs-Dialog
+            thumbnailView.setOnClickListener {
+                showImageEditDialog(index, selectedImage)
             }
 
-            imagesContainer.addView(imageView)
+            imagesContainer.addView(thumbnailView)
         }
+    }
+
+    private fun showImageEditDialog(index: Int, selectedImage: SelectedImage) {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_image_edit, null)
+
+        val imagePreview = dialogView.findViewById<ImageView>(R.id.dialogImagePreview)
+        val altTextInput = dialogView.findViewById<TextInputEditText>(R.id.dialogAltTextInput)
+        val deleteButton = dialogView.findViewById<Button>(R.id.dialogDeleteButton)
+        val saveButton = dialogView.findViewById<Button>(R.id.dialogSaveButton)
+
+        // Setze Bild und aktuellen Alt-Text
+        imagePreview.setImageURI(selectedImage.uri)
+        altTextInput.setText(selectedImage.altText)
+
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        // Löschen-Button
+        deleteButton.setOnClickListener {
+            selectedImages.removeAt(index)
+            updateImagesUI()
+            dialog.dismiss()
+        }
+
+        // Speichern-Button
+        saveButton.setOnClickListener {
+            selectedImages[index].altText = altTextInput.text?.toString() ?: ""
+            updateImagesUI()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun createPost() {

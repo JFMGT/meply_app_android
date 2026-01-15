@@ -35,15 +35,6 @@ class FeedFragment : Fragment() {
     private var hasMore = true
     private var isLoading = false
 
-    private val createPostLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            // Refresh feed when a new post is created
-            loadFeed(reset = true)
-        }
-    }
-
     private val threadLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -282,9 +273,13 @@ class FeedFragment : Fragment() {
     }
 
     private fun showReplyDialog(post: Post) {
-        val intent = Intent(requireContext(), CreatePostActivity::class.java)
-        intent.putExtra("parentDocumentId", post.documentId)
-        createPostLauncher.launch(intent)
+        val username = post.author.username ?: post.author.userslug
+        val bottomSheet = CreatePostBottomSheet.newInstance(post.documentId, username)
+        bottomSheet.setOnPostCreatedListener {
+            // Refresh feed when a new reply is created
+            loadFeed(reset = true)
+        }
+        bottomSheet.show(parentFragmentManager, "createReply")
     }
 
     private fun showThread(post: Post) {
