@@ -46,14 +46,6 @@
                 android:ellipsize="end"
                 tools:text="Die Siedler von Catan" />
 
-            <ImageButton
-                android:id="@+id/btn_remove"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_trash"
-                android:contentDescription="Entfernen" />
-
         </LinearLayout>
 
         <!-- Controls Row -->
