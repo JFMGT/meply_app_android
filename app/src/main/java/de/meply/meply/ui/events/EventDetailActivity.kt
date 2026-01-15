@@ -33,7 +33,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import de.meply.meply.data.events.FlatEventData
-import de.meply.meply.CreateMeetingActivity
 import android.widget.Button
 import com.google.android.material.appbar.MaterialToolbar
 
@@ -41,6 +40,8 @@ class EventDetailActivity : BaseDetailActivity() {
 
     private var eventSlugOrId: String? = null
     private var currentEventTitle: String? = null
+    private var currentEventStartDate: String? = null
+    private var currentEventEndDate: String? = null
 
     // Header Card
     private lateinit var titleTextView: TextView
@@ -76,7 +77,6 @@ class EventDetailActivity : BaseDetailActivity() {
     private var currentEventDocumentId: String? = null
     private var currentLikeCount: Int = 0
     private var isLiked: Boolean = false
-    private var isInitialLoad: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,34 +152,32 @@ class EventDetailActivity : BaseDetailActivity() {
 
         // "Gesuch +" button click
         btnCreateMeeting.setOnClickListener {
-            val docId = currentEventDocumentId
-            val title = currentEventTitle
-            if (docId != null && title != null) {
-                CreateMeetingActivity.startForEvent(this, docId, title)
-            } else {
-                Toast.makeText(this, "Event-Daten noch nicht geladen", Toast.LENGTH_SHORT).show()
-            }
+            showCreateMeetingBottomSheet()
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        // Refresh meetings when returning from CreateMeetingActivity
-        currentEventDocumentId?.let { docId ->
+    private fun showCreateMeetingBottomSheet() {
+        val docId = currentEventDocumentId
+        val title = currentEventTitle
+
+        if (docId == null || title == null) {
+            Toast.makeText(this, "Event-Daten noch nicht geladen", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val bottomSheet = CreateMeetingBottomSheet.newInstance(
+            eventDocumentId = docId,
+            eventTitle = title,
+            eventStartDate = currentEventStartDate,
+            eventEndDate = currentEventEndDate
+        )
+
+        bottomSheet.setOnMeetingCreatedListener {
+            // Refresh meetings list when a new meeting is created
             fetchMeetingsForEvent(docId)
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        // Refresh meetings when returning to this activity (but not on initial load)
-        if (!isInitialLoad) {
-            currentEventDocumentId?.let { docId ->
-                fetchMeetingsForEvent(docId)
-            }
-        }
-        isInitialLoad = false
+        bottomSheet.show(supportFragmentManager, "createMeeting")
     }
 
     private fun toggleLike() {
@@ -348,6 +346,10 @@ class EventDetailActivity : BaseDetailActivity() {
         val title = eventData.title ?: "Ohne Titel"
         titleTextView.text = title
         currentEventTitle = title
+
+        // Store event dates for meeting creation
+        currentEventStartDate = eventData.startDate
+        currentEventEndDate = eventData.endDate
 
         // Like count
         currentLikeCount = eventData.likes ?: 0
