@@ -35,6 +35,7 @@
         <activity android:name=".WebViewActivity" />
         <activity android:name=".ui.profile.UserProfileActivity" />
         <activity android:name=".CreateMeetingActivity" />
+        <activity android:name=".ui.collection.MyCollectionActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
