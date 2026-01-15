@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@color/background_header"
+    app:navigationIcon="?attr/homeAsUpIndicator"
+    app:navigationIconTint="@color/text_primary"
+    app:titleTextColor="@color/text_primary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Logo in der Mitte -->
+        <ImageView
+            android:id="@+id/toolbarLogo"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:contentDescription="Meply Logo"
+            android:src="@mipmap/ic_launcher" />
+
+        <!-- Gesuch+ Button rechts -->
+        <Button
+            android:id="@+id/btnCreateMeeting"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginEnd="8dp"
+            android:text="Gesuch +"
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:paddingHorizontal="12dp"
+            android:backgroundTint="@color/primary"
+            android:textColor="@color/text_on_light" />
+
+    </LinearLayout>
+
+</com.google.android.material.appbar.MaterialToolbar>

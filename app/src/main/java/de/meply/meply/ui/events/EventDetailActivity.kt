@@ -33,10 +33,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import de.meply.meply.data.events.FlatEventData
+import de.meply.meply.CreateMeetingActivity
+import android.widget.Button
+import com.google.android.material.appbar.MaterialToolbar
 
 class EventDetailActivity : BaseDetailActivity() {
 
     private var eventSlugOrId: String? = null
+    private var currentEventTitle: String? = null
 
     // Header Card
     private lateinit var titleTextView: TextView
@@ -72,6 +76,7 @@ class EventDetailActivity : BaseDetailActivity() {
     private var currentEventDocumentId: String? = null
     private var currentLikeCount: Int = 0
     private var isLiked: Boolean = false
+    private var isInitialLoad: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,8 +125,8 @@ class EventDetailActivity : BaseDetailActivity() {
             toggleLike()
         }
 
-        // Setup toolbar with back button and user menu
-        setupDetailToolbar()
+        // Setup toolbar with back button and "Gesuch +" button
+        setupEventDetailToolbar()
 
         eventSlugOrId = intent.getStringExtra(EXTRA_EVENT_SLUG_OR_ID)
 
@@ -134,6 +139,47 @@ class EventDetailActivity : BaseDetailActivity() {
 
         Log.d("EventDetailActivity", "Received slug or ID: $eventSlugOrId")
         fetchEventDetails(eventSlugOrId!!)
+    }
+
+    private fun setupEventDetailToolbar() {
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        val btnCreateMeeting = findViewById<Button>(R.id.btnCreateMeeting)
+
+        // Back button
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
+
+        // "Gesuch +" button click
+        btnCreateMeeting.setOnClickListener {
+            val docId = currentEventDocumentId
+            val title = currentEventTitle
+            if (docId != null && title != null) {
+                CreateMeetingActivity.startForEvent(this, docId, title)
+            } else {
+                Toast.makeText(this, "Event-Daten noch nicht geladen", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // Refresh meetings when returning from CreateMeetingActivity
+        currentEventDocumentId?.let { docId ->
+            fetchMeetingsForEvent(docId)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh meetings when returning to this activity (but not on initial load)
+        if (!isInitialLoad) {
+            currentEventDocumentId?.let { docId ->
+                fetchMeetingsForEvent(docId)
+            }
+        }
+        isInitialLoad = false
     }
 
     private fun toggleLike() {
@@ -299,7 +345,9 @@ class EventDetailActivity : BaseDetailActivity() {
 
     private fun displayEventDetails(eventData: FlatEventData) {
         // Title
-        titleTextView.text = eventData.title ?: "Ohne Titel"
+        val title = eventData.title ?: "Ohne Titel"
+        titleTextView.text = title
+        currentEventTitle = title
 
         // Like count
         currentLikeCount = eventData.likes ?: 0
