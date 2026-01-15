@@ -2,6 +2,8 @@ package de.meply.meply.ui.collection
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,6 +17,8 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
@@ -86,11 +90,13 @@ class MyCollectionActivity : BaseDetailActivity() {
         // Collection adapter
         collectionAdapter = CollectionAdapter(
             onRatingChanged = { game, rating -> updateGameRating(game, rating) },
-            onStateChanged = { game, state -> updateGameState(game, state) },
-            onRemoveClick = { game -> confirmRemoveGame(game) }
+            onStateChanged = { game, state -> updateGameState(game, state) }
         )
         gamesRecycler.layoutManager = LinearLayoutManager(this)
         gamesRecycler.adapter = collectionAdapter
+
+        // Setup swipe gestures (right = sell, left = delete)
+        setupSwipeGestures()
 
         // Search results adapter
         searchAdapter = SearchResultsAdapter { result ->
@@ -98,6 +104,105 @@ class MyCollectionActivity : BaseDetailActivity() {
         }
         searchResultsRecycler.layoutManager = LinearLayoutManager(this)
         searchResultsRecycler.adapter = searchAdapter
+    }
+
+    private fun setupSwipeGestures() {
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            private val sellBackground = ColorDrawable(ContextCompat.getColor(this@MyCollectionActivity, R.color.primary))
+            private val deleteBackground = ColorDrawable(ContextCompat.getColor(this@MyCollectionActivity, R.color.error))
+            private val sellIcon = ContextCompat.getDrawable(this@MyCollectionActivity, R.drawable.ic_tag)
+            private val deleteIcon = ContextCompat.getDrawable(this@MyCollectionActivity, R.drawable.ic_trash)
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                if (position != RecyclerView.NO_POSITION && position < games.size) {
+                    val game = games[position]
+                    // Reset the item position first
+                    collectionAdapter.notifyItemChanged(position)
+
+                    when (direction) {
+                        ItemTouchHelper.RIGHT -> openSellBottomSheet(game)
+                        ItemTouchHelper.LEFT -> confirmRemoveGame(game)
+                    }
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                val itemView = viewHolder.itemView
+
+                if (dX > 0) {
+                    // Swipe right - Sell (yellow background)
+                    val iconMargin = (itemView.height - (sellIcon?.intrinsicHeight ?: 0)) / 2
+
+                    sellBackground.setBounds(
+                        itemView.left,
+                        itemView.top,
+                        itemView.left + dX.toInt(),
+                        itemView.bottom
+                    )
+                    sellBackground.draw(c)
+
+                    sellIcon?.let { icon ->
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + icon.intrinsicHeight
+                        val iconLeft = itemView.left + iconMargin
+                        val iconRight = iconLeft + icon.intrinsicWidth
+
+                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        icon.setTint(ContextCompat.getColor(this@MyCollectionActivity, R.color.text_on_primary))
+                        icon.draw(c)
+                    }
+                } else if (dX < 0) {
+                    // Swipe left - Delete (red background)
+                    val iconMargin = (itemView.height - (deleteIcon?.intrinsicHeight ?: 0)) / 2
+
+                    deleteBackground.setBounds(
+                        itemView.right + dX.toInt(),
+                        itemView.top,
+                        itemView.right,
+                        itemView.bottom
+                    )
+                    deleteBackground.draw(c)
+
+                    deleteIcon?.let { icon ->
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + icon.intrinsicHeight
+                        val iconRight = itemView.right - iconMargin
+                        val iconLeft = iconRight - icon.intrinsicWidth
+
+                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        icon.setTint(ContextCompat.getColor(this@MyCollectionActivity, R.color.white))
+                        icon.draw(c)
+                    }
+                }
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
+        }
+
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(gamesRecycler)
+    }
+
+    private fun openSellBottomSheet(game: UserBoardgame) {
+        val bottomSheet = SellGameBottomSheet.newInstance(game)
+        bottomSheet.setOnSaleUpdatedListener {
+            loadCollection() // Refresh to get updated data
+        }
+        bottomSheet.show(supportFragmentManager, "sellGame")
     }
 
     private fun setupSearch() {
