@@ -227,6 +227,7 @@ class HomeActivity : AppCompatActivity() {
     private fun loadUserData() {
         val drawerAvatar = findViewById<ImageView>(R.id.drawerUserAvatar)
         val drawerUserName = findViewById<TextView>(R.id.drawerUserName)
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
 
         ApiClient.retrofit.getMyProfile()
             .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
@@ -244,22 +245,22 @@ class HomeActivity : AppCompatActivity() {
                         // Update drawer username
                         drawerUserName.text = username
 
-                        // Update drawer avatar
-                        if (!avatarUrl.isNullOrEmpty()) {
-                            val fullUrl = "${ApiClient.STRAPI_IMAGE_BASE}$avatarUrl"
-                            Glide.with(this@HomeActivity)
-                                .load(fullUrl)
-                                .circleCrop()
-                                .placeholder(R.drawable.ic_launcher_foreground)
-                                .into(drawerAvatar)
+                        // Determine avatar URL
+                        val fullAvatarUrl = if (!avatarUrl.isNullOrEmpty()) {
+                            "${ApiClient.STRAPI_IMAGE_BASE}$avatarUrl"
                         } else {
-                            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
-                            Glide.with(this@HomeActivity)
-                                .load(defaultAvatarUrl)
-                                .circleCrop()
-                                .placeholder(R.drawable.ic_launcher_foreground)
-                                .into(drawerAvatar)
+                            AvatarUtils.getDefaultAvatarUrl(userId)
                         }
+
+                        // Update drawer avatar
+                        Glide.with(this@HomeActivity)
+                            .load(fullAvatarUrl)
+                            .circleCrop()
+                            .placeholder(R.drawable.ic_launcher_foreground)
+                            .into(drawerAvatar)
+
+                        // Update bottom navigation avatar
+                        loadBottomNavAvatar(bottomNav, fullAvatarUrl)
                     } else {
                         Log.e("HomeActivity", "Failed to load profile: ${response.code()}")
                         drawerUserName.text = "Benutzer"
@@ -269,6 +270,28 @@ class HomeActivity : AppCompatActivity() {
                 override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
                     Log.e("HomeActivity", "Error loading profile", t)
                     drawerUserName.text = "Benutzer"
+                }
+            })
+    }
+
+    private fun loadBottomNavAvatar(bottomNav: BottomNavigationView, avatarUrl: String) {
+        val size = (24 * resources.displayMetrics.density).toInt()
+
+        Glide.with(this)
+            .asBitmap()
+            .load(avatarUrl)
+            .circleCrop()
+            .into(object : com.bumptech.glide.request.target.CustomTarget<android.graphics.Bitmap>(size, size) {
+                override fun onResourceReady(
+                    resource: android.graphics.Bitmap,
+                    transition: com.bumptech.glide.request.transition.Transition<in android.graphics.Bitmap>?
+                ) {
+                    val drawable = android.graphics.drawable.BitmapDrawable(resources, resource)
+                    bottomNav.menu.findItem(R.id.nav_user)?.icon = drawable
+                }
+
+                override fun onLoadCleared(placeholder: android.graphics.drawable.Drawable?) {
+                    // Keep current icon
                 }
             })
     }
