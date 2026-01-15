@@ -343,7 +343,7 @@
             android:id="@+id/btn_delete_account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="132dp"
             android:backgroundTint="#FF5252"
             android:text="Konto löschen"
             android:textColor="@android:color/white"
