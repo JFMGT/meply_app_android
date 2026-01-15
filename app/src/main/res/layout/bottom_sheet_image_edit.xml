@@ -55,7 +55,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="z.B. „Ein Spielbrett mit bunten Figuren""
+        android:hint="z.B. Ein Spielbrett mit bunten Figuren"
         app:hintTextColor="@color/text_secondary"
         app:boxStrokeColor="@color/primary">
 
