@@ -497,7 +497,7 @@ interface ApiService {
      * Remove a boardgame from user's collection
      * @param entryId The user-boardgame entry ID
      */
-    @DELETE("user-boardgames/{entryId}")
+    @DELETE("user-boardgames/remove/{entryId}")
     fun removeFromCollection(
         @Path("entryId") entryId: String
     ): Call<de.meply.meply.data.collection.CollectionActionResponse>
