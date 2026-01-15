@@ -36,14 +36,18 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNav"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_gravity="bottom"
             android:background="@color/background_header"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:clipToPadding="true"
             app:itemIconTint="@color/bottom_nav_color"
             app:itemTextColor="@color/bottom_nav_color"
             app:itemBackground="@drawable/bottom_nav_item_background"
             app:labelVisibilityMode="labeled"
-            app:menu="@menu/bottom_nav_menu" />
+            app:menu="@menu/bottom_nav_menu"
+            style="@style/Widget.Meply.BottomNavigationView" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
