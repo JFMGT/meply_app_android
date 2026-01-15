@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.meply.meply.R
 import de.meply.meply.data.messages.Conversation
+import de.meply.meply.utils.AvatarUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -59,10 +60,14 @@ class ConversationAdapter(
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.avatar)
         } else {
-            // Generate fallback avatar based on user ID
-            val hash = partner?.id?.hashCode() ?: 0
-            val avatarIndex = (Math.abs(hash) % 8) + 1
-            holder.avatar.setImageResource(R.drawable.ic_launcher_foreground)
+            // Generate default avatar based on user documentId
+            val userId = partner?.documentId ?: "default"
+            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+            Glide.with(context)
+                .load(defaultAvatarUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .into(holder.avatar)
         }
 
         // Last message time
@@ -76,10 +81,9 @@ class ConversationAdapter(
             View.GONE
         }
 
-        // Meeting info
+        // Meeting info (always visible - show "Direktnachricht" if no meeting)
         if (conversation.meeting != null) {
-            holder.meetingInfo.visibility = View.VISIBLE
-            holder.meetingTitle.text = conversation.meeting.title ?: "Meeting"
+            holder.meetingTitle.text = conversation.meeting.title ?: "Gesuch"
 
             val eventText = conversation.meeting.event?.title
             if (eventText != null) {
@@ -105,7 +109,11 @@ class ConversationAdapter(
                 holder.meetingDate.visibility = View.GONE
             }
         } else {
-            holder.meetingInfo.visibility = View.GONE
+            // No meeting - show "Direktnachricht"
+            holder.meetingTitle.text = "Direktnachricht"
+            holder.meetingEvent.visibility = View.GONE
+            holder.meetingLocation.visibility = View.GONE
+            holder.meetingDate.visibility = View.GONE
         }
 
         // Click listener
