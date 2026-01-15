@@ -215,37 +215,19 @@ class CreatePostBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun showImageEditDialog(index: Int, selectedImage: SelectedImage) {
-        val dialogView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.dialog_image_edit, null)
+        val bottomSheet = ImageEditBottomSheet.newInstance(selectedImage.uri, selectedImage.altText)
 
-        val imagePreview = dialogView.findViewById<ImageView>(R.id.dialogImagePreview)
-        val altTextInput = dialogView.findViewById<TextInputEditText>(R.id.dialogAltTextInput)
-        val deleteButton = dialogView.findViewById<Button>(R.id.dialogDeleteButton)
-        val saveButton = dialogView.findViewById<Button>(R.id.dialogSaveButton)
+        bottomSheet.setOnSaveListener { newAltText ->
+            selectedImages[index].altText = newAltText
+            updateImagesUI()
+        }
 
-        // Setze Bild und aktuellen Alt-Text
-        imagePreview.setImageURI(selectedImage.uri)
-        altTextInput.setText(selectedImage.altText)
-
-        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-            .setView(dialogView)
-            .create()
-
-        // Löschen-Button
-        deleteButton.setOnClickListener {
+        bottomSheet.setOnDeleteListener {
             selectedImages.removeAt(index)
             updateImagesUI()
-            dialog.dismiss()
         }
 
-        // Speichern-Button
-        saveButton.setOnClickListener {
-            selectedImages[index].altText = altTextInput.text?.toString() ?: ""
-            updateImagesUI()
-            dialog.dismiss()
-        }
-
-        dialog.show()
+        bottomSheet.show(parentFragmentManager, "imageEdit")
     }
 
     private fun createPost() {

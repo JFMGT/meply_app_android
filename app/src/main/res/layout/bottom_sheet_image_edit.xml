@@ -4,8 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Bild bearbeiten"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <!-- Bild-Vorschau -->
     <com.google.android.material.card.MaterialCardView
@@ -16,7 +26,7 @@
         app:cardCornerRadius="8dp">
 
         <ImageView
-            android:id="@+id/dialogImagePreview"
+            android:id="@+id/editImagePreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
@@ -24,50 +34,79 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Alt-Text Beschreibung -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Alternativtext (Alt-Text)"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Beschreibe das Bild für Menschen, die es nicht sehen können. Was ist auf dem Bild zu sehen?"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
+
     <!-- Alt-Text Eingabe -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Bildbeschreibung (Alt-Text)"
-        app:counterEnabled="true"
-        app:counterMaxLength="200"
+        android:hint="z.B. „Ein Spielbrett mit bunten Figuren""
         app:hintTextColor="@color/text_secondary"
         app:boxStrokeColor="@color/primary">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/dialogAltTextInput"
+            android:id="@+id/editAltTextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textMultiLine"
             android:maxLength="200"
+            android:minLines="2"
+            android:maxLines="4"
             android:textColor="@color/text_primary"
             android:background="@color/background_card" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Zeichenzähler -->
+    <TextView
+        android:id="@+id/charCounter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="end"
+        android:text="0 / 200"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp" />
 
     <!-- Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:orientation="horizontal"
-        android:gravity="end">
+        android:orientation="horizontal">
 
         <!-- Löschen Button -->
         <Button
-            android:id="@+id/dialogDeleteButton"
-            android:layout_width="wrap_content"
+            android:id="@+id/editDeleteButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="Löschen"
+            android:text="Bild entfernen"
             android:textColor="@color/error"
-            style="@style/Widget.MaterialComponents.Button.TextButton" />
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
         <!-- Speichern Button -->
         <Button
-            android:id="@+id/dialogSaveButton"
-            android:layout_width="wrap_content"
+            android:id="@+id/editSaveButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Speichern"
             android:backgroundTint="@color/primary"
             android:textColor="@color/text_on_primary" />
