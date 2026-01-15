@@ -1,6 +1,5 @@
 package de.meply.meply
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +7,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -16,7 +14,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.fragment.app.Fragment
-import de.meply.meply.ui.feed.CreatePostActivity
+import de.meply.meply.ui.feed.CreatePostBottomSheet
 import de.meply.meply.ui.feed.FeedFragment
 import de.meply.meply.ui.events.EventsFragment
 import de.meply.meply.ui.pm.PmFragment
@@ -47,14 +45,6 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var toolbarCreateButton: View
     private var currentUserSlug: String? = null
 
-    private val createPostLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            // Refresh feed when a new post is created
-            (supportFragmentManager.findFragmentByTag("feed") as? FeedFragment)?.refreshFeed()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,10 +80,9 @@ class HomeActivity : AppCompatActivity() {
             showDrawerMenu(toolbar)
         }
 
-        // Create button click - opens CreatePostActivity
+        // Create button click - opens CreatePostBottomSheet
         toolbarCreateButton.setOnClickListener {
-            val intent = Intent(this, CreatePostActivity::class.java)
-            createPostLauncher.launch(intent)
+            showCreatePostBottomSheet()
         }
 
         // Show create button initially (Feed is default)
@@ -237,6 +226,15 @@ class HomeActivity : AppCompatActivity() {
     fun navigateToProfile() {
         toolbarCreateButton.visibility = View.GONE
         switchTo(profile, "profile")
+    }
+
+    private fun showCreatePostBottomSheet() {
+        val bottomSheet = CreatePostBottomSheet.newInstance()
+        bottomSheet.setOnPostCreatedListener {
+            // Refresh feed when a new post is created
+            (supportFragmentManager.findFragmentByTag("feed") as? FeedFragment)?.refreshFeed()
+        }
+        bottomSheet.show(supportFragmentManager, "createPost")
     }
 
     fun refreshUserAvatar() {

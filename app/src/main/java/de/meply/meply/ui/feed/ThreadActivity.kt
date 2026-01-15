@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -36,15 +35,6 @@ class ThreadActivity : BaseDetailActivity() {
 
     // Track posts that were modified (liked/unliked) to sync back to parent
     private val modifiedPosts = mutableMapOf<String, Post>()
-
-    private val createPostLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            // Refresh thread when a new reply is created
-            loadThread()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -196,9 +186,12 @@ class ThreadActivity : BaseDetailActivity() {
     }
 
     private fun showReplyDialog(post: Post) {
-        val intent = Intent(this, CreatePostActivity::class.java)
-        intent.putExtra("parentDocumentId", post.documentId)
-        createPostLauncher.launch(intent)
+        val bottomSheet = CreatePostBottomSheet.newInstance(post.documentId)
+        bottomSheet.setOnPostCreatedListener {
+            // Refresh thread when a new reply is created
+            loadThread()
+        }
+        bottomSheet.show(supportFragmentManager, "createReply")
     }
 
     private fun showOptionsMenu(post: Post, anchorView: View) {
