@@ -133,22 +133,33 @@ class ThreadAdapter(
             val column = holder.treeColumns[i]
 
             if (i < depth) {
-                // This column should be visible
-                column.container.visibility = View.VISIBLE
-
-                val isLastColumn = (i == depth - 1)
+                val isBranchColumn = (i == depth - 1)
                 val showBottom = if (i < threadPost.showBottomLine.size) threadPost.showBottomLine[i] else false
 
-                // Top line always visible (connects from above)
-                column.topLine.visibility = View.VISIBLE
-
-                // Bottom line only visible if branch continues at this level
-                column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.GONE
-
-                // Horizontal connector only on the branch column (last column for this post)
-                column.horizontalLine.visibility = if (isLastColumn) View.VISIBLE else View.GONE
+                if (isBranchColumn) {
+                    // Branch column: always show top + horizontal, bottom only if siblings follow
+                    column.container.visibility = View.VISIBLE
+                    column.topLine.visibility = View.VISIBLE
+                    column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.GONE
+                    column.horizontalLine.visibility = View.VISIBLE
+                } else {
+                    // Ancestor column: only show lines if branch is still active
+                    if (showBottom) {
+                        // Branch continues - show full vertical line (pass-through)
+                        column.container.visibility = View.VISIBLE
+                        column.topLine.visibility = View.VISIBLE
+                        column.bottomLine.visibility = View.VISIBLE
+                        column.horizontalLine.visibility = View.GONE
+                    } else {
+                        // Branch ended above - show nothing in this column
+                        column.container.visibility = View.GONE
+                        column.topLine.visibility = View.GONE
+                        column.bottomLine.visibility = View.GONE
+                        column.horizontalLine.visibility = View.GONE
+                    }
+                }
             } else {
-                // This column should be hidden - reset all lines
+                // This column is beyond our depth - hide completely
                 column.container.visibility = View.GONE
                 column.topLine.visibility = View.GONE
                 column.bottomLine.visibility = View.GONE
