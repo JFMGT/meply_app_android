@@ -3,7 +3,8 @@ package de.meply.meply.ui.collection
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.drawable.ColorDrawable
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -108,10 +109,17 @@ class MyCollectionActivity : BaseDetailActivity() {
 
     private fun setupSwipeGestures() {
         val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-            private val sellBackground = ColorDrawable(ContextCompat.getColor(this@MyCollectionActivity, R.color.primary))
-            private val deleteBackground = ColorDrawable(ContextCompat.getColor(this@MyCollectionActivity, R.color.error))
+            private val sellPaint = Paint().apply {
+                color = ContextCompat.getColor(this@MyCollectionActivity, R.color.primary)
+                isAntiAlias = true
+            }
+            private val deletePaint = Paint().apply {
+                color = ContextCompat.getColor(this@MyCollectionActivity, R.color.error)
+                isAntiAlias = true
+            }
             private val sellIcon = ContextCompat.getDrawable(this@MyCollectionActivity, R.drawable.ic_tag)
             private val deleteIcon = ContextCompat.getDrawable(this@MyCollectionActivity, R.drawable.ic_trash)
+            private val cornerRadius = 8 * resources.displayMetrics.density
 
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -145,16 +153,16 @@ class MyCollectionActivity : BaseDetailActivity() {
                 val itemView = viewHolder.itemView
 
                 if (dX > 0) {
-                    // Swipe right - Sell (yellow background)
+                    // Swipe right - Sell (yellow background with rounded corners)
                     val iconMargin = (itemView.height - (sellIcon?.intrinsicHeight ?: 0)) / 2
 
-                    sellBackground.setBounds(
-                        itemView.left,
-                        itemView.top,
-                        itemView.left + dX.toInt(),
-                        itemView.bottom
+                    val rect = RectF(
+                        itemView.left.toFloat(),
+                        itemView.top.toFloat(),
+                        itemView.left + dX,
+                        itemView.bottom.toFloat()
                     )
-                    sellBackground.draw(c)
+                    c.drawRoundRect(rect, cornerRadius, cornerRadius, sellPaint)
 
                     sellIcon?.let { icon ->
                         val iconTop = itemView.top + iconMargin
@@ -167,16 +175,16 @@ class MyCollectionActivity : BaseDetailActivity() {
                         icon.draw(c)
                     }
                 } else if (dX < 0) {
-                    // Swipe left - Delete (red background)
+                    // Swipe left - Delete (red background with rounded corners)
                     val iconMargin = (itemView.height - (deleteIcon?.intrinsicHeight ?: 0)) / 2
 
-                    deleteBackground.setBounds(
-                        itemView.right + dX.toInt(),
-                        itemView.top,
-                        itemView.right,
-                        itemView.bottom
+                    val rect = RectF(
+                        itemView.right + dX,
+                        itemView.top.toFloat(),
+                        itemView.right.toFloat(),
+                        itemView.bottom.toFloat()
                     )
-                    deleteBackground.draw(c)
+                    c.drawRoundRect(rect, cornerRadius, cornerRadius, deletePaint)
 
                     deleteIcon?.let { icon ->
                         val iconTop = itemView.top + iconMargin
