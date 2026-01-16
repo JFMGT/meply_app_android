@@ -6,8 +6,6 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -83,64 +81,6 @@ class ConversationActivity : BaseDetailActivity() {
         layoutManager.stackFromEnd = true // Show latest messages at bottom
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = messageAdapter
-
-        // Setup swipe-to-delete for own messages
-        val swipeCallback = MessageSwipeToDeleteCallback(
-            context = this,
-            currentUserId = currentUserId,
-            getMessageAt = { position -> messageAdapter.getMessageAt(position) },
-            onSwipedAction = { position, message -> showDeleteMessageDialog(position, message) }
-        )
-        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
-    }
-
-    private fun showDeleteMessageDialog(position: Int, message: Message) {
-        AlertDialog.Builder(this)
-            .setTitle("Nachricht löschen")
-            .setMessage("Möchtest du diese Nachricht wirklich löschen?")
-            .setPositiveButton("Löschen") { _, _ ->
-                deleteMessage(position, message)
-            }
-            .setNegativeButton("Abbrechen") { _, _ ->
-                // Reset the swipe animation
-                messageAdapter.notifyItemChanged(position)
-            }
-            .setOnCancelListener {
-                messageAdapter.notifyItemChanged(position)
-            }
-            .show()
-    }
-
-    private fun deleteMessage(position: Int, message: Message) {
-        val api = ApiClient.retrofit
-        api.deleteMessage(message.id).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) {
-                    // Mark message as deleted locally
-                    messageAdapter.markMessageAsDeleted(position)
-                    Toast.makeText(this@ConversationActivity, "Nachricht gelöscht", Toast.LENGTH_SHORT).show()
-                    Log.d("ConversationActivity", "Message deleted: ${message.id}")
-                } else {
-                    Toast.makeText(
-                        this@ConversationActivity,
-                        "Fehler beim Löschen: ${response.code()}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    messageAdapter.notifyItemChanged(position)
-                    Log.e("ConversationActivity", "Error deleting message: ${response.code()}")
-                }
-            }
-
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                Toast.makeText(
-                    this@ConversationActivity,
-                    "Netzwerkfehler: ${t.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                messageAdapter.notifyItemChanged(position)
-                Log.e("ConversationActivity", "Network error deleting message", t)
-            }
-        })
     }
 
     private fun setupSwipeRefresh() {
