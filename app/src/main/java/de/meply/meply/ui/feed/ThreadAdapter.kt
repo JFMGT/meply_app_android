@@ -131,10 +131,14 @@ class ThreadAdapter(
         for (i in 0 until MAX_DEPTH) {
             val column = holder.treeColumns[i]
 
-            // Always reset all lines to hidden first
+            // Always reset all lines to hidden and zero height first
             column.topLine.visibility = View.GONE
             column.bottomLine.visibility = View.GONE
             column.horizontalLine.visibility = View.GONE
+
+            // Reset heights immediately to prevent recycled artifacts
+            column.topLine.layoutParams = column.topLine.layoutParams.apply { height = 0 }
+            column.bottomLine.layoutParams = column.bottomLine.layoutParams.apply { height = 0 }
 
             if (i < depth) {
                 // This column should be visible
@@ -143,26 +147,33 @@ class ThreadAdapter(
                 val isLastColumn = (i == depth - 1)
                 val showBottom = if (i < threadPost.showBottomLine.size) threadPost.showBottomLine[i] else false
 
-                // Set line heights to 50% each (top half and bottom half)
+                // Top line always visible (connects from above)
+                column.topLine.visibility = View.VISIBLE
+
+                // Bottom line only visible if branch continues at this level
+                column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.GONE
+
+                // Horizontal connector only on the branch column (last column for this post)
+                column.horizontalLine.visibility = if (isLastColumn) View.VISIBLE else View.GONE
+
+                // Set line heights after layout - use post to ensure container has been measured
+                val shouldShowBottom = showBottom
                 column.container.post {
                     val halfHeight = column.container.height / 2
 
                     column.topLine.layoutParams = column.topLine.layoutParams.apply {
                         height = halfHeight
                     }
-                    column.bottomLine.layoutParams = column.bottomLine.layoutParams.apply {
-                        height = halfHeight
+                    column.topLine.requestLayout()
+
+                    // Only set bottom line height if it should be visible
+                    if (shouldShowBottom) {
+                        column.bottomLine.layoutParams = column.bottomLine.layoutParams.apply {
+                            height = halfHeight
+                        }
+                        column.bottomLine.requestLayout()
                     }
                 }
-
-                // Top line always visible (connects from above)
-                column.topLine.visibility = View.VISIBLE
-
-                // Bottom line only visible if branch continues at this level
-                column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.INVISIBLE
-
-                // Horizontal connector only on the branch column (last column for this post)
-                column.horizontalLine.visibility = if (isLastColumn) View.VISIBLE else View.GONE
             } else {
                 // This column should be hidden
                 column.container.visibility = View.GONE
