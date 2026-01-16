@@ -3,10 +3,10 @@ package de.meply.meply.ui.feed
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
@@ -17,9 +17,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * Adapter for thread view with Reddit-style colored depth lines.
- * Each depth level has its own color, and lines run continuously
- * to show the conversation structure clearly.
+ * Adapter for thread view with tree-style connectors.
+ * Shows visual tree structure with colored lines:
+ * - Vertical lines show continuing branches
+ * - Horizontal connectors branch to each post
+ * - └ shape for last child, ├ shape for others
  */
 class ThreadAdapter(
     private val posts: MutableList<ThreadPost>,
@@ -32,39 +34,38 @@ class ThreadAdapter(
 ) : RecyclerView.Adapter<ThreadAdapter.ThreadViewHolder>() {
 
     companion object {
-        private const val MAX_DEPTH = 5  // Maximum supported depth for lines
-
-        // Thread line colors (matching colors.xml)
-        private val DEPTH_COLORS = intArrayOf(
-            R.color.thread_line_0,  // Yellow
-            R.color.thread_line_1,  // Light Blue
-            R.color.thread_line_2,  // Light Green
-            R.color.thread_line_3,  // Light Orange
-            R.color.thread_line_4,  // Light Purple
-            R.color.thread_line_5   // Cyan
-        )
+        private const val MAX_DEPTH = 5
     }
 
     /**
-     * Represents a post in the flattened thread list with its visual properties
+     * Represents a post with tree visualization info
      */
     data class ThreadPost(
         val post: Post,
-        val depth: Int,                    // Actual depth in the tree (0 = root)
-        val visibleLines: BooleanArray,    // Which depth lines should be visible
-        val isFirstChild: Boolean = false, // First child of a parent (shows branch start)
-        val isLastChild: Boolean = false,  // Last child at this depth (line ends here)
-        val hasChildren: Boolean = false,  // Has children that will be shown
-        val hasHiddenChildren: Boolean = false  // Has children but they're hidden due to depth
+        val depth: Int,
+        // For each depth level 0..depth-1: should we show the bottom line?
+        // (true if there are more siblings at that level)
+        val showBottomLine: BooleanArray,
+        val isLastChild: Boolean,
+        val hasHiddenChildren: Boolean = false
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is ThreadPost) return false
             return post.documentId == other.post.documentId
         }
-
         override fun hashCode(): Int = post.documentId.hashCode()
     }
+
+    /**
+     * Holds references to tree column views
+     */
+    data class TreeColumn(
+        val container: FrameLayout,
+        val topLine: View,
+        val bottomLine: View,
+        val horizontalLine: View
+    )
 
     inner class ThreadViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val avatar: ImageView = view.findViewById(R.id.postAvatar)
@@ -80,13 +81,37 @@ class ThreadAdapter(
         val showRepliesLink: TextView = view.findViewById(R.id.postShowRepliesLink)
         val optionsButton: ImageButton = view.findViewById(R.id.postOptionsButton)
 
-        // Depth lines
-        val depthLines: Array<View?> = arrayOf(
-            view.findViewById(R.id.depthLine0),
-            view.findViewById(R.id.depthLine1),
-            view.findViewById(R.id.depthLine2),
-            view.findViewById(R.id.depthLine3),
-            view.findViewById(R.id.depthLine4)
+        val treeColumns: Array<TreeColumn> = arrayOf(
+            TreeColumn(
+                view.findViewById(R.id.treeColumn0),
+                view.findViewById(R.id.line0Top),
+                view.findViewById(R.id.line0Bottom),
+                view.findViewById(R.id.line0Horizontal)
+            ),
+            TreeColumn(
+                view.findViewById(R.id.treeColumn1),
+                view.findViewById(R.id.line1Top),
+                view.findViewById(R.id.line1Bottom),
+                view.findViewById(R.id.line1Horizontal)
+            ),
+            TreeColumn(
+                view.findViewById(R.id.treeColumn2),
+                view.findViewById(R.id.line2Top),
+                view.findViewById(R.id.line2Bottom),
+                view.findViewById(R.id.line2Horizontal)
+            ),
+            TreeColumn(
+                view.findViewById(R.id.treeColumn3),
+                view.findViewById(R.id.line3Top),
+                view.findViewById(R.id.line3Bottom),
+                view.findViewById(R.id.line3Horizontal)
+            ),
+            TreeColumn(
+                view.findViewById(R.id.treeColumn4),
+                view.findViewById(R.id.line4Top),
+                view.findViewById(R.id.line4Bottom),
+                view.findViewById(R.id.line4Horizontal)
+            )
         )
     }
 
@@ -99,18 +124,34 @@ class ThreadAdapter(
     override fun onBindViewHolder(holder: ThreadViewHolder, position: Int) {
         val threadPost = posts[position]
         val post = threadPost.post
+        val depth = threadPost.depth
         val context = holder.itemView.context
 
-        // Setup depth lines visibility
+        // Setup tree columns
         for (i in 0 until MAX_DEPTH) {
-            val line = holder.depthLines.getOrNull(i)
-            if (line != null) {
-                if (i < threadPost.visibleLines.size && threadPost.visibleLines[i]) {
-                    line.visibility = View.VISIBLE
-                    line.setBackgroundColor(ContextCompat.getColor(context, DEPTH_COLORS[i % DEPTH_COLORS.size]))
+            val column = holder.treeColumns[i]
+
+            if (i < depth) {
+                // This column should be visible
+                column.container.visibility = View.VISIBLE
+
+                val isLastColumn = (i == depth - 1)
+                val showBottom = if (i < threadPost.showBottomLine.size) threadPost.showBottomLine[i] else false
+
+                if (isLastColumn) {
+                    // This is the branch column - show connector
+                    column.topLine.visibility = View.VISIBLE
+                    column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.INVISIBLE
+                    column.horizontalLine.visibility = View.VISIBLE
                 } else {
-                    line.visibility = View.GONE
+                    // This is a pass-through column - just vertical line
+                    column.topLine.visibility = View.VISIBLE
+                    column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.INVISIBLE
+                    column.horizontalLine.visibility = View.GONE
                 }
+            } else {
+                // This column should be hidden
+                column.container.visibility = View.GONE
             }
         }
 
@@ -137,8 +178,7 @@ class ThreadAdapter(
         }
 
         // Meta info
-        val relativeTime = formatRelativeTime(post.createdAt)
-        holder.meta.text = relativeTime
+        holder.meta.text = formatRelativeTime(post.createdAt)
 
         // Content
         holder.content.text = post.content ?: ""
@@ -197,42 +237,54 @@ class ThreadAdapter(
 
     override fun getItemCount(): Int = posts.size
 
-    /**
-     * Update the thread with a new root post
-     */
     fun updateThread(rootPost: Post) {
         posts.clear()
 
-        // First pass: flatten the tree and collect depth info
-        val flatList = mutableListOf<Pair<Post, Int>>()  // Post + depth
-        flattenTree(rootPost, 0, flatList)
+        // Flatten tree with parent tracking
+        data class FlatPost(
+            val post: Post,
+            val depth: Int,
+            val parentIndex: Int,  // Index of parent in flatList, -1 for root
+            val childIndex: Int,   // Which child of parent (0-based)
+            val siblingCount: Int  // Total siblings (including self)
+        )
 
-        // Second pass: calculate which lines should be visible for each post
-        for (i in flatList.indices) {
-            val (post, depth) = flatList[i]
-            val children = post.children ?: emptyList()
-            val hasChildren = children.isNotEmpty()
-            val hasHiddenChildren = depth >= MAX_DEPTH && hasChildren
+        val flatList = mutableListOf<FlatPost>()
 
-            // Calculate visible lines
-            val visibleLines = BooleanArray(MAX_DEPTH) { false }
+        fun flatten(post: Post, depth: Int, parentIdx: Int, childIdx: Int, siblingCount: Int) {
+            val myIndex = flatList.size
+            flatList.add(FlatPost(post, depth, parentIdx, childIdx, siblingCount))
 
-            // Rule 1: ALWAYS show line at depth-1 for posts with depth > 0
-            // This indicates what level this post belongs to
-            if (depth > 0 && depth <= MAX_DEPTH) {
-                visibleLines[depth - 1] = true
+            if (depth < MAX_DEPTH) {
+                val children = post.children ?: emptyList()
+                children.forEachIndexed { idx, child ->
+                    flatten(child, depth + 1, myIndex, idx, children.size)
+                }
             }
+        }
 
-            // Rule 2: For ancestor lines (0 to depth-2), show if there are
-            // more posts coming at that level or shallower
-            for (d in 0 until minOf(depth - 1, MAX_DEPTH)) {
-                // Check if any following post returns to this level or shallower
+        flatten(rootPost, 0, -1, 0, 1)
+
+        // Build ThreadPost list with proper line visibility
+        for (i in flatList.indices) {
+            val flat = flatList[i]
+            val post = flat.post
+            val depth = flat.depth
+            val children = post.children ?: emptyList()
+            val hasHiddenChildren = depth >= MAX_DEPTH && children.isNotEmpty()
+            val isLastChild = flat.childIndex == flat.siblingCount - 1
+
+            // Calculate showBottomLine for each depth level
+            // For depth d, showBottomLine[d] = true if there are more posts at depth <= d+1 coming
+            val showBottomLine = BooleanArray(depth) { false }
+
+            for (d in 0 until depth) {
+                // Check if any following post is at depth d+1 or shallower
+                // (meaning the branch at level d continues)
                 for (j in (i + 1) until flatList.size) {
-                    val nextDepth = flatList[j].second
+                    val nextDepth = flatList[j].depth
                     if (nextDepth <= d + 1) {
-                        // Found a post that's at this level or its parent level
-                        // The branch at level d is still active
-                        visibleLines[d] = true
+                        showBottomLine[d] = true
                         break
                     }
                 }
@@ -241,28 +293,13 @@ class ThreadAdapter(
             posts.add(ThreadPost(
                 post = post,
                 depth = depth,
-                visibleLines = visibleLines,
-                isFirstChild = i > 0 && flatList[i - 1].second < depth,
-                isLastChild = i == flatList.lastIndex || flatList.getOrNull(i + 1)?.second?.let { it < depth } ?: true,
-                hasChildren = hasChildren && depth < MAX_DEPTH,
+                showBottomLine = showBottomLine,
+                isLastChild = isLastChild,
                 hasHiddenChildren = hasHiddenChildren
             ))
         }
 
         notifyDataSetChanged()
-    }
-
-    /**
-     * Flatten the post tree into a list with depth information
-     */
-    private fun flattenTree(post: Post, depth: Int, result: MutableList<Pair<Post, Int>>) {
-        result.add(Pair(post, depth))
-
-        if (depth < MAX_DEPTH) {
-            post.children?.forEach { child ->
-                flattenTree(child, depth + 1, result)
-            }
-        }
     }
 
     fun updatePost(updatedPost: Post) {

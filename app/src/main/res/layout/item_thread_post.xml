@@ -4,60 +4,162 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingStart="4dp">
 
-    <!-- Thread depth lines container (Reddit-style) -->
-    <LinearLayout
-        android:id="@+id/depthLinesContainer"
-        android:layout_width="wrap_content"
+    <!-- Tree connector columns - each column is 16dp wide -->
+    <!-- Column 0 (for depth 1 posts) -->
+    <FrameLayout
+        android:id="@+id/treeColumn0"
+        android:layout_width="16dp"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:paddingStart="8dp">
+        android:visibility="gone">
 
-        <!-- Depth lines will be added dynamically -->
-        <!-- Each line: 3dp wide, 8dp margin, colored by depth -->
-
+        <!-- Vertical line - top half -->
         <View
-            android:id="@+id/depthLine0"
-            android:layout_width="3dp"
+            android:id="@+id/line0Top"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
+            android:layout_gravity="center_horizontal|top"
+            android:background="@color/thread_line_0" />
+
+        <!-- Vertical line - bottom half (hidden for last child) -->
+        <View
+            android:id="@+id/line0Bottom"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal|bottom"
+            android:background="@color/thread_line_0" />
+
+        <!-- Horizontal connector (shown when this is the branch column) -->
+        <View
+            android:id="@+id/line0Horizontal"
+            android:layout_width="8dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center_vertical|end"
             android:background="@color/thread_line_0"
             android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- Column 1 (for depth 2 posts) -->
+    <FrameLayout
+        android:id="@+id/treeColumn1"
+        android:layout_width="16dp"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <View
-            android:id="@+id/depthLine1"
-            android:layout_width="3dp"
+            android:id="@+id/line1Top"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
+            android:layout_gravity="center_horizontal|top"
+            android:background="@color/thread_line_1" />
+
+        <View
+            android:id="@+id/line1Bottom"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal|bottom"
+            android:background="@color/thread_line_1" />
+
+        <View
+            android:id="@+id/line1Horizontal"
+            android:layout_width="8dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center_vertical|end"
             android:background="@color/thread_line_1"
             android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- Column 2 (for depth 3 posts) -->
+    <FrameLayout
+        android:id="@+id/treeColumn2"
+        android:layout_width="16dp"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <View
-            android:id="@+id/depthLine2"
-            android:layout_width="3dp"
+            android:id="@+id/line2Top"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
+            android:layout_gravity="center_horizontal|top"
+            android:background="@color/thread_line_2" />
+
+        <View
+            android:id="@+id/line2Bottom"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal|bottom"
+            android:background="@color/thread_line_2" />
+
+        <View
+            android:id="@+id/line2Horizontal"
+            android:layout_width="8dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center_vertical|end"
             android:background="@color/thread_line_2"
             android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- Column 3 (for depth 4 posts) -->
+    <FrameLayout
+        android:id="@+id/treeColumn3"
+        android:layout_width="16dp"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <View
-            android:id="@+id/depthLine3"
-            android:layout_width="3dp"
+            android:id="@+id/line3Top"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
+            android:layout_gravity="center_horizontal|top"
+            android:background="@color/thread_line_3" />
+
+        <View
+            android:id="@+id/line3Bottom"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal|bottom"
+            android:background="@color/thread_line_3" />
+
+        <View
+            android:id="@+id/line3Horizontal"
+            android:layout_width="8dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center_vertical|end"
             android:background="@color/thread_line_3"
             android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- Column 4 (for depth 5 posts) -->
+    <FrameLayout
+        android:id="@+id/treeColumn4"
+        android:layout_width="16dp"
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <View
-            android:id="@+id/depthLine4"
-            android:layout_width="3dp"
+            android:id="@+id/line4Top"
+            android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
+            android:layout_gravity="center_horizontal|top"
+            android:background="@color/thread_line_4" />
+
+        <View
+            android:id="@+id/line4Bottom"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal|bottom"
+            android:background="@color/thread_line_4" />
+
+        <View
+            android:id="@+id/line4Horizontal"
+            android:layout_width="8dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center_vertical|end"
             android:background="@color/thread_line_4"
             android:visibility="gone" />
-
-    </LinearLayout>
+    </FrameLayout>
 
     <!-- Post card -->
     <com.google.android.material.card.MaterialCardView
@@ -65,8 +167,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
         android:layout_marginEnd="8dp"
         app:cardBackgroundColor="@color/background_card"
         app:cardElevation="1dp"
@@ -82,7 +184,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="10dp">
 
                 <!-- Post Header: Avatar + Username + Timestamp + Actions -->
                 <LinearLayout
@@ -93,8 +195,8 @@
 
                     <ImageView
                         android:id="@+id/postAvatar"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
                         android:contentDescription="User Avatar"
                         android:scaleType="centerCrop"
                         tools:src="@android:drawable/ic_menu_myplaces" />
@@ -104,7 +206,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:layout_marginStart="10dp">
+                        android:layout_marginStart="8dp">
 
                         <TextView
                             android:id="@+id/postUsername"
@@ -112,7 +214,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="@color/text_on_light"
                             android:textStyle="bold"
-                            android:textSize="14sp"
+                            android:textSize="13sp"
                             tools:text="Username" />
 
                         <TextView
@@ -129,7 +231,7 @@
                         android:id="@+id/postReplyButton"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="6dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="Reply"
                         android:src="@drawable/ic_comment"
@@ -152,8 +254,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="2dp"
                         android:textColor="@color/text_on_light"
-                        android:textSize="13sp"
-                        android:minWidth="16dp"
+                        android:textSize="12sp"
+                        android:minWidth="14dp"
                         tools:text="12" />
 
                     <!-- Hidden elements for compatibility -->
@@ -175,18 +277,18 @@
                     android:id="@+id/postContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="6dp"
                     android:textColor="@color/text_on_light"
                     android:textSize="14sp"
-                    android:lineSpacingMultiplier="1.15"
+                    android:lineSpacingMultiplier="1.1"
                     tools:text="This is the post content." />
 
                 <!-- Image ViewPager -->
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/postImageViewPager"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_height="180dp"
+                    android:layout_marginTop="6dp"
                     android:visibility="gone" />
 
                 <!-- Image Counter -->
@@ -195,8 +297,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_marginTop="4dp"
-                    android:textSize="11sp"
+                    android:layout_marginTop="2dp"
+                    android:textSize="10sp"
                     android:textColor="?android:attr/textColorSecondary"
                     android:visibility="gone"
                     tools:text="1 / 3" />
@@ -208,9 +310,9 @@
                 android:id="@+id/postShowRepliesLink"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingVertical="8dp"
-                android:paddingHorizontal="12dp"
-                android:textSize="13sp"
+                android:paddingVertical="6dp"
+                android:paddingHorizontal="10dp"
+                android:textSize="12sp"
                 android:textColor="@color/text_on_primary"
                 android:background="@color/primary"
                 android:clickable="true"
