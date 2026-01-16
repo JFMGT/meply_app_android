@@ -113,13 +113,13 @@ class ConversationActivity : BaseDetailActivity() {
 
     private fun deleteMessage(position: Int, message: Message) {
         val api = ApiClient.retrofit
-        api.deleteMessage(message.documentId).enqueue(object : Callback<Void> {
+        api.deleteMessage(message.id).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     // Mark message as deleted locally
                     messageAdapter.markMessageAsDeleted(position)
                     Toast.makeText(this@ConversationActivity, "Nachricht gelöscht", Toast.LENGTH_SHORT).show()
-                    Log.d("ConversationActivity", "Message deleted: ${message.documentId}")
+                    Log.d("ConversationActivity", "Message deleted: ${message.id}")
                 } else {
                     Toast.makeText(
                         this@ConversationActivity,
