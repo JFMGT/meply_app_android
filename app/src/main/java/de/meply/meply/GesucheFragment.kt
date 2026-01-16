@@ -3,7 +3,8 @@ package de.meply.meply
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.drawable.ColorDrawable
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -69,8 +70,12 @@ class GesucheFragment : Fragment() {
 
     private fun setupSwipeGestures() {
         val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            private val deleteBackground = ColorDrawable(ContextCompat.getColor(requireContext(), R.color.error))
+            private val deletePaint = Paint().apply {
+                color = ContextCompat.getColor(requireContext(), R.color.error)
+                isAntiAlias = true
+            }
             private val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_trash)
+            private val cornerRadius = 8 * resources.displayMetrics.density
 
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -111,14 +116,14 @@ class GesucheFragment : Fragment() {
                 val iconMargin = (itemView.height - (deleteIcon?.intrinsicHeight ?: 0)) / 2
 
                 if (dX < 0) {
-                    // Swiping left - delete
-                    deleteBackground.setBounds(
-                        itemView.right + dX.toInt(),
-                        itemView.top,
-                        itemView.right,
-                        itemView.bottom
+                    // Swiping left - delete (red background with rounded corners)
+                    val rect = RectF(
+                        itemView.right + dX,
+                        itemView.top.toFloat(),
+                        itemView.right.toFloat(),
+                        itemView.bottom.toFloat()
                     )
-                    deleteBackground.draw(c)
+                    c.drawRoundRect(rect, cornerRadius, cornerRadius, deletePaint)
 
                     deleteIcon?.let { icon ->
                         val iconTop = itemView.top + iconMargin
