@@ -3,4 +3,7 @@
     <!-- Message margins for chat bubbles -->
     <dimen name="message_margin_own">8dp</dimen>
     <dimen name="message_margin_opposite">48dp</dimen>
+
+    <!-- Card styling -->
+    <dimen name="card_corner_radius">12dp</dimen>
 </resources>

@@ -93,6 +93,28 @@ class MessageAdapter(
         notifyItemInserted(messages.size - 1)
     }
 
+    fun getMessageAt(position: Int): Message? {
+        return if (position in 0 until messages.size) messages[position] else null
+    }
+
+    fun markMessageAsDeleted(position: Int) {
+        if (position in 0 until messages.size) {
+            val oldMessage = messages[position]
+            // Create a copy with deletedByUser = true
+            val deletedMessage = Message(
+                id = oldMessage.id,
+                documentId = oldMessage.documentId,
+                content = oldMessage.content,
+                createdAt = oldMessage.createdAt,
+                author = oldMessage.author,
+                deletedByUser = true,
+                conversationClosed = oldMessage.conversationClosed
+            )
+            messages[position] = deletedMessage
+            notifyItemChanged(position)
+        }
+    }
+
     private fun formatRelativeTime(timestamp: String?): String {
         if (timestamp.isNullOrEmpty()) return ""
 

@@ -294,6 +294,16 @@ interface ApiService {
         @Path("conversationId") conversationId: String
     ): Call<Void>
 
+    /**
+     * Mark a message as deleted (soft delete)
+     * The message content will be replaced with "[Diese Nachricht wurde gelöscht]"
+     * @param messageId The message document ID
+     */
+    @POST("messages/{messageId}/mark-as-deleted")
+    fun deleteMessage(
+        @Path("messageId") messageId: String
+    ): Call<Void>
+
     // ===== INVITE CODES ENDPOINTS =====
 
     /**
