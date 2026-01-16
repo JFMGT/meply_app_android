@@ -159,19 +159,19 @@ class SellGameBottomSheet : BottomSheetDialogFragment() {
         // Condition spinner
         val conditionAdapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_item,
             conditionOptions.map { it.second }
         )
-        conditionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        conditionAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         conditionSpinner.adapter = conditionAdapter
 
         // Delivery spinner
         val deliveryAdapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_item,
             deliveryOptions.map { it.second }
         )
-        deliveryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        deliveryAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         deliverySpinner.adapter = deliveryAdapter
     }
 

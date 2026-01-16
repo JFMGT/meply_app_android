@@ -78,8 +78,8 @@
                     android:id="@+id/forSaleSwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/primary"
-                    app:trackTint="@color/text_secondary" />
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color" />
 
             </LinearLayout>
 
@@ -96,8 +96,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Preis (€)"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     app:hintTextColor="@color/text_secondary"
                     app:boxStrokeColor="@color/primary"
+                    app:boxBackgroundColor="@android:color/transparent"
                     android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -105,8 +107,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="numberDecimal"
-                        android:textColor="@color/text_primary"
-                        android:background="@color/background_card" />
+                        android:textColor="@color/text_primary" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -149,8 +150,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Beschreibung (optional)"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     app:hintTextColor="@color/text_secondary"
                     app:boxStrokeColor="@color/primary"
+                    app:boxBackgroundColor="@android:color/transparent"
                     android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -160,8 +163,7 @@
                         android:inputType="textMultiLine"
                         android:minLines="3"
                         android:gravity="top|start"
-                        android:textColor="@color/text_primary"
-                        android:background="@color/background_card" />
+                        android:textColor="@color/text_primary" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -185,8 +187,8 @@
                         android:id="@+id/tradePossibleSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:thumbTint="@color/primary"
-                        app:trackTint="@color/text_secondary" />
+                        app:thumbTint="@color/switch_thumb_color"
+                        app:trackTint="@color/switch_track_color" />
 
                 </LinearLayout>
 

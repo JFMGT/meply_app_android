@@ -3,7 +3,6 @@ package de.meply.meply.ui.collection
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -15,8 +14,7 @@ import de.meply.meply.data.collection.UserBoardgame
 
 class CollectionAdapter(
     private val onRatingChanged: (UserBoardgame, Int) -> Unit,
-    private val onStateChanged: (UserBoardgame, String) -> Unit,
-    private val onRemoveClick: (UserBoardgame) -> Unit
+    private val onStateChanged: (UserBoardgame, String) -> Unit
 ) : ListAdapter<UserBoardgame, CollectionAdapter.ViewHolder>(DiffCallback()) {
 
     private val states = listOf(
@@ -40,7 +38,6 @@ class CollectionAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val title: TextView = itemView.findViewById(R.id.game_title)
         private val saleIndicator: ImageView = itemView.findViewById(R.id.sale_indicator)
-        private val btnRemove: ImageButton = itemView.findViewById(R.id.btn_remove)
         private val statusText: TextView = itemView.findViewById(R.id.status_text)
         private val stars: List<ImageView> = listOf(
             itemView.findViewById(R.id.star1),
@@ -77,11 +74,6 @@ class CollectionAdapter(
             // Click to show selection dialog
             statusText.setOnClickListener {
                 showStateSelectionDialog(game)
-            }
-
-            // Remove button
-            btnRemove.setOnClickListener {
-                onRemoveClick(game)
             }
         }
 

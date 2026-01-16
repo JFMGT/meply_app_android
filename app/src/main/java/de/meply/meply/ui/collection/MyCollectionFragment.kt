@@ -100,20 +100,21 @@ class MyCollectionFragment : Fragment() {
     private fun setupAdapters() {
         collectionAdapter = CollectionAdapter(
             onRatingChanged = { game, rating -> updateGameRating(game, rating) },
-            onStateChanged = { game, state -> updateGameState(game, state) },
-            onRemoveClick = { game -> confirmRemoveGame(game) }
+            onStateChanged = { game, state -> updateGameState(game, state) }
         )
         gamesRecycler.layoutManager = LinearLayoutManager(requireContext())
         gamesRecycler.adapter = collectionAdapter
 
-        // Setup swipe to sell
-        setupSwipeToSell()
+        // Setup swipe gestures (right = sell, left = delete)
+        setupSwipeGestures()
     }
 
-    private fun setupSwipeToSell() {
-        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-            private val backgroundColor = ColorDrawable(ContextCompat.getColor(requireContext(), R.color.primary))
-            private val sellIcon = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_share)
+    private fun setupSwipeGestures() {
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            private val sellBackground = ColorDrawable(ContextCompat.getColor(requireContext(), R.color.primary))
+            private val deleteBackground = ColorDrawable(ContextCompat.getColor(requireContext(), R.color.error))
+            private val sellIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_tag)
+            private val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_trash)
 
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -125,10 +126,13 @@ class MyCollectionFragment : Fragment() {
                 val position = viewHolder.adapterPosition
                 if (position != RecyclerView.NO_POSITION && position < displayedGames.size) {
                     val game = displayedGames[position]
-                    // Reset the item position (don't actually remove it)
+                    // Reset the item position first
                     collectionAdapter.notifyItemChanged(position)
-                    // Open sell bottom sheet
-                    openSellBottomSheet(game)
+
+                    when (direction) {
+                        ItemTouchHelper.RIGHT -> openSellBottomSheet(game)
+                        ItemTouchHelper.LEFT -> confirmRemoveGame(game)
+                    }
                 }
             }
 
@@ -142,19 +146,19 @@ class MyCollectionFragment : Fragment() {
                 isCurrentlyActive: Boolean
             ) {
                 val itemView = viewHolder.itemView
-                val iconMargin = (itemView.height - (sellIcon?.intrinsicHeight ?: 0)) / 2
 
-                // Draw yellow background
                 if (dX > 0) {
-                    backgroundColor.setBounds(
+                    // Swipe right - Sell (yellow background)
+                    val iconMargin = (itemView.height - (sellIcon?.intrinsicHeight ?: 0)) / 2
+
+                    sellBackground.setBounds(
                         itemView.left,
                         itemView.top,
                         itemView.left + dX.toInt(),
                         itemView.bottom
                     )
-                    backgroundColor.draw(c)
+                    sellBackground.draw(c)
 
-                    // Draw sell icon
                     sellIcon?.let { icon ->
                         val iconTop = itemView.top + iconMargin
                         val iconBottom = iconTop + icon.intrinsicHeight
@@ -163,6 +167,28 @@ class MyCollectionFragment : Fragment() {
 
                         icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
                         icon.setTint(ContextCompat.getColor(requireContext(), R.color.text_on_primary))
+                        icon.draw(c)
+                    }
+                } else if (dX < 0) {
+                    // Swipe left - Delete (red background)
+                    val iconMargin = (itemView.height - (deleteIcon?.intrinsicHeight ?: 0)) / 2
+
+                    deleteBackground.setBounds(
+                        itemView.right + dX.toInt(),
+                        itemView.top,
+                        itemView.right,
+                        itemView.bottom
+                    )
+                    deleteBackground.draw(c)
+
+                    deleteIcon?.let { icon ->
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + icon.intrinsicHeight
+                        val iconRight = itemView.right - iconMargin
+                        val iconLeft = iconRight - icon.intrinsicWidth
+
+                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        icon.setTint(ContextCompat.getColor(requireContext(), R.color.white))
                         icon.draw(c)
                     }
                 }
@@ -376,7 +402,7 @@ class MyCollectionFragment : Fragment() {
     }
 
     private fun confirmRemoveGame(game: UserBoardgame) {
-        AlertDialog.Builder(requireContext())
+        AlertDialog.Builder(requireContext(), R.style.Theme_Meply_AlertDialog)
             .setTitle("Spiel entfernen")
             .setMessage("Möchtest du \"${game.title}\" wirklich aus deiner Sammlung entfernen?")
             .setPositiveButton("Entfernen") { _, _ ->
