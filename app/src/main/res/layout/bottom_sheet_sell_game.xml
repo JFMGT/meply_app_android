@@ -97,9 +97,9 @@
                     android:layout_height="wrap_content"
                     android:hint="Preis (€)"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:hintTextColor="@color/text_secondary"
+                    app:hintTextColor="@color/text_disabled"
                     app:boxStrokeColor="@color/primary"
-                    app:boxBackgroundColor="@android:color/transparent"
+                    app:boxBackgroundColor="@color/white"
                     android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -107,7 +107,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="numberDecimal"
-                        android:textColor="@color/text_primary" />
+                        android:textColor="@color/text_on_light" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -151,9 +151,9 @@
                     android:layout_height="wrap_content"
                     android:hint="Beschreibung (optional)"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:hintTextColor="@color/text_secondary"
+                    app:hintTextColor="@color/text_disabled"
                     app:boxStrokeColor="@color/primary"
-                    app:boxBackgroundColor="@android:color/transparent"
+                    app:boxBackgroundColor="@color/white"
                     android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -163,7 +163,7 @@
                         android:inputType="textMultiLine"
                         android:minLines="3"
                         android:gravity="top|start"
-                        android:textColor="@color/text_primary" />
+                        android:textColor="@color/text_on_light" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
