@@ -21,7 +21,7 @@
             android:orientation="vertical"
             android:padding="12dp">
 
-            <!-- Post Header: Avatar + Username + Timestamp -->
+            <!-- Post Header: Avatar + Username + Timestamp + Actions -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,14 +61,55 @@
                         tools:text="2 hours ago • public" />
                 </LinearLayout>
 
+                <!-- Reply Button -->
+                <ImageButton
+                    android:id="@+id/postReplyButton"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Reply"
+                    android:src="@drawable/ic_comment"
+                    android:scaleType="fitCenter" />
+
+                <!-- Like Button -->
+                <ImageButton
+                    android:id="@+id/postLikeButton"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Like"
+                    android:src="@drawable/ic_star_outline"
+                    android:scaleType="fitCenter" />
+
+                <!-- Like Count -->
+                <TextView
+                    android:id="@+id/postLikeCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:textColor="@color/text_on_light"
+                    android:textSize="14sp"
+                    android:minWidth="16dp"
+                    tools:text="12" />
+
+                <!-- Hidden options button, kept for compatibility -->
                 <ImageButton
                     android:id="@+id/postOptionsButton"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Post Options"
                     android:src="@drawable/ic_more_vert"
                     android:visibility="gone" />
+
+                <!-- Hidden reply count, kept for compatibility -->
+                <TextView
+                    android:id="@+id/postReplyCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    tools:text="5" />
             </LinearLayout>
 
             <!-- Post Content -->
@@ -103,55 +144,6 @@
                 android:visibility="gone"
                 tools:text="1 / 3"
                 tools:visibility="visible" />
-
-            <!-- Action Bar: Like, Reply -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical">
-
-                <ImageButton
-                    android:id="@+id/postLikeButton"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Like"
-                    android:src="@drawable/ic_star_outline"
-                    android:scaleType="fitCenter" />
-
-                <TextView
-                    android:id="@+id/postLikeCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:textColor="@color/text_on_light"
-                    android:textSize="14sp"
-                    tools:text="12" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <ImageButton
-                    android:id="@+id/postReplyButton"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Reply"
-                    android:src="@drawable/ic_comment"
-                    android:scaleType="fitCenter" />
-
-                <!-- Hidden reply count, kept for compatibility -->
-                <TextView
-                    android:id="@+id/postReplyCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    tools:text="5" />
-            </LinearLayout>
 
         </LinearLayout>
 
