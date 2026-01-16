@@ -381,7 +381,7 @@ class MyCollectionActivity : BaseDetailActivity() {
     }
 
     private fun confirmRemoveGame(game: UserBoardgame) {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.Theme_Meply_AlertDialog)
             .setTitle("Spiel entfernen")
             .setMessage("Möchtest du \"${game.title}\" wirklich aus deiner Sammlung entfernen?")
             .setPositiveButton("Entfernen") { _, _ ->

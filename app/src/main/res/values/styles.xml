@@ -43,14 +43,14 @@
         <item name="alertDialogTheme">@style/Theme.Meply.AlertDialog</item>
     </style>
 
-    <!-- Alert Dialog Theme - Dark background with light text -->
+    <!-- Alert Dialog Theme - Light background with dark text -->
     <style name="Theme.Meply.AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="android:background">@color/background_card</item>
         <item name="backgroundTint">@color/background_card</item>
-        <item name="android:textColorPrimary">@color/text_primary</item>
-        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorPrimary">@color/text_on_light</item>
+        <item name="android:textColorSecondary">@color/text_disabled</item>
         <item name="colorSurface">@color/background_card</item>
-        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurface">@color/text_on_light</item>
         <item name="materialAlertDialogTitleTextStyle">@style/Theme.Meply.AlertDialog.Title</item>
         <item name="materialAlertDialogBodyTextStyle">@style/Theme.Meply.AlertDialog.Body</item>
         <item name="buttonBarNegativeButtonStyle">@style/Theme.Meply.AlertDialog.Button</item>
@@ -59,12 +59,12 @@
 
     <!-- Alert Dialog Title Style -->
     <style name="Theme.Meply.AlertDialog.Title" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColor">@color/text_on_light</item>
     </style>
 
     <!-- Alert Dialog Body Style -->
     <style name="Theme.Meply.AlertDialog.Body" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
-        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textColor">@color/text_disabled</item>
     </style>
 
     <!-- Alert Dialog Button Style -->
