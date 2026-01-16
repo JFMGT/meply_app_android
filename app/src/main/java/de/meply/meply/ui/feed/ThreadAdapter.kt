@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import de.meply.meply.R
 import de.meply.meply.data.feed.Post
+import de.meply.meply.utils.AvatarUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,12 +25,18 @@ class ThreadAdapter(
     private val onReplyClick: (Post) -> Unit,
     private val onOptionsClick: (Post, View) -> Unit,
     private val onImageClick: (List<String>, Int) -> Unit,
+    private val onOpenThreadClick: ((Post) -> Unit)? = null,
     private val imageBaseUrl: String = "https://admin.meeplemates.de"
 ) : RecyclerView.Adapter<ThreadAdapter.PostViewHolder>() {
 
+    companion object {
+        private const val MAX_VISUAL_DEPTH = 3  // Maximum visual indentation level
+    }
+
     data class PostWithLevel(
         val post: Post,
-        val level: Int
+        val level: Int,
+        val hasHiddenChildren: Boolean = false  // True if children exist but are cut off due to depth
     )
 
     inner class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -57,10 +64,12 @@ class ThreadAdapter(
         val postWithLevel = posts[position]
         val post = postWithLevel.post
         val level = postWithLevel.level
+        val hasHiddenChildren = postWithLevel.hasHiddenChildren
         val context = holder.itemView.context
 
-        // Apply indentation based on nesting level
-        val indentDp = level * 16 // 16dp per level
+        // Apply indentation based on nesting level (capped at MAX_VISUAL_DEPTH)
+        val visualLevel = minOf(level, MAX_VISUAL_DEPTH)
+        val indentDp = visualLevel * 16 // 16dp per level
         val indentPx = (indentDp * context.resources.displayMetrics.density).toInt()
         val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
         layoutParams.marginStart = indentPx
@@ -81,9 +90,14 @@ class ThreadAdapter(
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.avatar)
         } else {
-            val hash = author?.id?.hashCode() ?: 0
-            val avatarIndex = (Math.abs(hash) % 8) + 1
-            holder.avatar.setImageResource(R.drawable.ic_launcher_foreground)
+            // Generate default avatar based on userId (matching PHP implementation)
+            val userId = author?.userId ?: author?.documentId ?: "default"
+            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+            Glide.with(context)
+                .load(defaultAvatarUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .into(holder.avatar)
         }
 
         // Meta
@@ -144,8 +158,16 @@ class ThreadAdapter(
             onReplyClick(post)
         }
 
-        // Hide "Show replies" link in thread view (all replies are already shown)
-        holder.showRepliesLink.visibility = View.GONE
+        // Show "Open as thread" link for posts with hidden children
+        if (hasHiddenChildren && onOpenThreadClick != null) {
+            holder.showRepliesLink.visibility = View.VISIBLE
+            holder.showRepliesLink.text = "Tiefere Antworten anzeigen"
+            holder.showRepliesLink.setOnClickListener {
+                onOpenThreadClick.invoke(post)
+            }
+        } else {
+            holder.showRepliesLink.visibility = View.GONE
+        }
 
         // Options button
         holder.optionsButton.setOnClickListener {
@@ -163,11 +185,20 @@ class ThreadAdapter(
 
     /**
      * Flatten the nested post tree into a flat list with levels
+     * Posts at MAX_VISUAL_DEPTH with children will have hasHiddenChildren = true
      */
     private fun flattenPostTree(post: Post, level: Int) {
-        posts.add(PostWithLevel(post, level))
-        post.children?.forEach { child ->
-            flattenPostTree(child, level + 1)
+        val hasChildren = !post.children.isNullOrEmpty()
+        val atMaxDepth = level >= MAX_VISUAL_DEPTH
+        val hasHiddenChildren = atMaxDepth && hasChildren
+
+        posts.add(PostWithLevel(post, level, hasHiddenChildren))
+
+        // Only flatten children if we haven't reached max depth
+        if (!atMaxDepth && hasChildren) {
+            post.children?.forEach { child ->
+                flattenPostTree(child, level + 1)
+            }
         }
     }
 

@@ -70,11 +70,18 @@ class ThreadActivity : BaseDetailActivity() {
             onLikeClick = { post -> toggleLike(post) },
             onReplyClick = { post -> showReplyDialog(post) },
             onOptionsClick = { post, view -> showOptionsMenu(post, view) },
-            onImageClick = { images, position -> showImageGallery(images, position) }
+            onImageClick = { images, position -> showImageGallery(images, position) },
+            onOpenThreadClick = { post -> openPostAsThread(post) }
         )
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = threadAdapter
+    }
+
+    private fun openPostAsThread(post: Post) {
+        val intent = Intent(this, ThreadActivity::class.java)
+        intent.putExtra("documentId", post.documentId)
+        startActivity(intent)
     }
 
     private fun setupSwipeRefresh() {
