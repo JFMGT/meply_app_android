@@ -502,5 +502,19 @@ interface ApiService {
         @Path("entryId") entryId: String
     ): Call<de.meply.meply.data.collection.CollectionActionResponse>
 
+    // ===== MARKETPLACE (TROEDELMARKT) ENDPOINTS =====
+
+    /**
+     * Get marketplace listings (games for sale)
+     * @param page Page number (1-based)
+     * @param pageSize Items per page
+     * @param title Filter by title (optional)
+     */
+    @GET("user-boardgames/marketplace")
+    fun getMarktplace(
+        @Query("page") page: Int = 1,
+        @Query("pageSize") pageSize: Int = 50,
+        @Query("title") title: String? = null
+    ): Call<de.meply.meply.data.markt.MarktplaceResponse>
 
 }

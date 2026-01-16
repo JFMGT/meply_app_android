@@ -30,6 +30,7 @@ import de.meply.meply.ui.pm.PmFragment
 import de.meply.meply.ui.profile.ProfileFragment
 import de.meply.meply.ui.followers.FollowersFragment
 import de.meply.meply.ui.collection.MyCollectionFragment
+import de.meply.meply.ui.markt.MarktFragment
 import de.meply.meply.ui.profile.UserProfileActivity
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
@@ -44,6 +45,7 @@ class HomeActivity : AppCompatActivity() {
 
     private val feed by lazy { FeedFragment() }
     private val events by lazy { EventsFragment() }
+    private val markt by lazy { MarktFragment() }
     private val pm by lazy { PmFragment() }
     private val profile by lazy { ProfileFragment() }
     private val followers by lazy { FollowersFragment() }
@@ -281,6 +283,11 @@ class HomeActivity : AppCompatActivity() {
                     toolbarCreateButton.visibility = View.GONE
                     toolbarFilterButton.visibility = View.VISIBLE
                     switchTo(events, "events")
+                }
+                R.id.nav_markt   -> {
+                    toolbarCreateButton.visibility = View.GONE
+                    toolbarFilterButton.visibility = View.GONE
+                    switchTo(markt, "markt")
                 }
                 R.id.nav_pm      -> {
                     toolbarCreateButton.visibility = View.GONE
