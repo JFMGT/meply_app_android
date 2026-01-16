@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <!-- Thread depth lines container (Reddit-style) -->
+    <LinearLayout
+        android:id="@+id/depthLinesContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingStart="8dp">
+
+        <!-- Depth lines will be added dynamically -->
+        <!-- Each line: 3dp wide, 8dp margin, colored by depth -->
+
+        <View
+            android:id="@+id/depthLine0"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:background="@color/thread_line_0"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/depthLine1"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:background="@color/thread_line_1"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/depthLine2"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:background="@color/thread_line_2"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/depthLine3"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:background="@color/thread_line_3"
+            android:visibility="gone" />
+
+        <View
+            android:id="@+id/depthLine4"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:background="@color/thread_line_4"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- Post card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/postCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        app:cardBackgroundColor="@color/background_card"
+        app:cardElevation="1dp"
+        app:cardCornerRadius="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Content area with padding -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <!-- Post Header: Avatar + Username + Timestamp + Actions -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/postAvatar"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:contentDescription="User Avatar"
+                        android:scaleType="centerCrop"
+                        tools:src="@android:drawable/ic_menu_myplaces" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+
+                        <TextView
+                            android:id="@+id/postUsername"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_on_light"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            tools:text="Username" />
+
+                        <TextView
+                            android:id="@+id/postMeta"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="11sp"
+                            android:textColor="?android:attr/textColorSecondary"
+                            tools:text="2 hours ago" />
+                    </LinearLayout>
+
+                    <!-- Reply Button -->
+                    <ImageButton
+                        android:id="@+id/postReplyButton"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Reply"
+                        android:src="@drawable/ic_comment"
+                        android:scaleType="fitCenter" />
+
+                    <!-- Like Button -->
+                    <ImageButton
+                        android:id="@+id/postLikeButton"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Like"
+                        android:src="@drawable/ic_star_outline"
+                        android:scaleType="fitCenter" />
+
+                    <!-- Like Count -->
+                    <TextView
+                        android:id="@+id/postLikeCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:textColor="@color/text_on_light"
+                        android:textSize="13sp"
+                        android:minWidth="16dp"
+                        tools:text="12" />
+
+                    <!-- Hidden elements for compatibility -->
+                    <ImageButton
+                        android:id="@+id/postOptionsButton"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/postReplyCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- Post Content -->
+                <TextView
+                    android:id="@+id/postContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/text_on_light"
+                    android:textSize="14sp"
+                    android:lineSpacingMultiplier="1.15"
+                    tools:text="This is the post content." />
+
+                <!-- Image ViewPager -->
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/postImageViewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
+
+                <!-- Image Counter -->
+                <TextView
+                    android:id="@+id/postImageCounter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="4dp"
+                    android:textSize="11sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:visibility="gone"
+                    tools:text="1 / 3" />
+
+            </LinearLayout>
+
+            <!-- Show deeper replies link -->
+            <TextView
+                android:id="@+id/postShowRepliesLink"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="12dp"
+                android:textSize="13sp"
+                android:textColor="@color/text_on_primary"
+                android:background="@color/primary"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone"
+                tools:text="Weitere Antworten anzeigen" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>
