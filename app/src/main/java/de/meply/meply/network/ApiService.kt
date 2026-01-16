@@ -287,11 +287,11 @@ interface ApiService {
 
     /**
      * Delete a conversation
-     * @param conversationId The conversation document ID
+     * @param conversationId The conversation ID (integer)
      */
     @DELETE("conversations/{conversationId}")
     fun deleteConversation(
-        @Path("conversationId") conversationId: String
+        @Path("conversationId") conversationId: Int
     ): Call<Void>
 
     /**

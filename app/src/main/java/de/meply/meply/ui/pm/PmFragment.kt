@@ -100,7 +100,7 @@ class PmFragment : Fragment() {
     }
 
     private fun deleteConversation(position: Int, conversation: Conversation) {
-        val conversationId = conversation.documentId
+        val conversationId = conversation.id
 
         val api = ApiClient.retrofit
         api.deleteConversation(conversationId).enqueue(object : Callback<Void> {
