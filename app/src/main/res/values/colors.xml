@@ -39,6 +39,8 @@
     <color name="warning">#FFD700</color>
 
     <!-- ===== SURFACE COLORS ===== -->
+    <!-- Default surface for cards (dark theme) -->
+    <color name="surface">#3a3f4f</color>
     <!-- Light surface for cards on dark background -->
     <color name="surface_light">#f0f0f0</color>
     <!-- Very light surface -->

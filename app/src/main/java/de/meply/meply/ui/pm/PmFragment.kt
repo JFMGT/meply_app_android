@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -63,6 +65,80 @@ class PmFragment : Fragment() {
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = conversationAdapter
+
+        // Setup swipe-to-delete
+        val swipeCallback = SwipeToDeleteCallback(requireContext()) { position ->
+            showDeleteConversationDialog(position)
+        }
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
+    }
+
+    private fun showDeleteConversationDialog(position: Int) {
+        if (position < 0 || position >= conversations.size) {
+            conversationAdapter.notifyItemChanged(position)
+            return
+        }
+
+        val conversation = conversations[position]
+        val partnerName = getPartnerName(conversation)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Konversation löschen")
+            .setMessage("Möchtest du die Konversation mit $partnerName wirklich löschen? Dein Gegenüber wird über diesen Kanal nicht mehr antworten können.")
+            .setPositiveButton("Löschen") { _, _ ->
+                deleteConversation(position, conversation)
+            }
+            .setNegativeButton("Abbrechen") { _, _ ->
+                // Reset the swipe animation
+                conversationAdapter.notifyItemChanged(position)
+            }
+            .setOnCancelListener {
+                // Reset the swipe animation if dialog is dismissed
+                conversationAdapter.notifyItemChanged(position)
+            }
+            .show()
+    }
+
+    private fun deleteConversation(position: Int, conversation: Conversation) {
+        val conversationId = conversation.id
+
+        val api = ApiClient.retrofit
+        api.deleteConversation(conversationId).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    // Remove from list
+                    conversations.removeAt(position)
+                    conversationAdapter.notifyItemRemoved(position)
+
+                    // Show empty state if no conversations left
+                    if (conversations.isEmpty()) {
+                        emptyState.visibility = View.VISIBLE
+                        recyclerView.visibility = View.GONE
+                    }
+
+                    Toast.makeText(requireContext(), "Konversation gelöscht", Toast.LENGTH_SHORT).show()
+                    Log.d("PmFragment", "Conversation deleted: $conversationId")
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Fehler beim Löschen: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    conversationAdapter.notifyItemChanged(position)
+                    Log.e("PmFragment", "Error deleting conversation: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(
+                    requireContext(),
+                    "Netzwerkfehler: ${t.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                conversationAdapter.notifyItemChanged(position)
+                Log.e("PmFragment", "Network error deleting conversation", t)
+            }
+        })
     }
 
     private fun setupSwipeRefresh() {
