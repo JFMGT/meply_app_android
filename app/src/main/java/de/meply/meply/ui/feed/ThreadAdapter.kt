@@ -143,19 +143,18 @@ class ThreadAdapter(
                     column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.GONE
                     column.horizontalLine.visibility = View.VISIBLE
                 } else {
-                    // Ancestor column: only show lines if branch is still active
+                    // Ancestor column: container always visible for spacing
+                    column.container.visibility = View.VISIBLE
+                    column.horizontalLine.visibility = View.GONE
+
                     if (showBottom) {
                         // Branch continues - show full vertical line (pass-through)
-                        column.container.visibility = View.VISIBLE
                         column.topLine.visibility = View.VISIBLE
                         column.bottomLine.visibility = View.VISIBLE
-                        column.horizontalLine.visibility = View.GONE
                     } else {
-                        // Branch ended above - show nothing in this column
-                        column.container.visibility = View.GONE
+                        // Branch ended above - hide lines but keep column for indentation
                         column.topLine.visibility = View.GONE
                         column.bottomLine.visibility = View.GONE
-                        column.horizontalLine.visibility = View.GONE
                     }
                 }
             } else {
