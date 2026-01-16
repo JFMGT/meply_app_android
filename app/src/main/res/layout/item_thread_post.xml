@@ -15,19 +15,19 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <!-- Vertical line - top half -->
+        <!-- Vertical line - top half (from top to center) -->
         <View
             android:id="@+id/line0Top"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|top"
             android:background="@color/thread_line_0" />
 
-        <!-- Vertical line - bottom half (hidden for last child) -->
+        <!-- Vertical line - bottom half (from center to bottom) -->
         <View
             android:id="@+id/line0Bottom"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|bottom"
             android:background="@color/thread_line_0" />
 
@@ -51,14 +51,14 @@
         <View
             android:id="@+id/line1Top"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|top"
             android:background="@color/thread_line_1" />
 
         <View
             android:id="@+id/line1Bottom"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|bottom"
             android:background="@color/thread_line_1" />
 
@@ -81,14 +81,14 @@
         <View
             android:id="@+id/line2Top"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|top"
             android:background="@color/thread_line_2" />
 
         <View
             android:id="@+id/line2Bottom"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|bottom"
             android:background="@color/thread_line_2" />
 
@@ -111,14 +111,14 @@
         <View
             android:id="@+id/line3Top"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|top"
             android:background="@color/thread_line_3" />
 
         <View
             android:id="@+id/line3Bottom"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|bottom"
             android:background="@color/thread_line_3" />
 
@@ -141,14 +141,14 @@
         <View
             android:id="@+id/line4Top"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|top"
             android:background="@color/thread_line_4" />
 
         <View
             android:id="@+id/line4Bottom"
             android:layout_width="2dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_gravity="center_horizontal|bottom"
             android:background="@color/thread_line_4" />
 

@@ -138,15 +138,27 @@ class ThreadAdapter(
                 val isLastColumn = (i == depth - 1)
                 val showBottom = if (i < threadPost.showBottomLine.size) threadPost.showBottomLine[i] else false
 
+                // Set line heights to 50% each (top half and bottom half)
+                column.container.post {
+                    val halfHeight = column.container.height / 2
+
+                    column.topLine.layoutParams = column.topLine.layoutParams.apply {
+                        height = halfHeight
+                    }
+                    column.bottomLine.layoutParams = column.bottomLine.layoutParams.apply {
+                        height = halfHeight
+                    }
+                }
+
                 if (isLastColumn) {
                     // This is the branch column - show connector
                     column.topLine.visibility = View.VISIBLE
                     column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.INVISIBLE
                     column.horizontalLine.visibility = View.VISIBLE
                 } else {
-                    // This is a pass-through column - just vertical line
+                    // This is a pass-through column - just vertical line (both halves)
                     column.topLine.visibility = View.VISIBLE
-                    column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.INVISIBLE
+                    column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.VISIBLE
                     column.horizontalLine.visibility = View.GONE
                 }
             } else {
