@@ -98,9 +98,9 @@ class MarktAdapter(
             val description: TextView = view.findViewById(R.id.description)
             val divider: View = view.findViewById(R.id.divider)
 
-            // User info
-            userName.text = offer.user?.username ?: "Unbekannt"
-            val city = offer.user?.city
+            // User info - user is now a String (username)
+            userName.text = offer.user ?: "Unbekannt"
+            val city = offer.city
             if (!city.isNullOrEmpty()) {
                 userCity.text = city
                 userCity.visibility = View.VISIBLE
@@ -109,7 +109,7 @@ class MarktAdapter(
             }
 
             // Make user name clickable
-            val userSlug = offer.userSlug ?: offer.user?.userslug
+            val userSlug = offer.userSlug
             if (userSlug != null) {
                 userName.setOnClickListener { onUserClick(userSlug) }
             }

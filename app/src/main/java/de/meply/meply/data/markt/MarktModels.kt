@@ -33,8 +33,9 @@ data class MarktGame(
  * An individual offer for a game
  */
 data class MarktOffer(
-    @SerializedName("user") val user: MarktUser?,
+    @SerializedName("user") val user: String?,
     @SerializedName("userSlug") val userSlug: String?,
+    @SerializedName("city") val city: String?,
     @SerializedName("price") val price: Double?,
     @SerializedName("condition") val condition: String?,
     @SerializedName("delivery") val delivery: String?,
