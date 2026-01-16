@@ -214,37 +214,25 @@ class ThreadAdapter(
             val hasChildren = children.isNotEmpty()
             val hasHiddenChildren = depth >= MAX_DEPTH && hasChildren
 
-            // Calculate visible lines: a line at depth D is visible if there's
-            // a post at depth <= D later in the list (the branch continues)
+            // Calculate visible lines
             val visibleLines = BooleanArray(MAX_DEPTH) { false }
 
-            for (d in 0 until minOf(depth, MAX_DEPTH)) {
-                // Check if any following post has depth <= d (branch continues at that level)
-                for (j in (i + 1) until flatList.size) {
-                    if (flatList[j].second <= d) {
-                        // Found a post that returns to this level or higher
-                        visibleLines[d] = true
-                        break
-                    }
-                    if (flatList[j].second > d) {
-                        // Still deeper, line continues
-                        visibleLines[d] = true
-                    }
-                }
+            // Rule 1: ALWAYS show line at depth-1 for posts with depth > 0
+            // This indicates what level this post belongs to
+            if (depth > 0 && depth <= MAX_DEPTH) {
+                visibleLines[depth - 1] = true
             }
 
-            // Also show the line for current depth if there are more posts at same or deeper level
-            if (depth > 0 && depth <= MAX_DEPTH) {
-                val currentDepthLine = depth - 1
+            // Rule 2: For ancestor lines (0 to depth-2), show if there are
+            // more posts coming at that level or shallower
+            for (d in 0 until minOf(depth - 1, MAX_DEPTH)) {
+                // Check if any following post returns to this level or shallower
                 for (j in (i + 1) until flatList.size) {
                     val nextDepth = flatList[j].second
-                    if (nextDepth < depth) {
-                        // We've gone back up, stop the line
-                        break
-                    }
-                    if (nextDepth >= depth) {
-                        // Same or deeper level continues
-                        visibleLines[currentDepthLine] = true
+                    if (nextDepth <= d + 1) {
+                        // Found a post that's at this level or its parent level
+                        // The branch at level d is still active
+                        visibleLines[d] = true
                         break
                     }
                 }
