@@ -127,18 +127,10 @@ class ThreadAdapter(
         val depth = threadPost.depth
         val context = holder.itemView.context
 
-        // Setup tree columns - RESET ALL first to avoid recycling artifacts
+        // Setup tree columns - just toggle visibility, no height calculations needed
+        // The XML layout uses LinearLayout weights for proper 50/50 split
         for (i in 0 until MAX_DEPTH) {
             val column = holder.treeColumns[i]
-
-            // Always reset all lines to hidden and zero height first
-            column.topLine.visibility = View.GONE
-            column.bottomLine.visibility = View.GONE
-            column.horizontalLine.visibility = View.GONE
-
-            // Reset heights immediately to prevent recycled artifacts
-            column.topLine.layoutParams = column.topLine.layoutParams.apply { height = 0 }
-            column.bottomLine.layoutParams = column.bottomLine.layoutParams.apply { height = 0 }
 
             if (i < depth) {
                 // This column should be visible
@@ -155,28 +147,12 @@ class ThreadAdapter(
 
                 // Horizontal connector only on the branch column (last column for this post)
                 column.horizontalLine.visibility = if (isLastColumn) View.VISIBLE else View.GONE
-
-                // Set line heights after layout - use post to ensure container has been measured
-                val shouldShowBottom = showBottom
-                column.container.post {
-                    val halfHeight = column.container.height / 2
-
-                    column.topLine.layoutParams = column.topLine.layoutParams.apply {
-                        height = halfHeight
-                    }
-                    column.topLine.requestLayout()
-
-                    // Only set bottom line height if it should be visible
-                    if (shouldShowBottom) {
-                        column.bottomLine.layoutParams = column.bottomLine.layoutParams.apply {
-                            height = halfHeight
-                        }
-                        column.bottomLine.requestLayout()
-                    }
-                }
             } else {
-                // This column should be hidden
+                // This column should be hidden - reset all lines
                 column.container.visibility = View.GONE
+                column.topLine.visibility = View.GONE
+                column.bottomLine.visibility = View.GONE
+                column.horizontalLine.visibility = View.GONE
             }
         }
 

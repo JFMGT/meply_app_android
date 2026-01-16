@@ -8,6 +8,8 @@
     android:paddingStart="4dp">
 
     <!-- Tree connector columns - each column is 16dp wide -->
+    <!-- Using LinearLayout with weights for proper 50/50 split -->
+
     <!-- Column 0 (for depth 1 posts) -->
     <FrameLayout
         android:id="@+id/treeColumn0"
@@ -15,23 +17,44 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <!-- Vertical line - top half (from top to center) -->
-        <View
-            android:id="@+id/line0Top"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|top"
-            android:background="@color/thread_line_0" />
+        <!-- Vertical LinearLayout splits column into top/bottom halves -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <!-- Vertical line - bottom half (from center to bottom) -->
-        <View
-            android:id="@+id/line0Bottom"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|bottom"
-            android:background="@color/thread_line_0" />
+            <!-- Top half container -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
 
-        <!-- Horizontal connector (shown when this is the branch column) -->
+                <View
+                    android:id="@+id/line0Top"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_0"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Bottom half container -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line0Bottom"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_0"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- Horizontal connector overlaid at center -->
         <View
             android:id="@+id/line0Horizontal"
             android:layout_width="8dp"
@@ -48,19 +71,39 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <View
-            android:id="@+id/line1Top"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|top"
-            android:background="@color/thread_line_1" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <View
-            android:id="@+id/line1Bottom"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|bottom"
-            android:background="@color/thread_line_1" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line1Top"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_1"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line1Bottom"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_1"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
 
         <View
             android:id="@+id/line1Horizontal"
@@ -78,19 +121,39 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <View
-            android:id="@+id/line2Top"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|top"
-            android:background="@color/thread_line_2" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <View
-            android:id="@+id/line2Bottom"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|bottom"
-            android:background="@color/thread_line_2" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line2Top"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_2"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line2Bottom"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_2"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
 
         <View
             android:id="@+id/line2Horizontal"
@@ -108,19 +171,39 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <View
-            android:id="@+id/line3Top"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|top"
-            android:background="@color/thread_line_3" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <View
-            android:id="@+id/line3Bottom"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|bottom"
-            android:background="@color/thread_line_3" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line3Top"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_3"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line3Bottom"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_3"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
 
         <View
             android:id="@+id/line3Horizontal"
@@ -138,19 +221,39 @@
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <View
-            android:id="@+id/line4Top"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|top"
-            android:background="@color/thread_line_4" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <View
-            android:id="@+id/line4Bottom"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal|bottom"
-            android:background="@color/thread_line_4" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line4Top"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_4"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <View
+                    android:id="@+id/line4Bottom"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/thread_line_4"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
 
         <View
             android:id="@+id/line4Horizontal"
