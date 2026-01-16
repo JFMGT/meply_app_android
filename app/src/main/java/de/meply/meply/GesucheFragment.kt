@@ -1,39 +1,37 @@
 package de.meply.meply
 
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
 import de.meply.meply.data.meeting.Meeting
 import de.meply.meply.data.meeting.MeetingsResponse
 import de.meply.meply.network.ApiClient
 import de.meply.meply.auth.AuthManager
-import de.meply.meply.utils.AvatarUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.text.SimpleDateFormat
-import java.util.*
 
 class GesucheFragment : Fragment() {
 
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var progressBar: ProgressBar
-    private lateinit var meetingsContainer: LinearLayout
+    private lateinit var recyclerView: RecyclerView
     private lateinit var emptyStateText: TextView
-    private lateinit var btnCreateMeeting: MaterialButton
+    private lateinit var adapter: GesucheAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,25 +46,101 @@ class GesucheFragment : Fragment() {
 
         swipeRefresh = view.findViewById(R.id.swipeRefresh)
         progressBar = view.findViewById(R.id.progressBar)
-        meetingsContainer = view.findViewById(R.id.meetingsContainer)
+        recyclerView = view.findViewById(R.id.recyclerView)
         emptyStateText = view.findViewById(R.id.emptyStateText)
-        btnCreateMeeting = view.findViewById(R.id.btnCreateMeeting)
+
+        setupRecyclerView()
+        setupSwipeGestures()
 
         swipeRefresh.setOnRefreshListener {
             loadMeetings()
         }
 
-        btnCreateMeeting.setOnClickListener {
-            openCreateMeeting()
+        loadMeetings()
+    }
+
+    private fun setupRecyclerView() {
+        adapter = GesucheAdapter(
+            onCreateMeetingClick = { openCreateMeeting() }
+        )
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = adapter
+    }
+
+    private fun setupSwipeGestures() {
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            private val deleteBackground = ColorDrawable(ContextCompat.getColor(requireContext(), R.color.error))
+            private val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_trash)
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun getSwipeDirs(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                // Don't allow swiping on header
+                if (adapter.isHeader(viewHolder.adapterPosition)) {
+                    return 0
+                }
+                return super.getSwipeDirs(recyclerView, viewHolder)
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val meeting = adapter.getMeetingAt(position)
+
+                if (meeting != null && direction == ItemTouchHelper.LEFT) {
+                    confirmRemoveMeeting(meeting, position)
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                val itemView = viewHolder.itemView
+                val iconMargin = (itemView.height - (deleteIcon?.intrinsicHeight ?: 0)) / 2
+
+                if (dX < 0) {
+                    // Swiping left - delete
+                    deleteBackground.setBounds(
+                        itemView.right + dX.toInt(),
+                        itemView.top,
+                        itemView.right,
+                        itemView.bottom
+                    )
+                    deleteBackground.draw(c)
+
+                    deleteIcon?.let { icon ->
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + icon.intrinsicHeight
+                        val iconRight = itemView.right - iconMargin
+                        val iconLeft = iconRight - icon.intrinsicWidth
+                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        icon.setTint(ContextCompat.getColor(requireContext(), R.color.white))
+                        icon.draw(c)
+                    }
+                }
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
         }
 
-        loadMeetings()
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
     }
 
     private fun loadMeetings() {
         progressBar.visibility = View.VISIBLE
         emptyStateText.visibility = View.GONE
-        meetingsContainer.removeAllViews()
 
         val profileId = AuthManager.getProfileDocumentId(requireContext())
         if (profileId == null) {
@@ -90,13 +164,13 @@ class GesucheFragment : Fragment() {
                 if (response.isSuccessful) {
                     val meetings = response.body()?.data ?: emptyList()
                     android.util.Log.d("GesucheFragment", "Loaded ${meetings.size} meetings")
-                    meetings.forEach { m ->
-                        android.util.Log.d("GesucheFragment", "Meeting: ${m.title} by ${m.author?.username}")
-                    }
+
+                    adapter.submitList(meetings)
+
                     if (meetings.isEmpty()) {
                         emptyStateText.visibility = View.VISIBLE
                     } else {
-                        displayMeetings(meetings)
+                        emptyStateText.visibility = View.GONE
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -113,195 +187,27 @@ class GesucheFragment : Fragment() {
         })
     }
 
-    private fun displayMeetings(meetings: List<Meeting>) {
-        meetings.forEach { meeting ->
-            val meetingView = createMeetingCard(meeting)
-            meetingsContainer.addView(meetingView)
-        }
-    }
-
-    private fun createMeetingCard(meeting: Meeting): View {
-        val cardView = MaterialCardView(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                bottomMargin = (12 * resources.displayMetrics.density).toInt()
-            }
-            radius = 8 * resources.displayMetrics.density
-            cardElevation = 2 * resources.displayMetrics.density
-            setCardBackgroundColor(resources.getColor(R.color.background_card, null))
-        }
-
-        val dp = resources.displayMetrics.density
-
-        // Use FrameLayout to position delete button absolutely
-        val frameLayout = android.widget.FrameLayout(requireContext()).apply {
-            layoutParams = android.widget.FrameLayout.LayoutParams(
-                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
-                android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        val contentLayout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding((16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt(), (16 * dp).toInt())
-        }
-
-        // Delete button - top right, yellow background with trash icon only
-        val deleteButton = ImageView(requireContext()).apply {
-            layoutParams = android.widget.FrameLayout.LayoutParams(
-                (36 * dp).toInt(),
-                (36 * dp).toInt()
-            ).apply {
-                gravity = android.view.Gravity.TOP or android.view.Gravity.END
-                topMargin = (8 * dp).toInt()
-                rightMargin = (8 * dp).toInt()
-            }
-            setImageResource(R.drawable.ic_trash)
-            setColorFilter(resources.getColor(R.color.text_on_primary, null))
-            setBackgroundResource(R.drawable.bg_tab_active)
-            backgroundTintList = android.content.res.ColorStateList.valueOf(resources.getColor(R.color.primary, null))
-            setPadding((8 * dp).toInt(), (8 * dp).toInt(), (8 * dp).toInt(), (8 * dp).toInt())
-            setOnClickListener {
+    private fun confirmRemoveMeeting(meeting: Meeting, position: Int) {
+        AlertDialog.Builder(requireContext(), R.style.Theme_Meply_AlertDialog)
+            .setTitle("Gesuch löschen")
+            .setMessage("Möchtest du \"${meeting.title}\" wirklich löschen?")
+            .setPositiveButton("Löschen") { _, _ ->
                 deleteMeeting(meeting)
             }
-        }
-
-        // First line: Name • Ort • Art
-        val meetingType = when {
-            meeting.location != null -> "Standort"
-            meeting.event != null -> "Event"
-            else -> "Freies Gesuch"
-        }
-
-        val locationName = when {
-            meeting.location != null -> meeting.location.titel ?: meeting.location.ort ?: ""
-            meeting.event != null -> meeting.event.title ?: ""
-            else -> ""
-        }
-
-        val firstLineText = TextView(requireContext()).apply {
-            val parts = listOfNotNull(
-                meeting.author?.username,
-                meeting.author?.city,
-                meetingType
-            ).filter { it.isNotEmpty() }
-            text = parts.joinToString(" • ")
-            textSize = 13f
-            setTextColor(resources.getColor(R.color.text_secondary, null))
-            // Leave space for delete button
-            setPadding(0, 0, (44 * dp).toInt(), 0)
-        }
-        contentLayout.addView(firstLineText)
-
-        // Title
-        val titleText = TextView(requireContext()).apply {
-            text = meeting.title ?: "Kein Titel"
-            textSize = 16f
-            setTextColor(resources.getColor(R.color.text_on_light, null))
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(0, (8 * dp).toInt(), (44 * dp).toInt(), 0)
-        }
-        contentLayout.addView(titleText)
-
-        // Location name if applicable
-        if (locationName.isNotEmpty()) {
-            val locationText = TextView(requireContext()).apply {
-                text = locationName
-                textSize = 14f
-                setTextColor(resources.getColor(R.color.text_on_light, null))
-                setPadding(0, (4 * dp).toInt(), 0, 0)
+            .setNegativeButton("Abbrechen") { _, _ ->
+                // Restore the item
+                adapter.notifyItemChanged(position)
             }
-            contentLayout.addView(locationText)
-        }
-
-        // Date info
-        val dateText = TextView(requireContext()).apply {
-            text = formatMeetingDate(meeting)
-            textSize = 13f
-            setTextColor(resources.getColor(R.color.text_secondary, null))
-            setPadding(0, (4 * dp).toInt(), 0, 0)
-        }
-        contentLayout.addView(dateText)
-
-        // Description (if present)
-        if (!meeting.description.isNullOrEmpty()) {
-            val descriptionText = TextView(requireContext()).apply {
-                text = meeting.description
-                textSize = 14f
-                setTextColor(resources.getColor(R.color.text_on_light, null))
-                setPadding(0, (8 * dp).toInt(), 0, 0)
+            .setOnCancelListener {
+                // Restore the item if dialog is cancelled
+                adapter.notifyItemChanged(position)
             }
-            contentLayout.addView(descriptionText)
-        }
-
-        frameLayout.addView(contentLayout)
-        frameLayout.addView(deleteButton)
-        cardView.addView(frameLayout)
-
-        return cardView
-    }
-
-    private fun formatMeetingDate(meeting: Meeting): String {
-        val dates = meeting.dates
-        return when (dates?.type) {
-            "fixed" -> {
-                val date = (dates.value?.get("date") as? String) ?: ""
-                "Termin: ${formatDate(date)}"
-            }
-            "range" -> {
-                val start = (dates.value?.get("start") as? String) ?: ""
-                val end = (dates.value?.get("end") as? String) ?: ""
-                "Zeitraum: ${formatDate(start)} - ${formatDate(end)}"
-            }
-            "recurring" -> {
-                val frequency = (dates.value?.get("frequency") as? String) ?: ""
-                val days = (dates.value?.get("days") as? List<*>)?.joinToString(", ") ?: ""
-                "Wiederkehrend: $days ($frequency)"
-            }
-            "eventDays" -> {
-                val days = (dates.value?.get("days") as? List<*>)?.joinToString(", ") { formatDate(it.toString()) } ?: ""
-                "Event-Tage: $days"
-            }
-            else -> meeting.date?.let { "Datum: ${formatDate(it)}" } ?: "Kein Datum"
-        }
-    }
-
-    private fun formatDate(dateStr: String): String {
-        return try {
-            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.GERMAN)
-            inputFormat.timeZone = TimeZone.getTimeZone("UTC")
-            val date = inputFormat.parse(dateStr)
-            val outputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMAN)
-            date?.let { outputFormat.format(it) } ?: dateStr
-        } catch (e: Exception) {
-            // Try simple date format
-            try {
-                val simpleFormat = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN)
-                val date = simpleFormat.parse(dateStr)
-                val outputFormat = SimpleDateFormat("dd.MM.yyyy", Locale.GERMAN)
-                date?.let { outputFormat.format(it) } ?: dateStr
-            } catch (e: Exception) {
-                dateStr
-            }
-        }
+            .show()
     }
 
     private fun deleteMeeting(meeting: Meeting) {
         val documentId = meeting.documentId ?: return
 
-        android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Gesuch löschen")
-            .setMessage("Möchtest du dieses Gesuch wirklich löschen?")
-            .setPositiveButton("Löschen") { _, _ ->
-                performDelete(documentId)
-            }
-            .setNegativeButton("Abbrechen", null)
-            .show()
-    }
-
-    private fun performDelete(documentId: String) {
         progressBar.visibility = View.VISIBLE
 
         ApiClient.retrofit.deleteMeeting(documentId).enqueue(object : Callback<Void> {
@@ -312,12 +218,14 @@ class GesucheFragment : Fragment() {
                     loadMeetings()
                 } else {
                     Toast.makeText(requireContext(), "Fehler beim Löschen", Toast.LENGTH_SHORT).show()
+                    adapter.notifyDataSetChanged()
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 progressBar.visibility = View.GONE
                 Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                adapter.notifyDataSetChanged()
             }
         })
     }

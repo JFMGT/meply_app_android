@@ -11,91 +11,35 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:clipToPadding="false"
+            android:padding="16dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Header Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/background_card"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Deine Spielergesuche"
-                            android:textColor="@color/text_on_light"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Erstelle Gesuche um andere Spieler für Events, Locations oder freie Treffen zu finden."
-                            android:textColor="@color/text_on_light"
-                            android:textSize="14sp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnCreateMeeting"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Neues Gesuch erstellen"
-                            android:backgroundTint="@color/primary"
-                            android:textColor="@color/text_on_light"
-                            app:icon="@android:drawable/ic_input_add"
-                            app:iconTint="@color/text_on_light" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Empty State -->
-                <TextView
-                    android:id="@+id/emptyStateText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:text="Du hast noch keine Gesuche erstellt.\nKlicke oben auf den Button um ein neues Gesuch zu erstellen."
-                    android:textAlignment="center"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="16sp"
-                    android:visibility="gone" />
-
-                <!-- Meetings Container -->
-                <LinearLayout
-                    android:id="@+id/meetingsContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-
-                <!-- Progress Bar -->
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="16dp"
-                    android:visibility="visible" />
-
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- Empty State (shown when no items) -->
+    <TextView
+        android:id="@+id/emptyStateText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="16dp"
+        android:text="Du hast noch keine Gesuche erstellt.\nKlicke oben auf den Button um ein neues Gesuch zu erstellen."
+        android:textAlignment="center"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
 
 </LinearLayout>
