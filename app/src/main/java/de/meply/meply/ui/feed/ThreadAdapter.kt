@@ -17,7 +17,8 @@ import java.util.*
 
 /**
  * Adapter for thread view with nested replies
- * Each post includes its nesting level for indentation
+ * Smart indentation: only indent when there are branches (multiple siblings)
+ * Linear chains (single replies) stay at the same visual level
  */
 class ThreadAdapter(
     private val posts: MutableList<PostWithLevel>,
@@ -35,7 +36,8 @@ class ThreadAdapter(
 
     data class PostWithLevel(
         val post: Post,
-        val level: Int,
+        val visualLevel: Int,              // Visual indentation level (only increases at branches)
+        val showConnector: Boolean = false, // Show vertical connector line to previous post
         val hasHiddenChildren: Boolean = false  // True if children exist but are cut off due to depth
     )
 
@@ -52,6 +54,8 @@ class ThreadAdapter(
         val replyCount: TextView = view.findViewById(R.id.postReplyCount)
         val showRepliesLink: TextView = view.findViewById(R.id.postShowRepliesLink)
         val optionsButton: ImageButton = view.findViewById(R.id.postOptionsButton)
+        val threadConnector: View? = view.findViewById(R.id.threadConnector)
+        val postCard: View? = view.findViewById(R.id.postCard)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -63,17 +67,37 @@ class ThreadAdapter(
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val postWithLevel = posts[position]
         val post = postWithLevel.post
-        val level = postWithLevel.level
+        val visualLevel = postWithLevel.visualLevel
+        val showConnector = postWithLevel.showConnector
         val hasHiddenChildren = postWithLevel.hasHiddenChildren
         val context = holder.itemView.context
+        val density = context.resources.displayMetrics.density
 
-        // Apply indentation based on nesting level (capped at MAX_VISUAL_DEPTH)
-        val visualLevel = minOf(level, MAX_VISUAL_DEPTH)
-        val indentDp = visualLevel * 16 // 16dp per level
-        val indentPx = (indentDp * context.resources.displayMetrics.density).toInt()
+        // Apply indentation based on visual level (capped at MAX_VISUAL_DEPTH)
+        val cappedLevel = minOf(visualLevel, MAX_VISUAL_DEPTH)
+        val indentDp = cappedLevel * 24 // 24dp per branch level
+        val indentPx = (indentDp * density).toInt()
         val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
         layoutParams.marginStart = indentPx
         holder.itemView.layoutParams = layoutParams
+
+        // Show thread connector line for linear chains
+        holder.threadConnector?.visibility = if (showConnector) View.VISIBLE else View.GONE
+        if (showConnector) {
+            // Adjust connector position based on indentation
+            val connectorParams = holder.threadConnector?.layoutParams as? ViewGroup.MarginLayoutParams
+            connectorParams?.marginStart = (31 * density).toInt() // Center on avatar (12dp padding + 20dp half avatar)
+            holder.threadConnector?.layoutParams = connectorParams
+
+            // Reduce top margin of card to connect to connector
+            val cardParams = holder.postCard?.layoutParams as? ViewGroup.MarginLayoutParams
+            cardParams?.topMargin = (20 * density).toInt() // Space for connector
+            holder.postCard?.layoutParams = cardParams
+        } else {
+            val cardParams = holder.postCard?.layoutParams as? ViewGroup.MarginLayoutParams
+            cardParams?.topMargin = 0
+            holder.postCard?.layoutParams = cardParams
+        }
 
         // Author kann null sein wenn z.B. der Elternbeitrag gelöscht wurde
         val author = post.author
@@ -179,25 +203,43 @@ class ThreadAdapter(
 
     fun updateThread(rootPost: Post) {
         posts.clear()
-        flattenPostTree(rootPost, 0)
+        flattenPostTree(rootPost, visualLevel = 0, isLinearContinuation = false)
         notifyDataSetChanged()
     }
 
     /**
-     * Flatten the nested post tree into a flat list with levels
-     * Posts at MAX_VISUAL_DEPTH with children will have hasHiddenChildren = true
+     * Flatten the nested post tree into a flat list with smart indentation.
+     * Linear chains (single child per parent) stay at same visual level.
+     * Branches (multiple children) indent their children.
+     *
+     * @param post The current post to add
+     * @param visualLevel Current visual indentation level
+     * @param isLinearContinuation True if this is a linear continuation (parent had only 1 child)
      */
-    private fun flattenPostTree(post: Post, level: Int) {
-        val hasChildren = !post.children.isNullOrEmpty()
-        val atMaxDepth = level >= MAX_VISUAL_DEPTH
+    private fun flattenPostTree(post: Post, visualLevel: Int, isLinearContinuation: Boolean) {
+        val children = post.children ?: emptyList()
+        val hasChildren = children.isNotEmpty()
+        val atMaxDepth = visualLevel >= MAX_VISUAL_DEPTH
         val hasHiddenChildren = atMaxDepth && hasChildren
 
-        posts.add(PostWithLevel(post, level, hasHiddenChildren))
+        posts.add(PostWithLevel(
+            post = post,
+            visualLevel = visualLevel,
+            showConnector = isLinearContinuation,
+            hasHiddenChildren = hasHiddenChildren
+        ))
 
-        // Only flatten children if we haven't reached max depth
+        // Process children if not at max depth
         if (!atMaxDepth && hasChildren) {
-            post.children?.forEach { child ->
-                flattenPostTree(child, level + 1)
+            val isBranch = children.size > 1
+
+            children.forEach { child ->
+                // If this is a branch (multiple children), increase visual level
+                // If linear (single child), keep same visual level
+                val childVisualLevel = if (isBranch) visualLevel + 1 else visualLevel
+                val childIsLinear = !isBranch
+
+                flattenPostTree(child, childVisualLevel, childIsLinear)
             }
         }
     }
