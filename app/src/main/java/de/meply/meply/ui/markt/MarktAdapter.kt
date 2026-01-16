@@ -108,9 +108,9 @@ class MarktAdapter(
                 userCity.visibility = View.GONE
             }
 
-            // Make user name clickable
-            val userSlug = offer.userSlug
-            if (userSlug != null) {
+            // Make user name clickable - use userSlug or fallback to username
+            val userSlug = offer.userSlug ?: offer.user
+            if (!userSlug.isNullOrEmpty()) {
                 userName.setOnClickListener { onUserClick(userSlug) }
             }
 
