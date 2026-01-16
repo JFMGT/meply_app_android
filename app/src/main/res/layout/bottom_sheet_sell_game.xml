@@ -125,7 +125,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:background="@drawable/spinner_background"
-                    android:padding="8dp"
                     android:layout_marginBottom="16dp" />
 
                 <!-- Delivery Option Spinner -->
@@ -142,7 +141,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:background="@drawable/spinner_background"
-                    android:padding="8dp"
                     android:layout_marginBottom="16dp" />
 
                 <!-- Description Input -->
