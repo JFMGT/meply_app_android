@@ -3,6 +3,7 @@ package de.meply.meply.ui.feed
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,33 +17,57 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * Adapter for thread view with nested replies
- * Smart indentation: only indent when there are branches (multiple siblings)
- * Linear chains (single replies) stay at the same visual level
+ * Adapter for thread view with tree-style connectors.
+ * Shows visual tree structure with colored lines:
+ * - Vertical lines show continuing branches
+ * - Horizontal connectors branch to each post
+ * - └ shape for last child, ├ shape for others
  */
 class ThreadAdapter(
-    private val posts: MutableList<PostWithLevel>,
+    private val posts: MutableList<ThreadPost>,
     private val onLikeClick: (Post) -> Unit,
     private val onReplyClick: (Post) -> Unit,
     private val onOptionsClick: (Post, View) -> Unit,
     private val onImageClick: (List<String>, Int) -> Unit,
     private val onOpenThreadClick: ((Post) -> Unit)? = null,
     private val imageBaseUrl: String = "https://admin.meeplemates.de"
-) : RecyclerView.Adapter<ThreadAdapter.PostViewHolder>() {
+) : RecyclerView.Adapter<ThreadAdapter.ThreadViewHolder>() {
 
     companion object {
-        private const val MAX_VISUAL_DEPTH = 3  // Maximum visual indentation level
+        private const val MAX_DEPTH = 5
     }
 
-    data class PostWithLevel(
+    /**
+     * Represents a post with tree visualization info
+     */
+    data class ThreadPost(
         val post: Post,
-        val visualLevel: Int,              // Visual indentation level (only increases at branches)
-        val showConnector: Boolean = false, // Show vertical connector line to previous post
-        val isEndOfChain: Boolean = false,  // True if this is the last post in a linear chain
-        val hasHiddenChildren: Boolean = false  // True if children exist but are cut off due to depth
+        val depth: Int,
+        // For each depth level 0..depth-1: should we show the bottom line?
+        // (true if there are more siblings at that level)
+        val showBottomLine: BooleanArray,
+        val isLastChild: Boolean,
+        val hasHiddenChildren: Boolean = false
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ThreadPost) return false
+            return post.documentId == other.post.documentId
+        }
+        override fun hashCode(): Int = post.documentId.hashCode()
+    }
+
+    /**
+     * Holds references to tree column views
+     */
+    data class TreeColumn(
+        val container: FrameLayout,
+        val topLine: View,
+        val bottomLine: View,
+        val horizontalLine: View
     )
 
-    inner class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ThreadViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val avatar: ImageView = view.findViewById(R.id.postAvatar)
         val username: TextView = view.findViewById(R.id.postUsername)
         val meta: TextView = view.findViewById(R.id.postMeta)
@@ -55,71 +80,94 @@ class ThreadAdapter(
         val replyCount: TextView = view.findViewById(R.id.postReplyCount)
         val showRepliesLink: TextView = view.findViewById(R.id.postShowRepliesLink)
         val optionsButton: ImageButton = view.findViewById(R.id.postOptionsButton)
-        val threadConnector: View? = view.findViewById(R.id.threadConnector)
-        val postCard: View? = view.findViewById(R.id.postCard)
+
+        val treeColumns: Array<TreeColumn> = arrayOf(
+            TreeColumn(
+                view.findViewById(R.id.treeColumn0),
+                view.findViewById(R.id.line0Top),
+                view.findViewById(R.id.line0Bottom),
+                view.findViewById(R.id.line0Horizontal)
+            ),
+            TreeColumn(
+                view.findViewById(R.id.treeColumn1),
+                view.findViewById(R.id.line1Top),
+                view.findViewById(R.id.line1Bottom),
+                view.findViewById(R.id.line1Horizontal)
+            ),
+            TreeColumn(
+                view.findViewById(R.id.treeColumn2),
+                view.findViewById(R.id.line2Top),
+                view.findViewById(R.id.line2Bottom),
+                view.findViewById(R.id.line2Horizontal)
+            ),
+            TreeColumn(
+                view.findViewById(R.id.treeColumn3),
+                view.findViewById(R.id.line3Top),
+                view.findViewById(R.id.line3Bottom),
+                view.findViewById(R.id.line3Horizontal)
+            ),
+            TreeColumn(
+                view.findViewById(R.id.treeColumn4),
+                view.findViewById(R.id.line4Top),
+                view.findViewById(R.id.line4Bottom),
+                view.findViewById(R.id.line4Horizontal)
+            )
+        )
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ThreadViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_post, parent, false)
-        return PostViewHolder(view)
+            .inflate(R.layout.item_thread_post, parent, false)
+        return ThreadViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val postWithLevel = posts[position]
-        val post = postWithLevel.post
-        val visualLevel = postWithLevel.visualLevel
-        val showConnector = postWithLevel.showConnector
-        val isEndOfChain = postWithLevel.isEndOfChain
-        val hasHiddenChildren = postWithLevel.hasHiddenChildren
+    override fun onBindViewHolder(holder: ThreadViewHolder, position: Int) {
+        val threadPost = posts[position]
+        val post = threadPost.post
+        val depth = threadPost.depth
         val context = holder.itemView.context
-        val density = context.resources.displayMetrics.density
 
-        // Check if next post continues the linear chain
-        val nextPostContinuesChain = position + 1 < posts.size && posts[position + 1].showConnector
+        // Setup tree columns - just toggle visibility, no height calculations needed
+        // The XML layout uses LinearLayout weights for proper 50/50 split
+        for (i in 0 until MAX_DEPTH) {
+            val column = holder.treeColumns[i]
 
-        // Apply indentation based on visual level (capped at MAX_VISUAL_DEPTH)
-        val cappedLevel = minOf(visualLevel, MAX_VISUAL_DEPTH)
-        val indentDp = cappedLevel * 24 // 24dp per branch level
-        val indentPx = (indentDp * density).toInt()
-        val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.marginStart = indentPx
-        holder.itemView.layoutParams = layoutParams
+            if (i < depth) {
+                val isBranchColumn = (i == depth - 1)
+                val showBottom = if (i < threadPost.showBottomLine.size) threadPost.showBottomLine[i] else false
 
-        // Show thread connector line for linear chains
-        holder.threadConnector?.visibility = if (showConnector) View.VISIBLE else View.GONE
+                if (isBranchColumn) {
+                    // Branch column: always show top + horizontal, bottom only if siblings follow
+                    column.container.visibility = View.VISIBLE
+                    column.topLine.visibility = View.VISIBLE
+                    column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.GONE
+                    column.horizontalLine.visibility = View.VISIBLE
+                } else {
+                    // Ancestor column: container always visible for spacing
+                    column.container.visibility = View.VISIBLE
+                    column.horizontalLine.visibility = View.GONE
 
-        val cardParams = holder.postCard?.layoutParams as? ViewGroup.MarginLayoutParams
-        if (showConnector) {
-            // This post is part of a linear chain - connector line above
-            cardParams?.topMargin = (4 * density).toInt() // Small gap for connector
-
-            // Connector fills the gap
-            val connectorParams = holder.threadConnector?.layoutParams as? ViewGroup.MarginLayoutParams
-            connectorParams?.height = (4 * density).toInt()
-            connectorParams?.marginStart = (31 * density).toInt() // Center on avatar
-            holder.threadConnector?.layoutParams = connectorParams
-        } else {
-            cardParams?.topMargin = 0
+                    if (showBottom) {
+                        // Branch continues - show full vertical line (pass-through)
+                        column.topLine.visibility = View.VISIBLE
+                        column.bottomLine.visibility = View.VISIBLE
+                    } else {
+                        // Branch ended above - hide lines but keep column for indentation
+                        column.topLine.visibility = View.GONE
+                        column.bottomLine.visibility = View.GONE
+                    }
+                }
+            } else {
+                // This column is beyond our depth - hide completely
+                column.container.visibility = View.GONE
+                column.topLine.visibility = View.GONE
+                column.bottomLine.visibility = View.GONE
+                column.horizontalLine.visibility = View.GONE
+            }
         }
 
-        // Adjust bottom margin based on what follows
-        if (nextPostContinuesChain) {
-            // Next post is connected - minimal gap
-            cardParams?.bottomMargin = 0
-        } else if (isEndOfChain) {
-            // End of chain, more space before next section
-            cardParams?.bottomMargin = (16 * density).toInt()
-        } else {
-            // Normal spacing
-            cardParams?.bottomMargin = (8 * density).toInt()
-        }
-        holder.postCard?.layoutParams = cardParams
-
-        // Author kann null sein wenn z.B. der Elternbeitrag gelöscht wurde
+        // Author info
         val author = post.author
-
-        // Username
         holder.username.text = author?.username ?: "Unbekannt"
 
         // Avatar
@@ -131,7 +179,6 @@ class ThreadAdapter(
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(holder.avatar)
         } else {
-            // Generate default avatar based on userId (matching PHP implementation)
             val userId = author?.userId ?: author?.documentId ?: "default"
             val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
             Glide.with(context)
@@ -141,15 +188,8 @@ class ThreadAdapter(
                 .into(holder.avatar)
         }
 
-        // Meta
-        val relativeTime = formatRelativeTime(post.createdAt)
-        val visibilityText = when (post.visibility) {
-            "public" -> "öffentlich"
-            "members" -> "Mitglieder"
-            "follower" -> "Follower"
-            else -> post.visibility
-        }
-        holder.meta.text = "$relativeTime • $visibilityText"
+        // Meta info
+        holder.meta.text = formatRelativeTime(post.createdAt)
 
         // Content
         holder.content.text = post.content ?: ""
@@ -157,21 +197,21 @@ class ThreadAdapter(
         // Images
         if (!post.image.isNullOrEmpty()) {
             holder.imageViewPager.visibility = View.VISIBLE
-            holder.imageCounter.visibility = View.VISIBLE
+            holder.imageCounter.visibility = if (post.image.size > 1) View.VISIBLE else View.GONE
 
             val imageUrls = post.image.mapNotNull { img ->
                 val format = img.formats?.medium?.url ?: img.formats?.small?.url ?: img.url
                 if (format.isNotEmpty()) imageBaseUrl + format else null
             }
 
-            val imageAdapter = PostImageAdapter(imageUrls) { images, position ->
-                onImageClick(images, position)
+            val imageAdapter = PostImageAdapter(imageUrls) { images, pos ->
+                onImageClick(images, pos)
             }
             holder.imageViewPager.adapter = imageAdapter
 
             holder.imageViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    holder.imageCounter.text = "${position + 1} / ${imageUrls.size}"
+                override fun onPageSelected(pos: Int) {
+                    holder.imageCounter.text = "${pos + 1} / ${imageUrls.size}"
                 }
             })
 
@@ -182,27 +222,19 @@ class ThreadAdapter(
         }
 
         // Like button
-        val likeIcon = if (post.liked) {
-            R.drawable.ic_star_filled
-        } else {
-            R.drawable.ic_star_outline
-        }
+        val likeIcon = if (post.liked) R.drawable.ic_star_filled else R.drawable.ic_star_outline
         holder.likeButton.setImageResource(likeIcon)
         holder.likeCount.text = post.likeCount.toString()
-        holder.likeButton.setOnClickListener {
-            onLikeClick(post)
-        }
+        holder.likeButton.setOnClickListener { onLikeClick(post) }
 
         // Reply button
         holder.replyCount.text = post.replyCount.toString()
-        holder.replyButton.setOnClickListener {
-            onReplyClick(post)
-        }
+        holder.replyButton.setOnClickListener { onReplyClick(post) }
 
-        // Show "Open as thread" link for posts with hidden children
-        if (hasHiddenChildren && onOpenThreadClick != null) {
+        // Show deeper replies link
+        if (threadPost.hasHiddenChildren && onOpenThreadClick != null) {
             holder.showRepliesLink.visibility = View.VISIBLE
-            holder.showRepliesLink.text = "Tiefere Antworten anzeigen"
+            holder.showRepliesLink.text = "Weitere Antworten anzeigen"
             holder.showRepliesLink.setOnClickListener {
                 onOpenThreadClick.invoke(post)
             }
@@ -211,60 +243,80 @@ class ThreadAdapter(
         }
 
         // Options button
-        holder.optionsButton.setOnClickListener {
-            onOptionsClick(post, it)
-        }
+        holder.optionsButton.setOnClickListener { onOptionsClick(post, it) }
     }
 
     override fun getItemCount(): Int = posts.size
 
     fun updateThread(rootPost: Post) {
         posts.clear()
-        flattenPostTree(rootPost, visualLevel = 0, isLinearContinuation = false)
-        notifyDataSetChanged()
-    }
 
-    /**
-     * Flatten the nested post tree into a flat list with smart indentation.
-     * Linear chains (single child per parent) stay at same visual level.
-     * Branches (multiple children) indent their children.
-     *
-     * @param post The current post to add
-     * @param visualLevel Current visual indentation level
-     * @param isLinearContinuation True if this is a linear continuation (parent had only 1 child)
-     */
-    private fun flattenPostTree(post: Post, visualLevel: Int, isLinearContinuation: Boolean) {
-        val children = post.children ?: emptyList()
-        val hasChildren = children.isNotEmpty()
-        val atMaxDepth = visualLevel >= MAX_VISUAL_DEPTH
-        val hasHiddenChildren = atMaxDepth && hasChildren
+        // Flatten tree with parent tracking
+        data class FlatPost(
+            val post: Post,
+            val depth: Int,
+            val parentIndex: Int,  // Index of parent in flatList, -1 for root
+            val childIndex: Int,   // Which child of parent (0-based)
+            val siblingCount: Int  // Total siblings (including self)
+        )
 
-        // This post is end of chain if it's part of a linear chain but doesn't continue it
-        // (either has no children, multiple children, or is at max depth)
-        val continuesChain = hasChildren && children.size == 1 && !atMaxDepth
-        val isEndOfChain = isLinearContinuation && !continuesChain
+        val flatList = mutableListOf<FlatPost>()
 
-        posts.add(PostWithLevel(
-            post = post,
-            visualLevel = visualLevel,
-            showConnector = isLinearContinuation,
-            isEndOfChain = isEndOfChain,
-            hasHiddenChildren = hasHiddenChildren
-        ))
+        fun flatten(post: Post, depth: Int, parentIdx: Int, childIdx: Int, siblingCount: Int) {
+            val myIndex = flatList.size
+            flatList.add(FlatPost(post, depth, parentIdx, childIdx, siblingCount))
 
-        // Process children if not at max depth
-        if (!atMaxDepth && hasChildren) {
-            val isBranch = children.size > 1
-
-            children.forEach { child ->
-                // If this is a branch (multiple children), increase visual level
-                // If linear (single child), keep same visual level
-                val childVisualLevel = if (isBranch) visualLevel + 1 else visualLevel
-                val childIsLinear = !isBranch
-
-                flattenPostTree(child, childVisualLevel, childIsLinear)
+            if (depth < MAX_DEPTH) {
+                val children = post.children ?: emptyList()
+                children.forEachIndexed { idx, child ->
+                    flatten(child, depth + 1, myIndex, idx, children.size)
+                }
             }
         }
+
+        flatten(rootPost, 0, -1, 0, 1)
+
+        // Build ThreadPost list with proper line visibility
+        for (i in flatList.indices) {
+            val flat = flatList[i]
+            val post = flat.post
+            val depth = flat.depth
+            val children = post.children ?: emptyList()
+            val hasHiddenChildren = depth >= MAX_DEPTH && children.isNotEmpty()
+            val isLastChild = flat.childIndex == flat.siblingCount - 1
+
+            // Calculate showBottomLine for each depth level
+            // showBottomLine[d] = true if there's a SIBLING at depth d+1 coming
+            // showBottomLine[d] = false if we LEAVE the branch (next relevant post is at depth <= d)
+            val showBottomLine = BooleanArray(depth) { false }
+
+            for (d in 0 until depth) {
+                for (j in (i + 1) until flatList.size) {
+                    val nextDepth = flatList[j].depth
+                    if (nextDepth == d + 1) {
+                        // Found a sibling at this level - line continues
+                        showBottomLine[d] = true
+                        break
+                    }
+                    if (nextDepth <= d) {
+                        // Leaving this branch - line ends
+                        showBottomLine[d] = false
+                        break
+                    }
+                    // nextDepth > d + 1: this is a deeper nested post, keep searching
+                }
+            }
+
+            posts.add(ThreadPost(
+                post = post,
+                depth = depth,
+                showBottomLine = showBottomLine,
+                isLastChild = isLastChild,
+                hasHiddenChildren = hasHiddenChildren
+            ))
+        }
+
+        notifyDataSetChanged()
     }
 
     fun updatePost(updatedPost: Post) {

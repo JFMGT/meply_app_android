@@ -57,6 +57,15 @@
     <!-- Received messages background (dark surface) -->
     <color name="message_received_background">#2a3441</color>
 
+    <!-- ===== THREAD DEPTH COLORS ===== -->
+    <!-- Colors for thread lines at different depths (Reddit-style) -->
+    <color name="thread_line_0">#fec50d</color>  <!-- Yellow (primary) -->
+    <color name="thread_line_1">#4FC3F7</color>  <!-- Light Blue -->
+    <color name="thread_line_2">#81C784</color>  <!-- Light Green -->
+    <color name="thread_line_3">#FF8A65</color>  <!-- Light Orange -->
+    <color name="thread_line_4">#BA68C8</color>  <!-- Light Purple -->
+    <color name="thread_line_5">#4DD0E1</color>  <!-- Cyan -->
+
     <!-- ===== LEGACY COLORS (for compatibility) ===== -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
