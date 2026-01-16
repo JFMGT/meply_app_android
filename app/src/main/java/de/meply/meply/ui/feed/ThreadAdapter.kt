@@ -284,18 +284,24 @@ class ThreadAdapter(
             val isLastChild = flat.childIndex == flat.siblingCount - 1
 
             // Calculate showBottomLine for each depth level
-            // For depth d, showBottomLine[d] = true if there are more posts at depth <= d+1 coming
+            // showBottomLine[d] = true if there's a SIBLING at depth d+1 coming
+            // showBottomLine[d] = false if we LEAVE the branch (next relevant post is at depth <= d)
             val showBottomLine = BooleanArray(depth) { false }
 
             for (d in 0 until depth) {
-                // Check if any following post is at depth d+1 or shallower
-                // (meaning the branch at level d continues)
                 for (j in (i + 1) until flatList.size) {
                     val nextDepth = flatList[j].depth
-                    if (nextDepth <= d + 1) {
+                    if (nextDepth == d + 1) {
+                        // Found a sibling at this level - line continues
                         showBottomLine[d] = true
                         break
                     }
+                    if (nextDepth <= d) {
+                        // Leaving this branch - line ends
+                        showBottomLine[d] = false
+                        break
+                    }
+                    // nextDepth > d + 1: this is a deeper nested post, keep searching
                 }
             }
 
