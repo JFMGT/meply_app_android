@@ -101,9 +101,9 @@ class HomeActivity : AppCompatActivity() {
             showCreatePostBottomSheet()
         }
 
-        // Filter button click - opens EventFilterBottomSheet
+        // Filter button click - opens filter bottom sheet for current fragment
         toolbarFilterButton.setOnClickListener {
-            showEventFilterBottomSheet()
+            showFilterBottomSheet()
         }
 
         // Show create button initially (Feed is default)
@@ -286,7 +286,7 @@ class HomeActivity : AppCompatActivity() {
                 }
                 R.id.nav_markt   -> {
                     toolbarCreateButton.visibility = View.GONE
-                    toolbarFilterButton.visibility = View.GONE
+                    toolbarFilterButton.visibility = View.VISIBLE
                     switchTo(markt, "markt")
                 }
                 R.id.nav_pm      -> {
@@ -327,9 +327,15 @@ class HomeActivity : AppCompatActivity() {
         bottomSheet.show(supportFragmentManager, "createPost")
     }
 
-    private fun showEventFilterBottomSheet() {
+    private fun showFilterBottomSheet() {
+        // Check which fragment is currently active and show appropriate filter
         val eventsFragment = supportFragmentManager.findFragmentByTag("events") as? EventsFragment
-        eventsFragment?.showFilterBottomSheet()
+        val marktFragment = supportFragmentManager.findFragmentByTag("markt") as? MarktFragment
+
+        when {
+            eventsFragment?.isVisible == true -> eventsFragment.showFilterBottomSheet()
+            marktFragment?.isVisible == true -> marktFragment.showFilterBottomSheet()
+        }
     }
 
     fun refreshUserAvatar() {

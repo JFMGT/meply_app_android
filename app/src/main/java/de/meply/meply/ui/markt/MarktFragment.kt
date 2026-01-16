@@ -27,6 +27,8 @@ class MarktFragment : Fragment() {
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var adapter: MarktAdapter
 
+    private var currentFilter: String? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_markt, container, false)
 
@@ -51,10 +53,19 @@ class MarktFragment : Fragment() {
         return view
     }
 
+    fun showFilterBottomSheet() {
+        val bottomSheet = MarktFilterBottomSheet.newInstance(currentFilter)
+        bottomSheet.setOnFilterAppliedListener { filter ->
+            currentFilter = filter
+            loadMarktplace()
+        }
+        bottomSheet.show(parentFragmentManager, "marktFilter")
+    }
+
     private fun loadMarktplace() {
         showLoading(true)
 
-        ApiClient.retrofit.getMarktplace(page = 1, pageSize = 50)
+        ApiClient.retrofit.getMarktplace(page = 1, pageSize = 50, title = currentFilter)
             .enqueue(object : Callback<MarktplaceResponse> {
                 override fun onResponse(
                     call: Call<MarktplaceResponse>,
@@ -67,7 +78,11 @@ class MarktFragment : Fragment() {
                         val games = response.body()?.results ?: emptyList()
 
                         if (games.isEmpty()) {
-                            empty.text = "Keine Angebote gefunden."
+                            empty.text = if (currentFilter != null) {
+                                "Keine Angebote für \"$currentFilter\" gefunden."
+                            } else {
+                                "Keine Angebote gefunden."
+                            }
                             empty.visibility = View.VISIBLE
                             adapter.submit(emptyList())
                         } else {
