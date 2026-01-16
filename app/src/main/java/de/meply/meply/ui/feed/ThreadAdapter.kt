@@ -150,17 +150,14 @@ class ThreadAdapter(
                     }
                 }
 
-                if (isLastColumn) {
-                    // This is the branch column - show connector
-                    column.topLine.visibility = View.VISIBLE
-                    column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.INVISIBLE
-                    column.horizontalLine.visibility = View.VISIBLE
-                } else {
-                    // This is a pass-through column - just vertical line (both halves)
-                    column.topLine.visibility = View.VISIBLE
-                    column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.VISIBLE
-                    column.horizontalLine.visibility = View.GONE
-                }
+                // Top line always visible (connects from above)
+                column.topLine.visibility = View.VISIBLE
+
+                // Bottom line only visible if branch continues at this level
+                column.bottomLine.visibility = if (showBottom) View.VISIBLE else View.INVISIBLE
+
+                // Horizontal connector only on the branch column (last column for this post)
+                column.horizontalLine.visibility = if (isLastColumn) View.VISIBLE else View.GONE
             } else {
                 // This column should be hidden
                 column.container.visibility = View.GONE
