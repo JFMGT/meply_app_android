@@ -40,8 +40,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Spieltitel eingeben..."
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         app:hintTextColor="@color/text_secondary"
         app:boxStrokeColor="@color/primary"
+        app:boxBackgroundColor="@color/surface"
         app:startIconDrawable="@drawable/ic_search"
         app:startIconTint="@color/text_secondary">
 
@@ -50,6 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
             android:inputType="text"
             android:imeOptions="actionSearch"
             android:maxLines="1" />

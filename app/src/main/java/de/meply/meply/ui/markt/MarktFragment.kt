@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import de.meply.meply.R
+import de.meply.meply.data.markt.MarktGame
 import de.meply.meply.data.markt.MarktplaceResponse
 import de.meply.meply.network.ApiClient
 import de.meply.meply.ui.profile.UserProfileActivity
@@ -26,8 +27,14 @@ class MarktFragment : Fragment() {
     private lateinit var empty: TextView
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var adapter: MarktAdapter
+    private lateinit var layoutManager: LinearLayoutManager
 
     private var currentFilter: String? = null
+    private var currentPage = 1
+    private val pageSize = 20
+    private var isLoading = false
+    private var hasMorePages = true
+    private val allGames = mutableListOf<MarktGame>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_markt, container, false)
@@ -41,11 +48,31 @@ class MarktFragment : Fragment() {
             UserProfileActivity.start(requireContext(), userSlug)
         }
 
-        recycler.layoutManager = LinearLayoutManager(requireContext())
+        layoutManager = LinearLayoutManager(requireContext())
+        recycler.layoutManager = layoutManager
         recycler.adapter = adapter
 
+        // Add scroll listener for pagination
+        recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                if (dy > 0) { // Scrolling down
+                    val visibleItemCount = layoutManager.childCount
+                    val totalItemCount = layoutManager.itemCount
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                    if (!isLoading && hasMorePages) {
+                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3) {
+                            loadMoreMarktplace()
+                        }
+                    }
+                }
+            }
+        })
+
         swipeRefresh.setOnRefreshListener {
-            loadMarktplace()
+            resetAndLoad()
         }
 
         loadMarktplace()
@@ -57,27 +84,50 @@ class MarktFragment : Fragment() {
         val bottomSheet = MarktFilterBottomSheet.newInstance(currentFilter)
         bottomSheet.setOnFilterAppliedListener { filter ->
             currentFilter = filter
-            loadMarktplace()
+            resetAndLoad()
         }
         bottomSheet.show(parentFragmentManager, "marktFilter")
     }
 
-    private fun loadMarktplace() {
-        showLoading(true)
+    private fun resetAndLoad() {
+        currentPage = 1
+        hasMorePages = true
+        allGames.clear()
+        loadMarktplace()
+    }
 
-        ApiClient.retrofit.getMarktplace(page = 1, pageSize = 50, title = currentFilter)
+    private fun loadMarktplace() {
+        if (isLoading) return
+        isLoading = true
+
+        if (currentPage == 1) {
+            showLoading(true)
+        }
+
+        ApiClient.retrofit.getMarktplace(page = currentPage, pageSize = pageSize, title = currentFilter)
             .enqueue(object : Callback<MarktplaceResponse> {
                 override fun onResponse(
                     call: Call<MarktplaceResponse>,
                     response: Response<MarktplaceResponse>
                 ) {
+                    isLoading = false
                     showLoading(false)
                     swipeRefresh.isRefreshing = false
 
                     if (response.isSuccessful) {
                         val games = response.body()?.results ?: emptyList()
+                        val pagination = response.body()?.pagination
 
-                        if (games.isEmpty()) {
+                        // Check if there are more pages
+                        val totalPages = pagination?.pageCount ?: 1
+                        hasMorePages = currentPage < totalPages
+
+                        if (currentPage == 1) {
+                            allGames.clear()
+                        }
+                        allGames.addAll(games)
+
+                        if (allGames.isEmpty()) {
                             empty.text = if (currentFilter != null) {
                                 "Keine Angebote für \"$currentFilter\" gefunden."
                             } else {
@@ -87,25 +137,36 @@ class MarktFragment : Fragment() {
                             adapter.submit(emptyList())
                         } else {
                             empty.visibility = View.GONE
-                            adapter.submit(games)
+                            adapter.submit(allGames.toList())
                         }
 
-                        Log.d("MarktFragment", "Loaded ${games.size} games")
+                        Log.d("MarktFragment", "Loaded page $currentPage with ${games.size} games, total: ${allGames.size}, hasMore: $hasMorePages")
                     } else {
-                        empty.text = "Laden fehlgeschlagen (${response.code()})"
-                        empty.visibility = View.VISIBLE
+                        if (currentPage == 1) {
+                            empty.text = "Laden fehlgeschlagen (${response.code()})"
+                            empty.visibility = View.VISIBLE
+                        }
                         Log.e("MarktFragment", "Error loading marketplace: ${response.code()}")
                     }
                 }
 
                 override fun onFailure(call: Call<MarktplaceResponse>, t: Throwable) {
+                    isLoading = false
                     showLoading(false)
                     swipeRefresh.isRefreshing = false
-                    empty.text = "Netzwerkfehler: ${t.message}"
-                    empty.visibility = View.VISIBLE
+
+                    if (currentPage == 1) {
+                        empty.text = "Netzwerkfehler: ${t.message}"
+                        empty.visibility = View.VISIBLE
+                    }
                     Log.e("MarktFragment", "Network error loading marketplace", t)
                 }
             })
+    }
+
+    private fun loadMoreMarktplace() {
+        currentPage++
+        loadMarktplace()
     }
 
     private fun showLoading(show: Boolean) {

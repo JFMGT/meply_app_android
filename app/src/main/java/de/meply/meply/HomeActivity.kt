@@ -241,19 +241,31 @@ class HomeActivity : AppCompatActivity() {
     private fun openFollowers() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.GONE
+        deselectBottomNav()
         switchTo(followers, "followers")
     }
 
     private fun openGesuche() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.GONE
+        deselectBottomNav()
         switchTo(gesuche, "gesuche")
     }
 
     private fun openCollection() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.GONE
+        deselectBottomNav()
         switchTo(collection, "collection")
+    }
+
+    private fun deselectBottomNav() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        bottomNav.menu.setGroupCheckable(0, true, false)
+        for (i in 0 until bottomNav.menu.size()) {
+            bottomNav.menu.getItem(i).isChecked = false
+        }
+        bottomNav.menu.setGroupCheckable(0, true, true)
     }
 
     private fun logout() {
@@ -315,6 +327,7 @@ class HomeActivity : AppCompatActivity() {
     fun navigateToProfile() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.GONE
+        deselectBottomNav()
         switchTo(profile, "profile")
     }
 
