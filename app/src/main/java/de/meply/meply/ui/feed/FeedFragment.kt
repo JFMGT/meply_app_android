@@ -2,13 +2,18 @@ package de.meply.meply.ui.feed
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -79,6 +84,8 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
+        val currentUserId = AuthManager.getProfileDocumentId(requireContext())
+
         feedAdapter = FeedAdapter(
             posts = posts,
             onLikeClick = { post -> toggleLike(post) },
@@ -86,12 +93,16 @@ class FeedFragment : Fragment() {
             onShowRepliesClick = { post -> showThread(post) },
             onOptionsClick = { post, view -> showOptionsMenu(post, view) },
             onImageClick = { images, position -> showImageGallery(images, position) },
-            onAuthorClick = { userSlug -> openUserProfile(userSlug) }
+            onAuthorClick = { userSlug -> openUserProfile(userSlug) },
+            currentUserId = currentUserId
         )
 
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = feedAdapter
+
+        // Setup swipe gestures
+        setupSwipeGestures()
 
         // Infinite scroll
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -115,6 +126,95 @@ class FeedFragment : Fragment() {
                 }
             }
         })
+    }
+
+    private fun setupSwipeGestures() {
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            private val deletePaint = Paint().apply {
+                color = ContextCompat.getColor(requireContext(), R.color.error)
+                isAntiAlias = true
+            }
+            private val reportPaint = Paint().apply {
+                color = ContextCompat.getColor(requireContext(), R.color.warning)
+                isAntiAlias = true
+            }
+            private val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_trash)
+            private val reportIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_flag)
+            private val cornerRadius = 8 * resources.displayMetrics.density
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun getSwipeDirs(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                // Only allow swiping - all posts can be swiped (delete own, report others)
+                return super.getSwipeDirs(recyclerView, viewHolder)
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val post = feedAdapter.getPostAt(position)
+
+                if (post != null && direction == ItemTouchHelper.LEFT) {
+                    // Reset position first
+                    feedAdapter.notifyItemChanged(position)
+
+                    if (feedAdapter.isOwnPost(position)) {
+                        confirmDelete(post)
+                    } else {
+                        showReportDialog(post)
+                    }
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                val itemView = viewHolder.itemView
+                val position = viewHolder.adapterPosition
+                val isOwnPost = feedAdapter.isOwnPost(position)
+
+                val paint = if (isOwnPost) deletePaint else reportPaint
+                val icon = if (isOwnPost) deleteIcon else reportIcon
+                val iconMargin = (itemView.height - (icon?.intrinsicHeight ?: 0)) / 2
+
+                if (dX < 0) {
+                    // Swiping left
+                    val rect = RectF(
+                        itemView.right + dX,
+                        itemView.top.toFloat(),
+                        itemView.right.toFloat(),
+                        itemView.bottom.toFloat()
+                    )
+                    c.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+
+                    icon?.let {
+                        val iconTop = itemView.top + iconMargin
+                        val iconBottom = iconTop + it.intrinsicHeight
+                        val iconRight = itemView.right - iconMargin
+                        val iconLeft = iconRight - it.intrinsicWidth
+                        it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        it.setTint(ContextCompat.getColor(requireContext(), R.color.white))
+                        it.draw(c)
+                    }
+                }
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            }
+        }
+
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
     }
 
     private fun setupSwipeRefresh() {
