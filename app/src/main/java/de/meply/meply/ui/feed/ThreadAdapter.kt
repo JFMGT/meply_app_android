@@ -38,6 +38,7 @@ class ThreadAdapter(
         val post: Post,
         val visualLevel: Int,              // Visual indentation level (only increases at branches)
         val showConnector: Boolean = false, // Show vertical connector line to previous post
+        val isEndOfChain: Boolean = false,  // True if this is the last post in a linear chain
         val hasHiddenChildren: Boolean = false  // True if children exist but are cut off due to depth
     )
 
@@ -69,9 +70,13 @@ class ThreadAdapter(
         val post = postWithLevel.post
         val visualLevel = postWithLevel.visualLevel
         val showConnector = postWithLevel.showConnector
+        val isEndOfChain = postWithLevel.isEndOfChain
         val hasHiddenChildren = postWithLevel.hasHiddenChildren
         val context = holder.itemView.context
         val density = context.resources.displayMetrics.density
+
+        // Check if next post continues the linear chain
+        val nextPostContinuesChain = position + 1 < posts.size && posts[position + 1].showConnector
 
         // Apply indentation based on visual level (capped at MAX_VISUAL_DEPTH)
         val cappedLevel = minOf(visualLevel, MAX_VISUAL_DEPTH)
@@ -83,21 +88,33 @@ class ThreadAdapter(
 
         // Show thread connector line for linear chains
         holder.threadConnector?.visibility = if (showConnector) View.VISIBLE else View.GONE
-        if (showConnector) {
-            // Adjust connector position based on indentation
-            val connectorParams = holder.threadConnector?.layoutParams as? ViewGroup.MarginLayoutParams
-            connectorParams?.marginStart = (31 * density).toInt() // Center on avatar (12dp padding + 20dp half avatar)
-            holder.threadConnector?.layoutParams = connectorParams
 
-            // Reduce top margin of card to connect to connector
-            val cardParams = holder.postCard?.layoutParams as? ViewGroup.MarginLayoutParams
-            cardParams?.topMargin = (20 * density).toInt() // Space for connector
-            holder.postCard?.layoutParams = cardParams
+        val cardParams = holder.postCard?.layoutParams as? ViewGroup.MarginLayoutParams
+        if (showConnector) {
+            // This post is part of a linear chain - connector line above
+            cardParams?.topMargin = (4 * density).toInt() // Small gap for connector
+
+            // Connector fills the gap
+            val connectorParams = holder.threadConnector?.layoutParams as? ViewGroup.MarginLayoutParams
+            connectorParams?.height = (4 * density).toInt()
+            connectorParams?.marginStart = (31 * density).toInt() // Center on avatar
+            holder.threadConnector?.layoutParams = connectorParams
         } else {
-            val cardParams = holder.postCard?.layoutParams as? ViewGroup.MarginLayoutParams
             cardParams?.topMargin = 0
-            holder.postCard?.layoutParams = cardParams
         }
+
+        // Adjust bottom margin based on what follows
+        if (nextPostContinuesChain) {
+            // Next post is connected - minimal gap
+            cardParams?.bottomMargin = 0
+        } else if (isEndOfChain) {
+            // End of chain, more space before next section
+            cardParams?.bottomMargin = (16 * density).toInt()
+        } else {
+            // Normal spacing
+            cardParams?.bottomMargin = (8 * density).toInt()
+        }
+        holder.postCard?.layoutParams = cardParams
 
         // Author kann null sein wenn z.B. der Elternbeitrag gelöscht wurde
         val author = post.author
@@ -222,10 +239,16 @@ class ThreadAdapter(
         val atMaxDepth = visualLevel >= MAX_VISUAL_DEPTH
         val hasHiddenChildren = atMaxDepth && hasChildren
 
+        // This post is end of chain if it's part of a linear chain but doesn't continue it
+        // (either has no children, multiple children, or is at max depth)
+        val continuesChain = hasChildren && children.size == 1 && !atMaxDepth
+        val isEndOfChain = isLinearContinuation && !continuesChain
+
         posts.add(PostWithLevel(
             post = post,
             visualLevel = visualLevel,
             showConnector = isLinearContinuation,
+            isEndOfChain = isEndOfChain,
             hasHiddenChildren = hasHiddenChildren
         ))
 
