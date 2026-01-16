@@ -64,8 +64,8 @@
                 <!-- Reply Button -->
                 <ImageButton
                     android:id="@+id/postReplyButton"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_marginEnd="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Reply"
@@ -75,8 +75,8 @@
                 <!-- Like Button -->
                 <ImageButton
                     android:id="@+id/postLikeButton"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Like"
                     android:src="@drawable/ic_star_outline"
