@@ -24,8 +24,23 @@ class FeedAdapter(
     private val onOptionsClick: (Post, View) -> Unit,
     private val onImageClick: (List<String>, Int) -> Unit,
     private val onAuthorClick: ((String) -> Unit)? = null,
-    private val imageBaseUrl: String = "https://admin.meeplemates.de"
+    private val imageBaseUrl: String = "https://admin.meeplemates.de",
+    private var currentUserId: String? = null
 ) : RecyclerView.Adapter<FeedAdapter.PostViewHolder>() {
+
+    fun setCurrentUserId(userId: String?) {
+        currentUserId = userId
+    }
+
+    fun isOwnPost(position: Int): Boolean {
+        if (position < 0 || position >= posts.size) return false
+        val post = posts[position]
+        return currentUserId != null && post.author?.documentId == currentUserId
+    }
+
+    fun getPostAt(position: Int): Post? {
+        return if (position >= 0 && position < posts.size) posts[position] else null
+    }
 
     inner class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val avatar: ImageView = view.findViewById(R.id.postAvatar)
