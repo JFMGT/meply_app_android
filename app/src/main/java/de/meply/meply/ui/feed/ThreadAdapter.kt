@@ -127,9 +127,14 @@ class ThreadAdapter(
         val depth = threadPost.depth
         val context = holder.itemView.context
 
-        // Setup tree columns
+        // Setup tree columns - RESET ALL first to avoid recycling artifacts
         for (i in 0 until MAX_DEPTH) {
             val column = holder.treeColumns[i]
+
+            // Always reset all lines to hidden first
+            column.topLine.visibility = View.GONE
+            column.bottomLine.visibility = View.GONE
+            column.horizontalLine.visibility = View.GONE
 
             if (i < depth) {
                 // This column should be visible
