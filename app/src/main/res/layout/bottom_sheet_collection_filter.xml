@@ -112,6 +112,24 @@
         android:padding="8dp"
         android:popupBackground="@color/surface" />
 
+    <!-- Sort By -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="Sortierung"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp" />
+
+    <Spinner
+        android:id="@+id/sortSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/spinner_background"
+        android:padding="8dp"
+        android:popupBackground="@color/surface" />
+
     <!-- Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
