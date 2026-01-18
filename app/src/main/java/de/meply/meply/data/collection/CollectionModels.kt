@@ -53,31 +53,24 @@ data class BoardgameSearchResult(
 
 /**
  * Request to create a new boardgame
+ * Fields are sent directly for custom route compatibility
  */
 data class CreateBoardgameRequest(
-    @SerializedName("data") val data: CreateBoardgameData
-)
-
-data class CreateBoardgameData(
     @SerializedName("title") val title: String,
-    @SerializedName("minPlayers") val minPlayers: Int? = null,
-    @SerializedName("maxPlayers") val maxPlayers: Int? = null,
-    @SerializedName("minPlaytime") val minPlaytime: Int? = null,
-    @SerializedName("maxPlaytime") val maxPlaytime: Int? = null,
-    @SerializedName("minAge") val minAge: Int? = null
+    @SerializedName("min_player") val minPlayers: Int? = null,
+    @SerializedName("max_player") val maxPlayers: Int? = null,
+    @SerializedName("min_playtime") val minPlaytime: Int? = null,
+    @SerializedName("max_playtime") val maxPlaytime: Int? = null,
+    @SerializedName("min_age") val minAge: Int? = null
 )
 
 /**
  * Response from creating a boardgame
  */
 data class CreateBoardgameResponse(
-    @SerializedName("data") val data: CreatedBoardgame?
-)
-
-data class CreatedBoardgame(
-    @SerializedName("id") val id: Int,
-    @SerializedName("documentId") val documentId: String?,
-    @SerializedName("title") val title: String?
+    @SerializedName("success") val success: Boolean?,
+    @SerializedName("id") val id: Int?,
+    @SerializedName("error") val error: String?
 )
 
 /**

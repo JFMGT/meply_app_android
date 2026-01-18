@@ -12,7 +12,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
-import de.meply.meply.data.collection.CreateBoardgameData
 import de.meply.meply.data.collection.CreateBoardgameRequest
 import de.meply.meply.data.collection.CreateBoardgameResponse
 import de.meply.meply.network.ApiClient
@@ -125,14 +124,12 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
         showLoading(true)
 
         val request = CreateBoardgameRequest(
-            CreateBoardgameData(
-                title = title,
-                minPlayers = minPlayers,
-                maxPlayers = maxPlayers,
-                minPlaytime = minPlaytime,
-                maxPlaytime = maxPlaytime,
-                minAge = minAge
-            )
+            title = title,
+            minPlayers = minPlayers,
+            maxPlayers = maxPlayers,
+            minPlaytime = minPlaytime,
+            maxPlaytime = maxPlaytime,
+            minAge = minAge
         )
 
         ApiClient.retrofit.createBoardgame(request)
@@ -142,20 +139,23 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                     response: Response<CreateBoardgameResponse>
                 ) {
                     showLoading(false)
-                    if (response.isSuccessful) {
-                        val gameId = response.body()?.data?.id
+                    val body = response.body()
+
+                    if (response.isSuccessful && body?.success == true) {
+                        val gameId = body.id
                         if (gameId != null) {
-                            Toast.makeText(requireContext(), "Spiel \"$title\" erstellt", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "Spiel \"$title\" erstellt und hinzugefuegt", Toast.LENGTH_SHORT).show()
                             onGameCreatedListener?.invoke(gameId)
                             dismiss()
                         } else {
                             Toast.makeText(requireContext(), "Fehler: Keine Spiel-ID erhalten", Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        val errorMsg = when (response.code()) {
+                        val errorMsg = body?.error ?: when (response.code()) {
                             400 -> "Ungueltige Daten"
                             401 -> "Nicht autorisiert"
                             403 -> "Keine Berechtigung"
+                            404 -> "API-Endpunkt nicht gefunden"
                             409 -> "Spiel existiert bereits"
                             else -> "Fehler beim Erstellen (${response.code()})"
                         }
