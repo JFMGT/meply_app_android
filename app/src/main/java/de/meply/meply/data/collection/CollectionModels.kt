@@ -59,7 +59,12 @@ data class CreateBoardgameRequest(
 )
 
 data class CreateBoardgameData(
-    @SerializedName("title") val title: String
+    @SerializedName("title") val title: String,
+    @SerializedName("minPlayers") val minPlayers: Int? = null,
+    @SerializedName("maxPlayers") val maxPlayers: Int? = null,
+    @SerializedName("minPlaytime") val minPlaytime: Int? = null,
+    @SerializedName("maxPlaytime") val maxPlaytime: Int? = null,
+    @SerializedName("minAge") val minAge: Int? = null
 )
 
 /**

@@ -26,6 +26,11 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
     private var initialTitle: String = ""
 
     private lateinit var titleInput: TextInputEditText
+    private lateinit var minPlayersInput: TextInputEditText
+    private lateinit var maxPlayersInput: TextInputEditText
+    private lateinit var minPlaytimeInput: TextInputEditText
+    private lateinit var maxPlaytimeInput: TextInputEditText
+    private lateinit var minAgeInput: TextInputEditText
     private lateinit var progressBar: ProgressBar
     private lateinit var btnCancel: Button
     private lateinit var btnCreate: Button
@@ -70,6 +75,11 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
         }
 
         titleInput = view.findViewById(R.id.titleInput)
+        minPlayersInput = view.findViewById(R.id.minPlayersInput)
+        maxPlayersInput = view.findViewById(R.id.maxPlayersInput)
+        minPlaytimeInput = view.findViewById(R.id.minPlaytimeInput)
+        maxPlaytimeInput = view.findViewById(R.id.maxPlaytimeInput)
+        minAgeInput = view.findViewById(R.id.minAgeInput)
         progressBar = view.findViewById(R.id.progressBar)
         btnCancel = view.findViewById(R.id.btnCancel)
         btnCreate = view.findViewById(R.id.btnCreate)
@@ -105,9 +115,25 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
             return
         }
 
+        // Get optional fields
+        val minPlayers = minPlayersInput.text?.toString()?.toIntOrNull()
+        val maxPlayers = maxPlayersInput.text?.toString()?.toIntOrNull()
+        val minPlaytime = minPlaytimeInput.text?.toString()?.toIntOrNull()
+        val maxPlaytime = maxPlaytimeInput.text?.toString()?.toIntOrNull()
+        val minAge = minAgeInput.text?.toString()?.toIntOrNull()
+
         showLoading(true)
 
-        val request = CreateBoardgameRequest(CreateBoardgameData(title))
+        val request = CreateBoardgameRequest(
+            CreateBoardgameData(
+                title = title,
+                minPlayers = minPlayers,
+                maxPlayers = maxPlayers,
+                minPlaytime = minPlaytime,
+                maxPlaytime = maxPlaytime,
+                minAge = minAge
+            )
+        )
 
         ApiClient.retrofit.createBoardgame(request)
             .enqueue(object : Callback<CreateBoardgameResponse> {
@@ -149,5 +175,10 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
         btnCreate.isEnabled = !loading
         btnCancel.isEnabled = !loading
         titleInput.isEnabled = !loading
+        minPlayersInput.isEnabled = !loading
+        maxPlayersInput.isEnabled = !loading
+        minPlaytimeInput.isEnabled = !loading
+        maxPlaytimeInput.isEnabled = !loading
+        minAgeInput.isEnabled = !loading
     }
 }

@@ -89,7 +89,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Neues Spiel anlegen"
-            android:backgroundTint="@color/primary" />
+            android:backgroundTint="@color/primary"
+            android:textColor="@color/text_on_light" />
 
     </LinearLayout>
 
