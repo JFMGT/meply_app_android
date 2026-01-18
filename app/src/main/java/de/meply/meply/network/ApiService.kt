@@ -476,6 +476,15 @@ interface ApiService {
     ): Call<de.meply.meply.data.events.StrapiListResponse<de.meply.meply.data.collection.BoardgameSearchResult>>
 
     /**
+     * Create a new boardgame
+     * @param request The boardgame data (title required)
+     */
+    @POST("boardgames")
+    fun createBoardgame(
+        @Body request: de.meply.meply.data.collection.CreateBoardgameRequest
+    ): Call<de.meply.meply.data.collection.CreateBoardgameResponse>
+
+    /**
      * Add a boardgame to user's collection
      */
     @POST("user-boardgames/add-to-collection")

@@ -32,6 +32,7 @@ import de.meply.meply.ui.followers.FollowersFragment
 import de.meply.meply.ui.collection.MyCollectionFragment
 import de.meply.meply.ui.markt.MarktFragment
 import de.meply.meply.ui.profile.UserProfileActivity
+import de.meply.meply.ui.collection.AddGameSearchBottomSheet
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -55,6 +56,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toolbarCreateButton: View
     private lateinit var toolbarFilterButton: View
+    private lateinit var toolbarAddGameButton: View
     private lateinit var deletionWarningBanner: MaterialCardView
     private var currentUserSlug: String? = null
 
@@ -90,6 +92,7 @@ class HomeActivity : AppCompatActivity() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         toolbarCreateButton = findViewById(R.id.toolbarCreateButton)
         toolbarFilterButton = findViewById(R.id.toolbarFilterButton)
+        toolbarAddGameButton = findViewById(R.id.toolbarAddGameButton)
 
         // Burger menu click
         toolbar.setNavigationOnClickListener {
@@ -106,9 +109,15 @@ class HomeActivity : AppCompatActivity() {
             showFilterBottomSheet()
         }
 
+        // Add game button click - opens game search bottom sheet
+        toolbarAddGameButton.setOnClickListener {
+            showAddGameBottomSheet()
+        }
+
         // Show create button initially (Feed is default)
         toolbarCreateButton.visibility = View.VISIBLE
         toolbarFilterButton.visibility = View.GONE
+        toolbarAddGameButton.visibility = View.GONE
     }
 
     private fun showDrawerMenu(anchor: MaterialToolbar) {
@@ -241,6 +250,7 @@ class HomeActivity : AppCompatActivity() {
     private fun openFollowers() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.GONE
+        toolbarAddGameButton.visibility = View.GONE
         deselectBottomNav()
         switchTo(followers, "followers")
     }
@@ -248,6 +258,7 @@ class HomeActivity : AppCompatActivity() {
     private fun openGesuche() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.GONE
+        toolbarAddGameButton.visibility = View.GONE
         deselectBottomNav()
         switchTo(gesuche, "gesuche")
     }
@@ -255,6 +266,7 @@ class HomeActivity : AppCompatActivity() {
     private fun openCollection() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.VISIBLE
+        toolbarAddGameButton.visibility = View.VISIBLE
         deselectBottomNav()
         switchTo(collection, "collection")
     }
@@ -289,21 +301,25 @@ class HomeActivity : AppCompatActivity() {
                 R.id.nav_feed    -> {
                     toolbarCreateButton.visibility = View.VISIBLE
                     toolbarFilterButton.visibility = View.GONE
+                    toolbarAddGameButton.visibility = View.GONE
                     switchTo(feed, "feed")
                 }
                 R.id.nav_events  -> {
                     toolbarCreateButton.visibility = View.GONE
                     toolbarFilterButton.visibility = View.VISIBLE
+                    toolbarAddGameButton.visibility = View.GONE
                     switchTo(events, "events")
                 }
                 R.id.nav_markt   -> {
                     toolbarCreateButton.visibility = View.GONE
                     toolbarFilterButton.visibility = View.VISIBLE
+                    toolbarAddGameButton.visibility = View.GONE
                     switchTo(markt, "markt")
                 }
                 R.id.nav_pm      -> {
                     toolbarCreateButton.visibility = View.GONE
                     toolbarFilterButton.visibility = View.GONE
+                    toolbarAddGameButton.visibility = View.GONE
                     switchTo(pm, "pm")
                 }
                 R.id.nav_user    -> {
@@ -327,6 +343,7 @@ class HomeActivity : AppCompatActivity() {
     fun navigateToProfile() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.GONE
+        toolbarAddGameButton.visibility = View.GONE
         deselectBottomNav()
         switchTo(profile, "profile")
     }
@@ -351,6 +368,16 @@ class HomeActivity : AppCompatActivity() {
             marktFragment?.isVisible == true -> marktFragment.showFilterBottomSheet()
             collectionFragment?.isVisible == true -> collectionFragment.showFilterBottomSheet()
         }
+    }
+
+    private fun showAddGameBottomSheet() {
+        val collectionFragment = supportFragmentManager.findFragmentByTag("collection") as? MyCollectionFragment
+        val bottomSheet = AddGameSearchBottomSheet.newInstance()
+        bottomSheet.setOnGameAddedListener {
+            // Refresh collection when a game is added
+            collectionFragment?.refreshCollection()
+        }
+        bottomSheet.show(supportFragmentManager, "addGame")
     }
 
     fun refreshUserAvatar() {

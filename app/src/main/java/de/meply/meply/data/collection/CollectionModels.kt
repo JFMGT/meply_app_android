@@ -52,6 +52,30 @@ data class BoardgameSearchResult(
 )
 
 /**
+ * Request to create a new boardgame
+ */
+data class CreateBoardgameRequest(
+    @SerializedName("data") val data: CreateBoardgameData
+)
+
+data class CreateBoardgameData(
+    @SerializedName("title") val title: String
+)
+
+/**
+ * Response from creating a boardgame
+ */
+data class CreateBoardgameResponse(
+    @SerializedName("data") val data: CreatedBoardgame?
+)
+
+data class CreatedBoardgame(
+    @SerializedName("id") val id: Int,
+    @SerializedName("documentId") val documentId: String?,
+    @SerializedName("title") val title: String?
+)
+
+/**
  * Request to add a game to collection
  */
 data class AddToCollectionRequest(

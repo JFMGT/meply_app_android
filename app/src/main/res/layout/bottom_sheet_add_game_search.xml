@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/surface"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Spiel zur Sammlung hinzufügen"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_on_light"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Search Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/searchInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Spieltitel eingeben"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxBackgroundColor="@color/surface"
+        app:hintTextColor="@color/text_on_light">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:textColor="@color/text_on_light" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Search Button -->
+    <Button
+        android:id="@+id/btnSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Suchen"
+        android:backgroundTint="@color/primary" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:visibility="gone" />
+
+    <!-- Search Results List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/searchResultsList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
+
+    <!-- No Results Message -->
+    <LinearLayout
+        android:id="@+id/noResultsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kein Spiel gefunden"
+            android:textSize="16sp"
+            android:textColor="@color/text_on_light"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnCreateGame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Neues Spiel anlegen"
+            android:backgroundTint="@color/primary" />
+
+    </LinearLayout>
+
+</LinearLayout>
