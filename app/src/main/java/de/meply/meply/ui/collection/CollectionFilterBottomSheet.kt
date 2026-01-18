@@ -20,7 +20,8 @@ data class CollectionFilter(
     val title: String? = null,
     val state: String? = null,
     val minRating: Float? = null,
-    val forSale: String? = null
+    val forSale: String? = null,
+    val sortBy: String = "title"
 )
 
 class CollectionFilterBottomSheet : BottomSheetDialogFragment() {
@@ -48,6 +49,11 @@ class CollectionFilterBottomSheet : BottomSheetDialogFragment() {
         "Alle" to null,
         "Nicht angeboten" to "false",
         "Angeboten" to "true"
+    )
+
+    private val sortOptions = listOf(
+        "Alphabetisch (A-Z)" to "title",
+        "Bewertung (5★ → 1★)" to "rating"
     )
 
     fun setOnFilterAppliedListener(listener: (CollectionFilter) -> Unit) {
@@ -86,6 +92,7 @@ class CollectionFilterBottomSheet : BottomSheetDialogFragment() {
         val stateSpinner = view.findViewById<Spinner>(R.id.stateSpinner)
         val ratingSpinner = view.findViewById<Spinner>(R.id.ratingSpinner)
         val forSaleSpinner = view.findViewById<Spinner>(R.id.forSaleSpinner)
+        val sortSpinner = view.findViewById<Spinner>(R.id.sortSpinner)
         val closeButton = view.findViewById<ImageButton>(R.id.closeButton)
         val clearButton = view.findViewById<Button>(R.id.clearButton)
         val applyButton = view.findViewById<Button>(R.id.applyButton)
@@ -94,6 +101,7 @@ class CollectionFilterBottomSheet : BottomSheetDialogFragment() {
         setupSpinner(stateSpinner, stateOptions.map { it.first })
         setupSpinner(ratingSpinner, ratingOptions.map { it.first })
         setupSpinner(forSaleSpinner, forSaleOptions.map { it.first })
+        setupSpinner(sortSpinner, sortOptions.map { it.first })
 
         // Set current filter values
         currentFilter.title?.let { titleInput.setText(it) }
@@ -109,6 +117,9 @@ class CollectionFilterBottomSheet : BottomSheetDialogFragment() {
             val index = forSaleOptions.indexOfFirst { it.second == forSale }
             if (index >= 0) forSaleSpinner.setSelection(index)
         }
+        // Set current sort value
+        val sortIndex = sortOptions.indexOfFirst { it.second == currentFilter.sortBy }
+        if (sortIndex >= 0) sortSpinner.setSelection(sortIndex)
 
         // Close button
         closeButton.setOnClickListener {
@@ -127,8 +138,9 @@ class CollectionFilterBottomSheet : BottomSheetDialogFragment() {
             val state = stateOptions[stateSpinner.selectedItemPosition].second
             val minRating = ratingOptions[ratingSpinner.selectedItemPosition].second
             val forSale = forSaleOptions[forSaleSpinner.selectedItemPosition].second
+            val sortBy = sortOptions[sortSpinner.selectedItemPosition].second
 
-            onFilterApplied?.invoke(CollectionFilter(title, state, minRating, forSale))
+            onFilterApplied?.invoke(CollectionFilter(title, state, minRating, forSale, sortBy))
             dismiss()
         }
     }

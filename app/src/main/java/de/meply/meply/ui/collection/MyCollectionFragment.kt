@@ -240,6 +240,10 @@ class MyCollectionFragment : Fragment() {
             val text = if (forSale == "true") "Im Trödelmarkt" else "Nicht im Trödelmarkt"
             filters.add(text)
         }
+        // Add sort info if not default
+        if (currentFilter.sortBy == "rating") {
+            filters.add("Sortiert nach Bewertung")
+        }
 
         if (filters.isNotEmpty()) {
             filterInfo.text = "Filter: ${filters.joinToString(" | ")}"
@@ -290,7 +294,8 @@ class MyCollectionFragment : Fragment() {
             title = currentFilter.title,
             state = currentFilter.state,
             minRating = currentFilter.minRating,
-            forSale = currentFilter.forSale
+            forSale = currentFilter.forSale,
+            sortBy = currentFilter.sortBy
         ).enqueue(object : Callback<MyCollectionResponse> {
             override fun onResponse(
                 call: Call<MyCollectionResponse>,
