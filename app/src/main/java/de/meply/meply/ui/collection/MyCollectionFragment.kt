@@ -4,15 +4,10 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -36,14 +31,13 @@ class MyCollectionFragment : Fragment() {
 
     companion object {
         private const val TAG = "MyCollectionFragment"
-        private const val SEARCH_DEBOUNCE_MS = 400L
         private const val PAGE_SIZE = 25
     }
 
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var nestedScrollView: NestedScrollView
-    private lateinit var searchInput: EditText
     private lateinit var collectionStats: TextView
+    private lateinit var filterInfo: TextView
     private lateinit var loadingProgress: ProgressBar
     private lateinit var emptyCard: MaterialCardView
     private lateinit var gamesRecycler: RecyclerView
@@ -53,9 +47,7 @@ class MyCollectionFragment : Fragment() {
 
     private lateinit var collectionAdapter: CollectionAdapter
 
-    private val searchHandler = Handler(Looper.getMainLooper())
-    private var searchRunnable: Runnable? = null
-    private var currentSearchQuery: String = ""
+    private var currentFilter: CollectionFilter = CollectionFilter()
 
     private val displayedGames = mutableListOf<UserBoardgame>()
     private var currentPage = 1
@@ -76,7 +68,6 @@ class MyCollectionFragment : Fragment() {
 
         initializeViews(view)
         setupAdapters()
-        setupSearch()
         setupScrollListener()
         loadCollection(resetList = true)
     }
@@ -84,8 +75,8 @@ class MyCollectionFragment : Fragment() {
     private fun initializeViews(view: View) {
         swipeRefresh = view.findViewById(R.id.swipeRefresh)
         nestedScrollView = view.findViewById(R.id.nestedScrollView)
-        searchInput = view.findViewById(R.id.search_input)
         collectionStats = view.findViewById(R.id.collection_stats)
+        filterInfo = view.findViewById(R.id.filter_info)
         loadingProgress = view.findViewById(R.id.loading_progress)
         emptyCard = view.findViewById(R.id.empty_card)
         gamesRecycler = view.findViewById(R.id.games_recycler)
@@ -221,26 +212,41 @@ class MyCollectionFragment : Fragment() {
         bottomSheet.show(parentFragmentManager, "sellGame")
     }
 
-    private fun setupSearch() {
-        searchInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                val query = s?.toString()?.trim() ?: ""
+    fun showFilterBottomSheet() {
+        val bottomSheet = CollectionFilterBottomSheet.newInstance(currentFilter)
+        bottomSheet.setOnFilterAppliedListener { filter ->
+            currentFilter = filter
+            updateFilterInfo()
+            loadCollection(resetList = true)
+        }
+        bottomSheet.show(parentFragmentManager, "collectionFilter")
+    }
 
-                // Cancel pending search
-                searchRunnable?.let { searchHandler.removeCallbacks(it) }
+    private fun updateFilterInfo() {
+        val filters = mutableListOf<String>()
 
-                // Debounce: wait before sending API request
-                searchRunnable = Runnable {
-                    if (query != currentSearchQuery) {
-                        currentSearchQuery = query
-                        loadCollection(resetList = true)
-                    }
-                }
-                searchHandler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_MS)
+        currentFilter.title?.let { filters.add("Titel: \"$it\"") }
+        currentFilter.state?.let { state ->
+            val stateText = when (state) {
+                "wishlist" -> "Will spielen"
+                "played" -> "Gespielt"
+                "owned" -> "Besitze"
+                else -> state
             }
-        })
+            filters.add("Status: $stateText")
+        }
+        currentFilter.minRating?.let { filters.add("Mind. ${it.toInt()}★") }
+        currentFilter.forSale?.let { forSale ->
+            val text = if (forSale == "true") "Im Trödelmarkt" else "Nicht im Trödelmarkt"
+            filters.add(text)
+        }
+
+        if (filters.isNotEmpty()) {
+            filterInfo.text = "Filter: ${filters.joinToString(" | ")}"
+            filterInfo.visibility = View.VISIBLE
+        } else {
+            filterInfo.visibility = View.GONE
+        }
     }
 
     private fun setupScrollListener() {
@@ -278,12 +284,13 @@ class MyCollectionFragment : Fragment() {
             statusText.text = "Es wird versucht, weitere Einträge zu laden..."
         }
 
-        val searchTitle = currentSearchQuery.ifEmpty { null }
-
         ApiClient.retrofit.getMyCollection(
             page = currentPage,
             pageSize = PAGE_SIZE,
-            title = searchTitle
+            title = currentFilter.title,
+            state = currentFilter.state,
+            minRating = currentFilter.minRating,
+            forSale = currentFilter.forSale
         ).enqueue(object : Callback<MyCollectionResponse> {
             override fun onResponse(
                 call: Call<MyCollectionResponse>,
@@ -335,12 +342,17 @@ class MyCollectionFragment : Fragment() {
     }
 
     private fun updateUI() {
+        val hasFilters = currentFilter.title != null ||
+                currentFilter.state != null ||
+                currentFilter.minRating != null ||
+                currentFilter.forSale != null
+
         if (displayedGames.isEmpty()) {
             emptyCard.visibility = View.VISIBLE
             gamesRecycler.visibility = View.GONE
             statusCard.visibility = View.GONE
-            if (currentSearchQuery.isNotEmpty()) {
-                collectionStats.text = "Keine Treffer für \"$currentSearchQuery\""
+            if (hasFilters) {
+                collectionStats.text = "Keine Treffer mit den aktuellen Filtern"
             } else {
                 collectionStats.text = "Keine Spiele in deiner Sammlung"
             }
@@ -348,8 +360,8 @@ class MyCollectionFragment : Fragment() {
             emptyCard.visibility = View.GONE
             gamesRecycler.visibility = View.VISIBLE
 
-            if (currentSearchQuery.isNotEmpty()) {
-                collectionStats.text = "${displayedGames.size} von $totalGames Treffern für \"$currentSearchQuery\""
+            if (hasFilters) {
+                collectionStats.text = "${displayedGames.size} von $totalGames gefilterten Spielen"
             } else {
                 collectionStats.text = "$totalGames Spiele in deiner Sammlung"
             }

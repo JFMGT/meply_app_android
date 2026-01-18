@@ -53,17 +53,15 @@
                             android:textColor="@color/text_on_light"
                             android:textSize="14sp" />
 
-                        <EditText
-                            android:id="@+id/search_input"
+                        <!-- Active Filter Info -->
+                        <TextView
+                            android:id="@+id/filter_info"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:hint="Spiel suchen..."
-                            android:inputType="text"
-                            android:textColor="@color/text_on_light"
-                            android:textColorHint="@color/text_secondary"
-                            android:background="@drawable/rounded_corner_background"
-                            android:padding="12dp" />
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/primary"
+                            android:textSize="13sp"
+                            android:visibility="gone" />
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
