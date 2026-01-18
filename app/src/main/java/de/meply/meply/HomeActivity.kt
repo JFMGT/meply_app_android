@@ -254,7 +254,7 @@ class HomeActivity : AppCompatActivity() {
 
     private fun openCollection() {
         toolbarCreateButton.visibility = View.GONE
-        toolbarFilterButton.visibility = View.GONE
+        toolbarFilterButton.visibility = View.VISIBLE
         deselectBottomNav()
         switchTo(collection, "collection")
     }
@@ -344,10 +344,12 @@ class HomeActivity : AppCompatActivity() {
         // Check which fragment is currently active and show appropriate filter
         val eventsFragment = supportFragmentManager.findFragmentByTag("events") as? EventsFragment
         val marktFragment = supportFragmentManager.findFragmentByTag("markt") as? MarktFragment
+        val collectionFragment = supportFragmentManager.findFragmentByTag("collection") as? MyCollectionFragment
 
         when {
             eventsFragment?.isVisible == true -> eventsFragment.showFilterBottomSheet()
             marktFragment?.isVisible == true -> marktFragment.showFilterBottomSheet()
+            collectionFragment?.isVisible == true -> collectionFragment.showFilterBottomSheet()
         }
     }
 
