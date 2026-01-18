@@ -12,8 +12,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
-import de.meply.meply.data.collection.CreateBoardgameRequest
-import de.meply.meply.data.collection.CreateBoardgameResponse
+import de.meply.meply.data.collection.AddToCollectionRequest
+import de.meply.meply.data.collection.AddToCollectionResponse
+import de.meply.meply.data.collection.StrapiCreateBoardgameData
+import de.meply.meply.data.collection.StrapiCreateBoardgameRequest
+import de.meply.meply.data.collection.StrapiCreateBoardgameResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -117,55 +120,84 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
         // Get optional fields
         val minPlayers = minPlayersInput.text?.toString()?.toIntOrNull()
         val maxPlayers = maxPlayersInput.text?.toString()?.toIntOrNull()
-        val minPlaytime = minPlaytimeInput.text?.toString()?.toIntOrNull()
-        val maxPlaytime = maxPlaytimeInput.text?.toString()?.toIntOrNull()
         val minAge = minAgeInput.text?.toString()?.toIntOrNull()
 
         showLoading(true)
 
-        val request = CreateBoardgameRequest(
+        // Step 1: Create the boardgame directly in Strapi (like web version)
+        val strapiData = StrapiCreateBoardgameData(
             title = title,
             minPlayers = minPlayers,
             maxPlayers = maxPlayers,
-            minPlaytime = minPlaytime,
-            maxPlaytime = maxPlaytime,
             minAge = minAge
         )
+        val request = StrapiCreateBoardgameRequest(data = strapiData)
 
-        ApiClient.retrofit.createBoardgame(request)
-            .enqueue(object : Callback<CreateBoardgameResponse> {
+        ApiClient.retrofit.createBoardgameDirect(request)
+            .enqueue(object : Callback<StrapiCreateBoardgameResponse> {
                 override fun onResponse(
-                    call: Call<CreateBoardgameResponse>,
-                    response: Response<CreateBoardgameResponse>
+                    call: Call<StrapiCreateBoardgameResponse>,
+                    response: Response<StrapiCreateBoardgameResponse>
                 ) {
-                    showLoading(false)
                     val body = response.body()
+                    val gameId = body?.data?.id
 
-                    if (response.isSuccessful && body?.success == true) {
-                        val gameId = body.id
-                        if (gameId != null) {
-                            Toast.makeText(requireContext(), "Spiel \"$title\" erstellt und hinzugefuegt", Toast.LENGTH_SHORT).show()
-                            onGameCreatedListener?.invoke(gameId)
-                            dismiss()
-                        } else {
-                            Toast.makeText(requireContext(), "Fehler: Keine Spiel-ID erhalten", Toast.LENGTH_SHORT).show()
-                        }
+                    if (response.isSuccessful && gameId != null) {
+                        // Step 2: Add the created game to user's collection
+                        addGameToCollection(gameId, title)
                     } else {
-                        val errorMsg = body?.error ?: when (response.code()) {
+                        showLoading(false)
+                        val errorMsg = when (response.code()) {
                             400 -> "Ungueltige Daten"
                             401 -> "Nicht autorisiert"
                             403 -> "Keine Berechtigung"
                             404 -> "API-Endpunkt nicht gefunden"
-                            409 -> "Spiel existiert bereits"
                             else -> "Fehler beim Erstellen (${response.code()})"
                         }
                         Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                override fun onFailure(call: Call<CreateBoardgameResponse>, t: Throwable) {
+                override fun onFailure(call: Call<StrapiCreateBoardgameResponse>, t: Throwable) {
                     showLoading(false)
                     Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    /**
+     * Step 2: Add the created boardgame to the user's collection
+     * This mirrors the web version's two-step approach
+     */
+    private fun addGameToCollection(gameId: Int, title: String) {
+        val addRequest = AddToCollectionRequest(boardgameId = gameId)
+
+        ApiClient.retrofit.addToCollection(addRequest)
+            .enqueue(object : Callback<AddToCollectionResponse> {
+                override fun onResponse(
+                    call: Call<AddToCollectionResponse>,
+                    response: Response<AddToCollectionResponse>
+                ) {
+                    showLoading(false)
+                    val body = response.body()
+
+                    if (response.isSuccessful && (body?.success == true || body?.id != null)) {
+                        Toast.makeText(requireContext(), "Spiel \"$title\" erstellt und hinzugefuegt", Toast.LENGTH_SHORT).show()
+                        onGameCreatedListener?.invoke(gameId)
+                        dismiss()
+                    } else if (body?.alreadyExists == true) {
+                        Toast.makeText(requireContext(), "Spiel \"$title\" erstellt, war aber bereits in Sammlung", Toast.LENGTH_SHORT).show()
+                        onGameCreatedListener?.invoke(gameId)
+                        dismiss()
+                    } else {
+                        val errorMsg = body?.error ?: "Spiel erstellt, aber Zuweisung fehlgeschlagen"
+                        Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<AddToCollectionResponse>, t: Throwable) {
+                    showLoading(false)
+                    Toast.makeText(requireContext(), "Spiel erstellt, Zuweisung fehlgeschlagen: ${t.message}", Toast.LENGTH_SHORT).show()
                 }
             })
     }
