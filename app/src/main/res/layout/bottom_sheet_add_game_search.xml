@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:hint="Spieltitel eingeben"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:boxBackgroundColor="@color/surface"
+        app:boxBackgroundColor="@android:color/white"
         app:hintTextColor="@color/text_on_light">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -44,7 +44,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Suchen"
-        android:backgroundTint="@color/primary" />
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/text_on_light" />
 
     <!-- Loading Indicator -->
     <ProgressBar

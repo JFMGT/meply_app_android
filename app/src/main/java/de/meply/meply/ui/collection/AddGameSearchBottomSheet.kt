@@ -1,10 +1,12 @@
 package de.meply.meply.ui.collection
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -111,6 +113,9 @@ class AddGameSearchBottomSheet : BottomSheetDialogFragment() {
             return
         }
 
+        // Hide keyboard
+        hideKeyboard()
+
         lastSearchQuery = query
         showLoading(true)
         noResultsContainer.visibility = View.GONE
@@ -145,6 +150,11 @@ class AddGameSearchBottomSheet : BottomSheetDialogFragment() {
     private fun showLoading(loading: Boolean) {
         progressBar.visibility = if (loading) View.VISIBLE else View.GONE
         btnSearch.isEnabled = !loading
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(searchInput.windowToken, 0)
     }
 
     private fun showResults(results: List<BoardgameSearchResult>) {
