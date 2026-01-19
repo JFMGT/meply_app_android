@@ -50,14 +50,22 @@ object ApiClient {
             val isLoginOrRegister = req.url.encodedPath.contains("/auth/") // Erfasst /auth/local, /auth/register etc.
             val b = req.newBuilder()
 
+            // Check if request already has an Authorization header (e.g., from @Header annotation)
+            val existingAuthHeader = req.header("Authorization")
+
             // Logging für jede Anfrage im Auth Interceptor
             Log.d("ApiClientAuth", "ApiClient Interceptor: Request URL: ${req.url}")
             Log.d("ApiClientAuth", "ApiClient Interceptor: Is Auth call (login/register): $isLoginOrRegister")
+            Log.d("ApiClientAuth", "ApiClient Interceptor: Existing Auth header: ${existingAuthHeader != null}")
 
-            if (isLoginOrRegister) {
+            if (existingAuthHeader != null) {
+                // Request already has explicit Authorization header - don't override it
+                // This is used for system token calls (like creating boardgames)
+                Log.d("ApiClientAuth", "ApiClient Interceptor: Using explicit Authorization header (system token)")
+            } else if (isLoginOrRegister) {
                 // Keine Aktion für Login- oder Registrierungs-Aufrufe, da kein JWT benötigt wird
                 b.header("Authorization", "Bearer $APP_JWT")
-                Log.d("ApiClientAuth", "ApiClient Interceptor: Auth call, no Authorization header added.")
+                Log.d("ApiClientAuth", "ApiClient Interceptor: Auth call, using APP_JWT.")
             } else {
                 val currentJwt = userJwt // Hole den aktuellen JWT
                 // SEHR WICHTIGES LOG, um den Zustand des JWT vor der Verwendung zu sehen:
