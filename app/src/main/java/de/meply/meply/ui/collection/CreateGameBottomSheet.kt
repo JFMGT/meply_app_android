@@ -144,9 +144,9 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                     val gameId = body?.data?.id
                     val documentId = body?.data?.documentId
 
-                    // Debug logging
-                    android.util.Log.d("CreateGame", "Create response: code=${response.code()}, gameId=$gameId, documentId=$documentId")
-                    android.util.Log.d("CreateGame", "Response body: $body")
+                    // Debug logging - VERSION 2: No manual add-to-collection call
+                    android.util.Log.d("CreateGame", "[V2] Create response: code=${response.code()}, gameId=$gameId, documentId=$documentId")
+                    android.util.Log.d("CreateGame", "[V2] Response body: $body - NO manual add-to-collection will be called")
 
                     if (response.isSuccessful && documentId != null) {
                         // Game created successfully - Strapi already adds it to the user's collection
