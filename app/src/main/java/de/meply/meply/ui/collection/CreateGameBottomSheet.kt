@@ -144,6 +144,11 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                 ) {
                     val body = response.body()
                     val gameId = body?.data?.id
+                    val documentId = body?.data?.documentId
+
+                    // Debug logging
+                    android.util.Log.d("CreateGame", "Create response: code=${response.code()}, gameId=$gameId, documentId=$documentId")
+                    android.util.Log.d("CreateGame", "Response body: $body")
 
                     if (response.isSuccessful && gameId != null) {
                         // Step 2: Add the created game to user's collection
@@ -175,6 +180,10 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
     private fun addGameToCollection(gameId: Int, title: String) {
         val addRequest = AddToCollectionRequest(boardgameId = gameId)
 
+        // Debug logging
+        android.util.Log.d("CreateGame", "Adding to collection: gameId=$gameId, request=$addRequest")
+        android.util.Log.d("CreateGame", "Current JWT: ${ApiClient.getCurrentJwt()?.take(20)}...")
+
         ApiClient.retrofit.addToCollection(addRequest)
             .enqueue(object : Callback<AddToCollectionResponse> {
                 override fun onResponse(
@@ -183,6 +192,13 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                 ) {
                     showLoading(false)
                     val body = response.body()
+
+                    // Debug logging
+                    android.util.Log.d("CreateGame", "Add to collection response: code=${response.code()}")
+                    android.util.Log.d("CreateGame", "Response body: $body")
+                    if (!response.isSuccessful) {
+                        android.util.Log.e("CreateGame", "Error body: ${response.errorBody()?.string()}")
+                    }
 
                     if (response.isSuccessful && (body?.success == true || body?.id != null)) {
                         Toast.makeText(requireContext(), "Spiel \"$title\" erstellt und hinzugefuegt", Toast.LENGTH_SHORT).show()
