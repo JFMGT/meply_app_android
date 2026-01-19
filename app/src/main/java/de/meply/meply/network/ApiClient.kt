@@ -33,8 +33,9 @@ object ApiClient {
     /**
      * Get the system API token for operations that require system-level permissions
      * (e.g., creating boardgames - like web version uses useSystemToken=true with STRAPI_API_TOKEN)
+     * TODO: APP_JWT needs "create" permission for boardgames in Strapi API Token settings
      */
-    fun getSystemToken(): String = "Bearer $API_TOKEN"
+    fun getSystemToken(): String = "Bearer $APP_JWT"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
