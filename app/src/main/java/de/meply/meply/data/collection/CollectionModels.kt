@@ -48,6 +48,7 @@ data class UserBoardgame(
  */
 data class BoardgameSearchResult(
     @SerializedName("id") val id: Int,
+    @SerializedName("documentId") val documentId: String?,
     @SerializedName("title") val title: String?
 )
 
@@ -104,9 +105,10 @@ data class StrapiCreatedBoardgame(
 
 /**
  * Request to add a game to collection
+ * Uses documentId (string) as the Strapi route expects documentId, not numeric id
  */
 data class AddToCollectionRequest(
-    @SerializedName("boardgame") val boardgameId: Int
+    @SerializedName("boardgame") val boardgameId: String
 )
 
 /**

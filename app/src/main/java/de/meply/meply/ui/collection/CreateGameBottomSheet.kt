@@ -24,7 +24,7 @@ import retrofit2.Response
 
 class CreateGameBottomSheet : BottomSheetDialogFragment() {
 
-    private var onGameCreatedListener: ((Int) -> Unit)? = null
+    private var onGameCreatedListener: ((String) -> Unit)? = null
     private var initialTitle: String = ""
 
     private lateinit var titleInput: TextInputEditText
@@ -49,7 +49,7 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    fun setOnGameCreatedListener(listener: (Int) -> Unit) {
+    fun setOnGameCreatedListener(listener: (String) -> Unit) {
         onGameCreatedListener = listener
     }
 
@@ -150,9 +150,10 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                     android.util.Log.d("CreateGame", "Create response: code=${response.code()}, gameId=$gameId, documentId=$documentId")
                     android.util.Log.d("CreateGame", "Response body: $body")
 
-                    if (response.isSuccessful && gameId != null) {
+                    if (response.isSuccessful && documentId != null) {
                         // Step 2: Add the created game to user's collection
-                        addGameToCollection(gameId, title)
+                        // Use documentId as the Strapi route expects documentId, not numeric id
+                        addGameToCollection(documentId, title)
                     } else {
                         showLoading(false)
                         val errorMsg = when (response.code()) {
@@ -176,12 +177,13 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
     /**
      * Step 2: Add the created boardgame to the user's collection
      * This mirrors the web version's two-step approach
+     * Uses documentId as the Strapi route expects documentId, not numeric id
      */
-    private fun addGameToCollection(gameId: Int, title: String) {
-        val addRequest = AddToCollectionRequest(boardgameId = gameId)
+    private fun addGameToCollection(documentId: String, title: String) {
+        val addRequest = AddToCollectionRequest(boardgameId = documentId)
 
         // Debug logging
-        android.util.Log.d("CreateGame", "Adding to collection: gameId=$gameId, request=$addRequest")
+        android.util.Log.d("CreateGame", "Adding to collection: documentId=$documentId, request=$addRequest")
         android.util.Log.d("CreateGame", "Current JWT: ${ApiClient.getCurrentJwt()?.take(20)}...")
 
         ApiClient.retrofit.addToCollection(addRequest)
@@ -202,11 +204,11 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
 
                     if (response.isSuccessful && (body?.success == true || body?.id != null)) {
                         Toast.makeText(requireContext(), "Spiel \"$title\" erstellt und hinzugefuegt", Toast.LENGTH_SHORT).show()
-                        onGameCreatedListener?.invoke(gameId)
+                        onGameCreatedListener?.invoke(documentId)
                         dismiss()
                     } else if (body?.alreadyExists == true) {
                         Toast.makeText(requireContext(), "Spiel \"$title\" erstellt, war aber bereits in Sammlung", Toast.LENGTH_SHORT).show()
-                        onGameCreatedListener?.invoke(gameId)
+                        onGameCreatedListener?.invoke(documentId)
                         dismiss()
                     } else {
                         val errorMsg = body?.error ?: "Spiel erstellt, aber Zuweisung fehlgeschlagen"

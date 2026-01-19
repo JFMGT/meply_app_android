@@ -169,9 +169,15 @@ class AddGameSearchBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun addGameToCollection(game: BoardgameSearchResult) {
+        val documentId = game.documentId
+        if (documentId == null) {
+            Toast.makeText(requireContext(), "Fehler: Spiel hat keine documentId", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         showLoading(true)
 
-        ApiClient.retrofit.addToCollection(AddToCollectionRequest(game.id))
+        ApiClient.retrofit.addToCollection(AddToCollectionRequest(documentId))
             .enqueue(object : Callback<AddToCollectionResponse> {
                 override fun onResponse(
                     call: Call<AddToCollectionResponse>,
@@ -203,37 +209,13 @@ class AddGameSearchBottomSheet : BottomSheetDialogFragment() {
     private fun openCreateGameForm() {
         // Open the create game bottom sheet with the current search query as title
         val createSheet = CreateGameBottomSheet.newInstance(lastSearchQuery)
-        createSheet.setOnGameCreatedListener { gameId ->
-            // After creating a new game, add it to collection
-            addGameToCollectionById(gameId)
+        createSheet.setOnGameCreatedListener { documentId ->
+            // After creating a new game, add it to collection (already added by CreateGameBottomSheet)
+            // Just close the search sheet
+            onGameAddedListener?.invoke()
+            dismiss()
         }
         createSheet.show(parentFragmentManager, "createGame")
-    }
-
-    private fun addGameToCollectionById(gameId: Int) {
-        showLoading(true)
-
-        ApiClient.retrofit.addToCollection(AddToCollectionRequest(gameId))
-            .enqueue(object : Callback<AddToCollectionResponse> {
-                override fun onResponse(
-                    call: Call<AddToCollectionResponse>,
-                    response: Response<AddToCollectionResponse>
-                ) {
-                    showLoading(false)
-                    if (response.isSuccessful && response.body()?.success == true) {
-                        Toast.makeText(requireContext(), "Spiel zur Sammlung hinzugefuegt", Toast.LENGTH_SHORT).show()
-                        onGameAddedListener?.invoke()
-                        dismiss()
-                    } else {
-                        Toast.makeText(requireContext(), "Fehler beim Hinzufuegen zur Sammlung", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onFailure(call: Call<AddToCollectionResponse>, t: Throwable) {
-                    showLoading(false)
-                    Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
     }
 }
 
