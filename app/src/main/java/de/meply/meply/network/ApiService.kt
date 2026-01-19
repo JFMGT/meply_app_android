@@ -476,7 +476,18 @@ interface ApiService {
     ): Call<de.meply.meply.data.events.StrapiListResponse<de.meply.meply.data.collection.BoardgameSearchResult>>
 
     /**
+     * Create a new boardgame directly in Strapi
+     * Uses standard Strapi POST /boardgames endpoint with data wrapper
+     * This is step 1 of the two-step create-and-add process (like the web version)
+     */
+    @POST("boardgames")
+    fun createBoardgameDirect(
+        @Body request: de.meply.meply.data.collection.StrapiCreateBoardgameRequest
+    ): Call<de.meply.meply.data.collection.StrapiCreateBoardgameResponse>
+
+    /**
      * Add a boardgame to user's collection
+     * This is step 2 of the two-step create-and-add process
      */
     @POST("user-boardgames/add-to-collection")
     fun addToCollection(

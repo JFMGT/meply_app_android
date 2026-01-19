@@ -153,7 +153,7 @@ class CollectionFilterBottomSheet : BottomSheetDialogFragment() {
         ) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent)
-                (view as? TextView)?.setTextColor(resources.getColor(R.color.text_primary, null))
+                (view as? TextView)?.setTextColor(resources.getColor(R.color.text_on_light, null))
                 return view
             }
 

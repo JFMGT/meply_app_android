@@ -222,6 +222,10 @@ class MyCollectionFragment : Fragment() {
         bottomSheet.show(parentFragmentManager, "collectionFilter")
     }
 
+    fun refreshCollection() {
+        loadCollection(resetList = true)
+    }
+
     private fun updateFilterInfo() {
         val filters = mutableListOf<String>()
 

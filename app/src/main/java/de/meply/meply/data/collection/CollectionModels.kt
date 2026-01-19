@@ -52,6 +52,57 @@ data class BoardgameSearchResult(
 )
 
 /**
+ * Request to create a new boardgame
+ * Fields are sent directly for custom route compatibility
+ */
+data class CreateBoardgameRequest(
+    @SerializedName("title") val title: String,
+    @SerializedName("min_player") val minPlayers: Int? = null,
+    @SerializedName("max_player") val maxPlayers: Int? = null,
+    @SerializedName("min_playtime") val minPlaytime: Int? = null,
+    @SerializedName("max_playtime") val maxPlaytime: Int? = null,
+    @SerializedName("min_age") val minAge: Int? = null
+)
+
+/**
+ * Response from creating a boardgame
+ */
+data class CreateBoardgameResponse(
+    @SerializedName("success") val success: Boolean?,
+    @SerializedName("id") val id: Int?,
+    @SerializedName("error") val error: String?
+)
+
+/**
+ * Strapi-compatible request to create a new boardgame
+ * Uses the standard Strapi format with data wrapper
+ * This mirrors the web version's createBoardGame() function
+ */
+data class StrapiCreateBoardgameRequest(
+    @SerializedName("data") val data: StrapiCreateBoardgameData
+)
+
+data class StrapiCreateBoardgameData(
+    @SerializedName("title") val title: String,
+    @SerializedName("min_player") val minPlayers: Int? = null,
+    @SerializedName("max_player") val maxPlayers: Int? = null,
+    @SerializedName("min_age") val minAge: Int? = null
+)
+
+/**
+ * Strapi response from creating a boardgame
+ */
+data class StrapiCreateBoardgameResponse(
+    @SerializedName("data") val data: StrapiCreatedBoardgame?
+)
+
+data class StrapiCreatedBoardgame(
+    @SerializedName("id") val id: Int,
+    @SerializedName("documentId") val documentId: String?,
+    @SerializedName("title") val title: String?
+)
+
+/**
  * Request to add a game to collection
  */
 data class AddToCollectionRequest(
