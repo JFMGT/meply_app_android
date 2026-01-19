@@ -479,9 +479,13 @@ interface ApiService {
      * Create a new boardgame directly in Strapi
      * Uses standard Strapi POST /boardgames endpoint with data wrapper
      * This is step 1 of the two-step create-and-add process (like the web version)
+     *
+     * IMPORTANT: Uses explicit system token (like web version's useSystemToken=true)
+     * because regular users don't have permission to create boardgames directly
      */
     @POST("boardgames")
-    fun createBoardgameDirect(
+    fun createBoardgameWithSystemToken(
+        @retrofit2.http.Header("Authorization") authorization: String,
         @Body request: de.meply.meply.data.collection.StrapiCreateBoardgameRequest
     ): Call<de.meply.meply.data.collection.StrapiCreateBoardgameResponse>
 

@@ -125,6 +125,8 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
         showLoading(true)
 
         // Step 1: Create the boardgame directly in Strapi (like web version)
+        // IMPORTANT: Use system token like web version (useSystemToken=true in PHP)
+        // because regular users don't have permission to create boardgames directly
         val strapiData = StrapiCreateBoardgameData(
             title = title,
             minPlayers = minPlayers,
@@ -132,8 +134,9 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
             minAge = minAge
         )
         val request = StrapiCreateBoardgameRequest(data = strapiData)
+        val systemToken = ApiClient.getSystemToken()
 
-        ApiClient.retrofit.createBoardgameDirect(request)
+        ApiClient.retrofit.createBoardgameWithSystemToken(systemToken, request)
             .enqueue(object : Callback<StrapiCreateBoardgameResponse> {
                 override fun onResponse(
                     call: Call<StrapiCreateBoardgameResponse>,

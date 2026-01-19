@@ -27,6 +27,12 @@ object ApiClient {
         userJwt = null
     }
 
+    /**
+     * Get the system/app JWT token for operations that require system-level permissions
+     * (e.g., creating boardgames - like web version uses useSystemToken=true)
+     */
+    fun getSystemToken(): String = "Bearer $APP_JWT"
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
         // Um den Authorization Header im Log zu sehen, dies VORÜBERGEHEND auskommentieren:
