@@ -12,8 +12,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
-import de.meply.meply.data.collection.AddToCollectionRequest
-import de.meply.meply.data.collection.AddToCollectionResponse
 import de.meply.meply.data.collection.StrapiCreateBoardgameData
 import de.meply.meply.data.collection.StrapiCreateBoardgameRequest
 import de.meply.meply.data.collection.StrapiCreateBoardgameResponse
@@ -151,9 +149,12 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                     android.util.Log.d("CreateGame", "Response body: $body")
 
                     if (response.isSuccessful && documentId != null) {
-                        // Step 2: Add the created game to user's collection
-                        // Use documentId as the Strapi route expects documentId, not numeric id
-                        addGameToCollection(documentId, title)
+                        // Game created successfully - Strapi already adds it to the user's collection
+                        // No need to call addGameToCollection separately
+                        showLoading(false)
+                        Toast.makeText(requireContext(), "Spiel \"$title\" erstellt und hinzugefuegt", Toast.LENGTH_SHORT).show()
+                        onGameCreatedListener?.invoke(documentId)
+                        dismiss()
                     } else {
                         showLoading(false)
                         val errorMsg = when (response.code()) {
@@ -174,54 +175,6 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
             })
     }
 
-    /**
-     * Step 2: Add the created boardgame to the user's collection
-     * This mirrors the web version's two-step approach
-     * Uses documentId as the Strapi route expects documentId, not numeric id
-     */
-    private fun addGameToCollection(documentId: String, title: String) {
-        val addRequest = AddToCollectionRequest(boardgameId = documentId)
-
-        // Debug logging
-        android.util.Log.d("CreateGame", "Adding to collection: documentId=$documentId, request=$addRequest")
-        android.util.Log.d("CreateGame", "Current JWT: ${ApiClient.getCurrentJwt()?.take(20)}...")
-
-        ApiClient.retrofit.addToCollection(addRequest)
-            .enqueue(object : Callback<AddToCollectionResponse> {
-                override fun onResponse(
-                    call: Call<AddToCollectionResponse>,
-                    response: Response<AddToCollectionResponse>
-                ) {
-                    showLoading(false)
-                    val body = response.body()
-
-                    // Debug logging
-                    android.util.Log.d("CreateGame", "Add to collection response: code=${response.code()}")
-                    android.util.Log.d("CreateGame", "Response body: $body")
-                    if (!response.isSuccessful) {
-                        android.util.Log.e("CreateGame", "Error body: ${response.errorBody()?.string()}")
-                    }
-
-                    if (response.isSuccessful && (body?.success == true || body?.id != null)) {
-                        Toast.makeText(requireContext(), "Spiel \"$title\" erstellt und hinzugefuegt", Toast.LENGTH_SHORT).show()
-                        onGameCreatedListener?.invoke(documentId)
-                        dismiss()
-                    } else if (body?.alreadyExists == true) {
-                        Toast.makeText(requireContext(), "Spiel \"$title\" erstellt, war aber bereits in Sammlung", Toast.LENGTH_SHORT).show()
-                        onGameCreatedListener?.invoke(documentId)
-                        dismiss()
-                    } else {
-                        val errorMsg = body?.error ?: "Spiel erstellt, aber Zuweisung fehlgeschlagen"
-                        Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onFailure(call: Call<AddToCollectionResponse>, t: Throwable) {
-                    showLoading(false)
-                    Toast.makeText(requireContext(), "Spiel erstellt, Zuweisung fehlgeschlagen: ${t.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
-    }
 
     private fun showLoading(loading: Boolean) {
         progressBar.visibility = if (loading) View.VISIBLE else View.GONE
