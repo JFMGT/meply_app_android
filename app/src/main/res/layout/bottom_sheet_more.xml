@@ -5,11 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView android:id="@+id/item_profile"  android:text="Profil"                  android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-    <TextView android:id="@+id/item_map"      android:visibility="gone"     android:text="Karte (FOLGT)"           android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-    <TextView android:id="@+id/item_users"    android:visibility="gone"     android:text="Benutzerliste (FOLGT)"   android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-    <TextView android:id="@+id/item_fav"      android:visibility="gone"     android:text="Lieblingsspiele (FOLGT)" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-    <TextView android:id="@+id/item_settings" android:visibility="gone"     android:text="Einstellungen (FOLGT)"   android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/item_profile"     android:text="Profil"                  android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/item_collection"  android:text="Meine Sammlung"          android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/item_uploads"     android:text="Meine Bilder"            android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/item_map"         android:visibility="gone"     android:text="Karte (FOLGT)"           android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/item_users"       android:visibility="gone"     android:text="Benutzerliste (FOLGT)"   android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/item_fav"         android:visibility="gone"     android:text="Lieblingsspiele (FOLGT)" android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/item_settings"    android:visibility="gone"     android:text="Einstellungen (FOLGT)"   android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
-    <TextView android:id="@+id/item_logout"   android:text="Logout"          android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:id="@+id/item_logout"      android:text="Logout"          android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
 </LinearLayout>

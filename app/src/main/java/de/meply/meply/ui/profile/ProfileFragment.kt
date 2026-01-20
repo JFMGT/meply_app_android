@@ -35,7 +35,6 @@ import de.meply.meply.data.profile.UpdateProfileRequest
 import de.meply.meply.network.ApiClient
 import de.meply.meply.network.ApiService
 import de.meply.meply.utils.AvatarUtils
-import de.meply.meply.ui.uploads.MyUploadsActivity
 import android.content.Intent
 import com.google.android.material.card.MaterialCardView
 import java.text.SimpleDateFormat
@@ -55,7 +54,6 @@ class ProfileFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var profileAvatar: ImageView
     private lateinit var btnChangeAvatar: Button
-    private lateinit var btnMyUploads: Button
     private lateinit var editUsername: TextInputEditText
     private lateinit var editBirthDate: TextInputEditText
     private lateinit var spinnerGender: Spinner
@@ -120,7 +118,6 @@ class ProfileFragment : Fragment() {
         progressBar = view.findViewById(R.id.profile_progress)
         profileAvatar = view.findViewById(R.id.profile_avatar)
         btnChangeAvatar = view.findViewById(R.id.btn_change_avatar)
-        btnMyUploads = view.findViewById(R.id.btn_my_uploads)
         editUsername = view.findViewById(R.id.edit_username)
         editBirthDate = view.findViewById(R.id.edit_birth_date)
         spinnerGender = view.findViewById(R.id.spinner_gender)
@@ -146,7 +143,6 @@ class ProfileFragment : Fragment() {
 
         btnSave.setOnClickListener { saveProfile() }
         btnChangeAvatar.setOnClickListener { showAvatarOptions() }
-        btnMyUploads.setOnClickListener { MyUploadsActivity.start(requireContext()) }
         btnDeleteAccount.setOnClickListener { confirmDeleteAccount() }
         btnCancelDeletion.setOnClickListener { cancelAccountDeletion() }
 
