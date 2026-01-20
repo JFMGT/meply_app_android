@@ -703,4 +703,17 @@ interface ApiService {
         @Path("documentId") documentId: String
     ): Call<de.meply.meply.data.events.EventActionResponse>
 
+    // ===== PLAYER MATCHING ENDPOINTS =====
+
+    /**
+     * Get best matching players nearby
+     * @param profileId The current user's profile ID
+     * @param limit Maximum number of results (default 20)
+     */
+    @GET("matches/best/{profileId}")
+    fun getBestMatches(
+        @Path("profileId") profileId: Int,
+        @Query("limit") limit: Int = 20
+    ): Call<List<de.meply.meply.data.players.PlayerMatch>>
+
 }

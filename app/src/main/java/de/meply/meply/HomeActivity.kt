@@ -10,7 +10,6 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.card.MaterialCardView
@@ -36,6 +35,7 @@ import de.meply.meply.ui.collection.AddGameSearchBottomSheet
 import de.meply.meply.ui.uploads.MyUploadsFragment
 import de.meply.meply.ui.locations.MyLocationsFragment
 import de.meply.meply.ui.events.MyEventsFragment
+import de.meply.meply.ui.players.PlayersFragment
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -58,6 +58,7 @@ class HomeActivity : AppCompatActivity() {
     private val uploads by lazy { MyUploadsFragment() }
     private val locations by lazy { MyLocationsFragment() }
     private val myEvents by lazy { MyEventsFragment() }
+    private val players by lazy { PlayersFragment() }
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toolbarCreateButton: View
@@ -90,7 +91,8 @@ class HomeActivity : AppCompatActivity() {
 
         setupToolbar()
         setupBottomNavigation()
-        setupDrawer()
+        setupMainDrawer()
+        setupUserDrawer()
         setupDrawerWidth()
         setupDeletionWarningBanner()
         loadUserData()
@@ -104,9 +106,9 @@ class HomeActivity : AppCompatActivity() {
         toolbarAddLocationButton = findViewById(R.id.toolbarAddLocationButton)
         toolbarAddEventButton = findViewById(R.id.toolbarAddEventButton)
 
-        // Burger menu click
+        // Burger menu click - opens left drawer
         toolbar.setNavigationOnClickListener {
-            showDrawerMenu(toolbar)
+            openMainDrawer()
         }
 
         // Create button click - opens CreatePostBottomSheet
@@ -142,26 +144,30 @@ class HomeActivity : AppCompatActivity() {
         toolbarAddEventButton.visibility = View.GONE
     }
 
-    private fun showDrawerMenu(anchor: MaterialToolbar) {
-        val popup = PopupMenu(this, anchor)
-        popup.menuInflater.inflate(R.menu.drawer_menu, popup.menu)
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.menu_impressum -> {
-                    openWebView("https://dev.meply.de/pages/impressum/", "Impressum")
-                    true
-                }
-                R.id.menu_datenschutz -> {
-                    openWebView("https://dev.meply.de/pages/datenschutzerklaerung/", "Datenschutzerklärung")
-                    true
-                }
-                else -> false
-            }
-        }
-        popup.show()
+    private fun openMainDrawer() {
+        drawerLayout.openDrawer(GravityCompat.START)
     }
 
-    private fun setupDrawer() {
+    private fun setupMainDrawer() {
+        // Mitspieler menu item
+        findViewById<TextView>(R.id.menuPlayers).setOnClickListener {
+            openPlayers()
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
+        // Footer items
+        findViewById<TextView>(R.id.menuImpressum).setOnClickListener {
+            openWebView("https://dev.meply.de/pages/impressum/", "Impressum")
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
+        findViewById<TextView>(R.id.menuDatenschutz).setOnClickListener {
+            openWebView("https://dev.meply.de/pages/datenschutzerklaerung/", "Datenschutzerklärung")
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+    }
+
+    private fun setupUserDrawer() {
         // User header click - open own profile in visitor view
         findViewById<View>(R.id.drawerUserHeader).setOnClickListener {
             currentUserSlug?.let { slug ->
@@ -218,10 +224,17 @@ class HomeActivity : AppCompatActivity() {
         val screenWidth = displayMetrics.widthPixels
         val drawerWidth = (screenWidth * 0.9).toInt()
 
-        val drawer = findViewById<View>(R.id.userDrawer)
-        val params = drawer.layoutParams
-        params.width = drawerWidth
-        drawer.layoutParams = params
+        // Main drawer (left)
+        val mainDrawer = findViewById<View>(R.id.mainDrawer)
+        val mainParams = mainDrawer.layoutParams
+        mainParams.width = drawerWidth
+        mainDrawer.layoutParams = mainParams
+
+        // User drawer (right)
+        val userDrawer = findViewById<View>(R.id.userDrawer)
+        val userParams = userDrawer.layoutParams
+        userParams.width = drawerWidth
+        userDrawer.layoutParams = userParams
     }
 
     private fun setupDeletionWarningBanner() {
@@ -342,6 +355,16 @@ class HomeActivity : AppCompatActivity() {
         toolbarAddEventButton.visibility = View.VISIBLE
         deselectBottomNav()
         switchTo(myEvents, "myEvents")
+    }
+
+    private fun openPlayers() {
+        toolbarCreateButton.visibility = View.GONE
+        toolbarFilterButton.visibility = View.VISIBLE
+        toolbarAddGameButton.visibility = View.GONE
+        toolbarAddLocationButton.visibility = View.GONE
+        toolbarAddEventButton.visibility = View.GONE
+        deselectBottomNav()
+        switchTo(players, "players")
     }
 
     private fun deselectBottomNav() {
@@ -576,10 +599,16 @@ class HomeActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
-            drawerLayout.closeDrawer(GravityCompat.END)
-        } else {
-            super.onBackPressed()
+        when {
+            drawerLayout.isDrawerOpen(GravityCompat.START) -> {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            }
+            drawerLayout.isDrawerOpen(GravityCompat.END) -> {
+                drawerLayout.closeDrawer(GravityCompat.END)
+            }
+            else -> {
+                super.onBackPressed()
+            }
         }
     }
 }

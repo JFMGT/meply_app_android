@@ -121,6 +121,14 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <!-- Left Drawer (Main Menu) -->
+    <include
+        android:id="@+id/mainDrawer"
+        layout="@layout/drawer_main_menu"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start" />
+
     <!-- Right Drawer (User Menu) -->
     <include
         android:id="@+id/userDrawer"
