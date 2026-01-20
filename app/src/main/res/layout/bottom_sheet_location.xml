@@ -62,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_primary"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -82,7 +82,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_primary"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -117,7 +117,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="text"
                         android:maxLines="1"
-                        android:textColor="@color/text_disabled"
+                        android:textColor="@color/text_primary"
                         android:background="@color/background_card" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -137,7 +137,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="text"
                         android:maxLines="1"
-                        android:textColor="@color/text_disabled"
+                        android:textColor="@color/text_primary"
                         android:background="@color/background_card" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -165,7 +165,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:maxLines="1"
-                        android:textColor="@color/text_disabled"
+                        android:textColor="@color/text_primary"
                         android:background="@color/background_card" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -185,7 +185,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="text"
                         android:maxLines="1"
-                        android:textColor="@color/text_disabled"
+                        android:textColor="@color/text_primary"
                         android:background="@color/background_card" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -208,7 +208,7 @@
                     android:gravity="top|start"
                     android:inputType="textMultiLine"
                     android:minLines="3"
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_primary"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -237,7 +237,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="phone"
                     android:maxLines="1"
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_primary"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -257,7 +257,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_primary"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -277,7 +277,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textUri"
                     android:maxLines="1"
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_primary"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>

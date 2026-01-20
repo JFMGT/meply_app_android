@@ -57,14 +57,6 @@ class LocationBottomSheet : BottomSheetDialogFragment() {
         onLocationSaved = listener
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val documentId = arguments?.getString(ARG_LOCATION_DOCUMENT_ID)
-        if (documentId != null) {
-            loadLocation(documentId)
-        }
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
 
@@ -99,7 +91,15 @@ class LocationBottomSheet : BottomSheetDialogFragment() {
         initializeViews(view)
         setupTypeSpinner()
         setupListeners()
-        updateUI()
+
+        // Load location data if editing
+        val documentId = arguments?.getString(ARG_LOCATION_DOCUMENT_ID)
+        if (documentId != null) {
+            setLoading(true)
+            loadLocation(documentId)
+        } else {
+            updateUI()
+        }
     }
 
     private fun initializeViews(view: View) {
@@ -172,11 +172,14 @@ class LocationBottomSheet : BottomSheetDialogFragment() {
                 call: Call<LocationSingleResponse>,
                 response: Response<LocationSingleResponse>
             ) {
+                if (!isAdded) return
+
+                setLoading(false)
+
                 if (response.isSuccessful) {
                     editingLocation = response.body()?.data
-                    if (isAdded) {
-                        updateUI()
-                    }
+                    Log.d(TAG, "Loaded location: ${editingLocation?.titel}, type: ${editingLocation?.typ}")
+                    updateUI()
                 } else {
                     Log.e(TAG, "Error loading location: ${response.code()}")
                     Toast.makeText(context, "Fehler beim Laden der Location", Toast.LENGTH_SHORT).show()
@@ -184,6 +187,9 @@ class LocationBottomSheet : BottomSheetDialogFragment() {
             }
 
             override fun onFailure(call: Call<LocationSingleResponse>, t: Throwable) {
+                if (!isAdded) return
+
+                setLoading(false)
                 Log.e(TAG, "Network error loading location", t)
                 Toast.makeText(context, "Netzwerkfehler", Toast.LENGTH_SHORT).show()
             }
