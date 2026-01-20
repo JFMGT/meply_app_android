@@ -554,4 +554,80 @@ interface ApiService {
         @Path("id") uploadId: Int
     ): Call<de.meply.meply.data.uploads.DeleteUploadResponse>
 
+    // ===== LOCATIONS ENDPOINTS =====
+
+    /**
+     * Get all locations for the current user
+     * Uses filters to get only the user's own locations
+     * @param authorDocumentId The author's profile document ID
+     * @param publicationState "preview" to get both drafts and published
+     */
+    @GET("locations")
+    fun getMyLocations(
+        @Query("filters[author][documentId][\$eq]") authorDocumentId: String,
+        @Query("publicationState") publicationState: String = "preview",
+        @Query("populate") populate: String = "*"
+    ): Call<de.meply.meply.data.locations.LocationsResponse>
+
+    /**
+     * Get a single location by document ID
+     * @param documentId The location's document ID
+     * @param publicationState "preview" to include drafts
+     */
+    @GET("locations/{documentId}")
+    fun getLocation(
+        @Path("documentId") documentId: String,
+        @Query("publicationState") publicationState: String = "preview",
+        @Query("populate") populate: String = "author"
+    ): Call<de.meply.meply.data.locations.LocationSingleResponse>
+
+    /**
+     * Create a new location
+     */
+    @POST("locations")
+    fun createLocation(
+        @Body request: de.meply.meply.data.locations.CreateLocationRequest
+    ): Call<de.meply.meply.data.locations.LocationActionResponse>
+
+    /**
+     * Update an existing location
+     * @param documentId The location's document ID
+     */
+    @PUT("locations/{documentId}")
+    fun updateLocation(
+        @Path("documentId") documentId: String,
+        @Body request: de.meply.meply.data.locations.CreateLocationRequest
+    ): Call<de.meply.meply.data.locations.LocationActionResponse>
+
+    /**
+     * Delete a location
+     * @param documentId The location's document ID
+     */
+    @DELETE("locations/{documentId}")
+    fun deleteLocation(
+        @Path("documentId") documentId: String
+    ): Call<Void>
+
+    /**
+     * Discard draft changes for a location
+     * @param documentId The location's document ID
+     */
+    @POST("locations/{documentId}/discard-draft")
+    fun discardLocationDraft(
+        @Path("documentId") documentId: String
+    ): Call<Void>
+
+    /**
+     * Search locations (for autocomplete in forms)
+     * @param query Search query (min 2 characters)
+     * @param authorDocumentId To filter by owner
+     */
+    @GET("locations")
+    fun searchLocations(
+        @Query("filters[Titel][\$containsi]") query: String,
+        @Query("filters[\$or][0][author][documentId]") authorDocumentId: String?,
+        @Query("filters[\$or][1][allow_user_events]") allowUserEvents: Boolean = true,
+        @Query("pagination[limit]") limit: Int = 5
+    ): Call<de.meply.meply.data.locations.LocationsResponse>
+
 }
