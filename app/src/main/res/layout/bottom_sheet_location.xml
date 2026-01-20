@@ -50,44 +50,35 @@
 
             <!-- Title Input -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Name / Titel *"
-                app:hintTextColor="@color/text_on_light"
-                android:textColorHint="@color/text_disabled"
-                app:boxStrokeColor="@color/primary">
+                android:hint="Name / Titel *">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/titleInput"
+                    style="@style/Widget.Meply.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:maxLines="1"
-                    android:textColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                    android:background="@color/background_card" />
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Type Spinner -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Typ *"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                app:hintTextColor="@color/text_on_light"
-                android:textColorHint="@color/text_disabled"
-                app:boxStrokeColor="@color/primary">
+                android:hint="Typ *">
 
                 <AutoCompleteTextView
                     android:id="@+id/typeSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                    android:background="@color/background_card" />
+                    android:textColor="@color/text_on_light" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -108,43 +99,37 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Meply.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:hint="Straße"
-                    app:hintTextColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                    app:boxStrokeColor="@color/primary">
+                    android:hint="Straße">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/streetInput"
+                        style="@style/Widget.Meply.TextInputEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:maxLines="1"
-                        android:textColor="@color/text_on_light"
-                        android:background="@color/background_card" />
+                        android:maxLines="1" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Meply.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:hint="Nr."
-                    app:hintTextColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                    app:boxStrokeColor="@color/primary">
+                    android:hint="Nr.">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/houseNumberInput"
+                        style="@style/Widget.Meply.TextInputEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:maxLines="1"
-                        android:textColor="@color/text_on_light"
-                        android:background="@color/background_card" />
+                        android:maxLines="1" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -158,43 +143,37 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Meply.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="PLZ"
-                    app:hintTextColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                    app:boxStrokeColor="@color/primary">
+                    android:hint="PLZ">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/zipInput"
+                        style="@style/Widget.Meply.TextInputEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
-                        android:maxLines="1"
-                        android:textColor="@color/text_on_light"
-                        android:background="@color/background_card" />
+                        android:maxLines="1" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Meply.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:layout_marginStart="8dp"
-                    android:hint="Ort"
-                    app:hintTextColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                    app:boxStrokeColor="@color/primary">
+                    android:hint="Ort">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/cityInput"
+                        style="@style/Widget.Meply.TextInputEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:maxLines="1"
-                        android:textColor="@color/text_on_light"
-                        android:background="@color/background_card" />
+                        android:maxLines="1" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -202,23 +181,20 @@
 
             <!-- Description Input -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Beschreibung"
-                app:hintTextColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                app:boxStrokeColor="@color/primary">
+                android:hint="Beschreibung">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/descriptionInput"
+                    style="@style/Widget.Meply.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top|start"
                     android:inputType="textMultiLine"
-                    android:minLines="3"
-                    android:textColor="@color/text_on_light"
-                    android:background="@color/background_card" />
+                    android:minLines="3" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -233,64 +209,55 @@
 
             <!-- Phone Input -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="Telefon"
-                app:hintTextColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                app:boxStrokeColor="@color/primary">
+                android:hint="Telefon">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/phoneInput"
+                    style="@style/Widget.Meply.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="phone"
-                    android:maxLines="1"
-                    android:textColor="@color/text_on_light"
-                    android:background="@color/background_card" />
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Email Input -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="E-Mail"
-                app:hintTextColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                app:boxStrokeColor="@color/primary">
+                android:hint="E-Mail">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/emailInput"
+                    style="@style/Widget.Meply.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:maxLines="1"
-                    android:textColor="@color/text_on_light"
-                    android:background="@color/background_card" />
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Website Input -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Website"
-                app:hintTextColor="@color/text_on_light"
-                    android:textColorHint="@color/text_disabled"
-                app:boxStrokeColor="@color/primary">
+                android:hint="Website">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/websiteInput"
+                    style="@style/Widget.Meply.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textUri"
-                    android:maxLines="1"
-                    android:textColor="@color/text_on_light"
-                    android:background="@color/background_card" />
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
