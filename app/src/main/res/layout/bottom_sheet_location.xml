@@ -53,7 +53,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Name / Titel *"
-                app:hintTextColor="@color/text_secondary"
+                app:hintTextColor="@color/text_on_light"
+                android:textColorHint="@color/text_disabled"
                 app:boxStrokeColor="@color/primary">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -63,6 +64,7 @@
                     android:inputType="text"
                     android:maxLines="1"
                     android:textColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -74,7 +76,8 @@
                 android:layout_marginTop="12dp"
                 android:hint="Typ *"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                app:hintTextColor="@color/text_secondary"
+                app:hintTextColor="@color/text_on_light"
+                android:textColorHint="@color/text_disabled"
                 app:boxStrokeColor="@color/primary">
 
                 <AutoCompleteTextView
@@ -83,6 +86,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="none"
                     android:textColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -108,7 +112,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:hint="Straße"
-                    app:hintTextColor="@color/text_secondary"
+                    app:hintTextColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                     app:boxStrokeColor="@color/primary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -128,7 +133,8 @@
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:hint="Nr."
-                    app:hintTextColor="@color/text_secondary"
+                    app:hintTextColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                     app:boxStrokeColor="@color/primary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -156,7 +162,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="PLZ"
-                    app:hintTextColor="@color/text_secondary"
+                    app:hintTextColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                     app:boxStrokeColor="@color/primary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -176,7 +183,8 @@
                     android:layout_weight="2"
                     android:layout_marginStart="8dp"
                     android:hint="Ort"
-                    app:hintTextColor="@color/text_secondary"
+                    app:hintTextColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                     app:boxStrokeColor="@color/primary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -198,7 +206,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="Beschreibung"
-                app:hintTextColor="@color/text_secondary"
+                app:hintTextColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                 app:boxStrokeColor="@color/primary">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -228,7 +237,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:hint="Telefon"
-                app:hintTextColor="@color/text_secondary"
+                app:hintTextColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                 app:boxStrokeColor="@color/primary">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -248,7 +258,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:hint="E-Mail"
-                app:hintTextColor="@color/text_secondary"
+                app:hintTextColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                 app:boxStrokeColor="@color/primary">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -268,7 +279,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:hint="Website"
-                app:hintTextColor="@color/text_secondary"
+                app:hintTextColor="@color/text_on_light"
+                    android:textColorHint="@color/text_disabled"
                 app:boxStrokeColor="@color/primary">
 
                 <com.google.android.material.textfield.TextInputEditText
