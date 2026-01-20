@@ -83,6 +83,34 @@
 
         </LinearLayout>
 
+        <!-- Add Event Button (nur bei Events sichtbar) -->
+        <LinearLayout
+            android:id="@+id/toolbarAddEventButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Event"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="4dp"
+                android:src="@android:drawable/ic_input_add"
+                android:contentDescription="Event hinzufügen"
+                app:tint="@color/text_primary" />
+
+        </LinearLayout>
+
         <!-- Filter Button (nur bei Events sichtbar) -->
         <LinearLayout
             android:id="@+id/toolbarFilterButton"

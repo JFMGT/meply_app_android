@@ -630,4 +630,77 @@ interface ApiService {
         @Query("pagination[limit]") limit: Int = 5
     ): Call<de.meply.meply.data.locations.LocationsResponse>
 
+    // ===== EVENTS ENDPOINTS =====
+
+    /**
+     * Get all events for the current user
+     * Uses filters to get only the user's own events
+     * @param authorDocumentId The author's profile document ID
+     * @param publicationState "preview" to get both drafts and published
+     */
+    @GET("events")
+    fun getMyEvents(
+        @Query("filters[author][documentId][\$eq]") authorDocumentId: String,
+        @Query("publicationState") publicationState: String = "preview",
+        @Query("populate") populate: String = "*"
+    ): Call<de.meply.meply.data.events.EventsResponse>
+
+    /**
+     * Get a single event by document ID
+     * @param documentId The event's document ID
+     * @param publicationState "preview" to include drafts
+     */
+    @GET("events/{documentId}")
+    fun getEvent(
+        @Path("documentId") documentId: String,
+        @Query("publicationState") publicationState: String = "preview",
+        @Query("populate[0]") populateAuthor: String = "author",
+        @Query("populate[1]") populateLocation: String = "location"
+    ): Call<de.meply.meply.data.events.EventSingleResponse>
+
+    /**
+     * Create a new event
+     */
+    @POST("events")
+    fun createEvent(
+        @Body request: de.meply.meply.data.events.CreateEventRequest
+    ): Call<de.meply.meply.data.events.EventActionResponse>
+
+    /**
+     * Update an existing event
+     * @param documentId The event's document ID
+     */
+    @PUT("events/{documentId}")
+    fun updateEvent(
+        @Path("documentId") documentId: String,
+        @Body request: de.meply.meply.data.events.CreateEventRequest
+    ): Call<de.meply.meply.data.events.EventActionResponse>
+
+    /**
+     * Delete an event
+     * @param documentId The event's document ID
+     */
+    @DELETE("events/{documentId}")
+    fun deleteEvent(
+        @Path("documentId") documentId: String
+    ): Call<Void>
+
+    /**
+     * Publish an event
+     * @param documentId The event's document ID
+     */
+    @POST("events/{documentId}/publish")
+    fun publishEvent(
+        @Path("documentId") documentId: String
+    ): Call<de.meply.meply.data.events.EventActionResponse>
+
+    /**
+     * Unpublish an event
+     * @param documentId The event's document ID
+     */
+    @POST("events/{documentId}/unpublish")
+    fun unpublishEvent(
+        @Path("documentId") documentId: String
+    ): Call<de.meply.meply.data.events.EventActionResponse>
+
 }
