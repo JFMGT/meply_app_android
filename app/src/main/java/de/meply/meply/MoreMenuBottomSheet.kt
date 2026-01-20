@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.meply.meply.auth.AuthManager
+import de.meply.meply.ui.collection.MyCollectionActivity
+import de.meply.meply.ui.uploads.MyUploadsActivity
 
 class MoreMenuBottomSheet : BottomSheetDialogFragment() {
 
@@ -18,6 +20,14 @@ class MoreMenuBottomSheet : BottomSheetDialogFragment() {
             // Navigate to Profile Fragment
             val activity = requireActivity() as? HomeActivity
             activity?.navigateToProfile()
+            dismiss()
+        }
+        v.findViewById<TextView>(R.id.item_collection).setOnClickListener {
+            MyCollectionActivity.start(requireContext())
+            dismiss()
+        }
+        v.findViewById<TextView>(R.id.item_uploads).setOnClickListener {
+            MyUploadsActivity.start(requireContext())
             dismiss()
         }
         v.findViewById<TextView>(R.id.item_map).setOnClickListener {

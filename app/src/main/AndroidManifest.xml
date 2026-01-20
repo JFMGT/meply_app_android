@@ -55,6 +55,13 @@
         <activity
             android:name=".ui.collection.MyCollectionActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.uploads.MyUploadsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.uploads.ImageViewerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Meply.Fullscreen" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
