@@ -64,25 +64,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:textColorHint="@color/text_disabled"
-            app:boxBackgroundColor="@color/background_card"
-            app:boxBackgroundMode="filled">
+            style="@style/Widget.Meply.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Benutzername"
-                android:textColor="@color/text_disabled" />
+                style="@style/Widget.Meply.TextInputEditText" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:textColorHint="@color/text_disabled"
-            app:boxBackgroundColor="@color/background_card"
-            app:boxBackgroundMode="filled">
+            style="@style/Widget.Meply.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_birth_date"
@@ -90,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Geburtsdatum (YYYY-MM-DD)"
                 android:inputType="date"
-                android:textColor="@color/text_disabled" />
+                style="@style/Widget.Meply.TextInputEditText" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -114,9 +110,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:textColorHint="@color/text_disabled"
-            app:boxBackgroundColor="@color/background_card"
-            app:boxBackgroundMode="filled">
+            style="@style/Widget.Meply.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_postal"
@@ -124,32 +118,28 @@
                 android:layout_height="wrap_content"
                 android:hint="Postleitzahl"
                 android:inputType="number"
-                android:textColor="@color/text_disabled" />
+                style="@style/Widget.Meply.TextInputEditText" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:textColorHint="@color/text_disabled"
-            app:boxBackgroundColor="@color/background_card"
-            app:boxBackgroundMode="filled">
+            style="@style/Widget.Meply.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_city"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Stadt"
-                android:textColor="@color/text_disabled" />
+                style="@style/Widget.Meply.TextInputEditText" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:textColorHint="@color/text_disabled"
-            app:boxBackgroundColor="@color/background_card"
-            app:boxBackgroundMode="filled">
+            style="@style/Widget.Meply.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_radius"
@@ -157,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Suchradius (km)"
                 android:inputType="number"
-                android:textColor="@color/text_disabled" />
+                style="@style/Widget.Meply.TextInputEditText" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Spieleprofile -->
@@ -175,9 +165,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:textColorHint="@color/text_disabled"
-            app:boxBackgroundColor="@color/background_card"
-            app:boxBackgroundMode="filled">
+            style="@style/Widget.Meply.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_bgg_profile"
@@ -185,23 +173,21 @@
                 android:layout_height="wrap_content"
                 android:hint="BoardGameGeek Profil"
                 android:inputType="textUri"
-                android:textColor="@color/text_disabled" />
+                style="@style/Widget.Meply.TextInputEditText" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:textColorHint="@color/text_disabled"
-            app:boxBackgroundColor="@color/background_card"
-            app:boxBackgroundMode="filled">
+            style="@style/Widget.Meply.TextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_bga_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Board Game Arena Benutzername"
-                android:textColor="@color/text_disabled" />
+                style="@style/Widget.Meply.TextInputEditText" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Privatsphäre-Einstellungen -->

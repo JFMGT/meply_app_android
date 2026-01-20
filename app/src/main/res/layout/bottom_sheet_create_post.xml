@@ -50,24 +50,22 @@
 
             <!-- Post Content Input -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Was möchtest du teilen?"
                 app:counterEnabled="true"
-                app:counterMaxLength="5000"
-                app:hintTextColor="@color/text_secondary"
-                app:boxStrokeColor="@color/primary">
+                app:counterMaxLength="5000">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/postContentInput"
+                    style="@style/Widget.Meply.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top|start"
                     android:inputType="textMultiLine"
                     android:maxLength="5000"
-                    android:minLines="4"
-                    android:textColor="@color/text_disabled"
-                    android:background="@color/background_card" />
+                    android:minLines="4" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

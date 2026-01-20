@@ -64,22 +64,20 @@
 
     <!-- Alt-Text Eingabe -->
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Meply.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="z.B. Ein Spielbrett mit bunten Figuren"
-        app:hintTextColor="@color/text_secondary"
-        app:boxStrokeColor="@color/primary">
+        android:hint="z.B. Ein Spielbrett mit bunten Figuren">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editAltTextInput"
+            style="@style/Widget.Meply.TextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
             android:maxLength="200"
             android:minLines="2"
-            android:maxLines="4"
-            android:textColor="@color/text_primary"
-            android:background="@color/background_card" />
+            android:maxLines="4" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

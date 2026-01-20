@@ -37,22 +37,18 @@
 
     <!-- Title Search -->
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Meply.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Titel suchen..."
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:hintTextColor="@color/text_secondary"
-        app:boxStrokeColor="@color/primary"
-        app:boxBackgroundColor="@color/surface"
         app:startIconDrawable="@drawable/ic_search"
-        app:startIconTint="@color/text_secondary">
+        app:startIconTint="@color/text_disabled">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/titleInput"
+            style="@style/Widget.Meply.TextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary"
             android:inputType="text"
             android:maxLines="1" />
 
