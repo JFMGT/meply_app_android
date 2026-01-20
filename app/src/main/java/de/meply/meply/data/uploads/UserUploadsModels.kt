@@ -50,7 +50,7 @@ data class UploadedFile(
     @SerializedName("name") val name: String?,
     @SerializedName("ext") val ext: String?,
     @SerializedName("mime") val mime: String?,
-    @SerializedName("size") val size: Long?,
+    @SerializedName("size") val size: Double?,
     @SerializedName("width") val width: Int?,
     @SerializedName("height") val height: Int?,
     @SerializedName("formats") val formats: ImageFormats?
@@ -82,13 +82,14 @@ data class UploadedFile(
 
     /**
      * Get formatted file size (KB/MB)
+     * Note: Strapi returns size in KB as a Double
      */
     fun getFormattedSize(): String {
         if (size == null) return "– KB"
+        // Strapi returns size in KB already
         return when {
-            size >= 1024 * 1024 -> String.format("%.1f MB", size / (1024.0 * 1024.0))
-            size >= 1024 -> String.format("%.1f KB", size / 1024.0)
-            else -> "$size B"
+            size >= 1024 -> String.format("%.1f MB", size / 1024.0)
+            else -> String.format("%.1f KB", size)
         }
     }
 
