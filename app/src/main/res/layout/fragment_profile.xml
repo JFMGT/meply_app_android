@@ -48,6 +48,14 @@
                 android:text="Profilbild ändern"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
+            <Button
+                android:id="@+id/btn_my_uploads"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Meine Bilder"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
         </LinearLayout>
 
         <!-- Profil Informationen -->

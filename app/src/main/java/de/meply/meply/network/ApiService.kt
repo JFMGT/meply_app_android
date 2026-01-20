@@ -532,4 +532,26 @@ interface ApiService {
         @Query("title") title: String? = null
     ): Call<de.meply.meply.data.markt.MarktplaceResponse>
 
+    // ===== USER UPLOADS (MEINE BILDER) ENDPOINTS =====
+
+    /**
+     * Get all images uploaded by the current user
+     * @param page Page number (1-based)
+     * @param pageSize Items per page (max 100)
+     */
+    @GET("user-uploads/me")
+    fun getMyUploads(
+        @Query("page") page: Int = 1,
+        @Query("pageSize") pageSize: Int = 24
+    ): Call<de.meply.meply.data.uploads.UserUploadsResponse>
+
+    /**
+     * Delete an uploaded image owned by the current user
+     * @param uploadId The user-upload entry ID (not the file ID)
+     */
+    @DELETE("user-uploads/own/{id}")
+    fun deleteUserUpload(
+        @Path("id") uploadId: Int
+    ): Call<de.meply.meply.data.uploads.DeleteUploadResponse>
+
 }
