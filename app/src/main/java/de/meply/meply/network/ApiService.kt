@@ -655,8 +655,6 @@ interface ApiService {
         @Query("filters[Typ][\$eq]") type: String? = null,
         @Query("pagination[pageSize]") pageSize: Int = 100
     ): Call<de.meply.meply.data.locations.LocationsResponse>
-        @Query("pagination[limit]") limit: Int = 5
-    ): Call<de.meply.meply.data.locations.LocationsResponse>
 
     // ===== EVENTS ENDPOINTS =====
 

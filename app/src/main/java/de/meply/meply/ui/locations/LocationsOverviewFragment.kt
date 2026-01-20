@@ -22,9 +22,10 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
-import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.locations.Location
 import de.meply.meply.data.locations.LocationsResponse
+import de.meply.meply.data.profile.ProfileMeData
+import de.meply.meply.data.profile.ProfileResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -146,11 +147,26 @@ class LocationsOverviewFragment : Fragment() {
     }
 
     private fun loadInitialPLZ() {
-        // Try to get user's PLZ from profile
-        val plz = AuthManager.getPostalCode(requireContext())
-        if (!plz.isNullOrBlank()) {
-            plzInput.setText(plz)
-        }
+        // Try to get user's PLZ from profile API
+        ApiClient.retrofit.getMyProfile().enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
+            override fun onResponse(
+                call: Call<ProfileResponse<ProfileMeData>>,
+                response: Response<ProfileResponse<ProfileMeData>>
+            ) {
+                if (!isAdded) return
+                if (response.isSuccessful) {
+                    val postalCode = response.body()?.data?.postalCode
+                    if (!postalCode.isNullOrBlank()) {
+                        plzInput.setText(postalCode)
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
+                // Silently fail - PLZ prefill is not critical
+                Log.d(TAG, "Could not load initial PLZ: ${t.message}")
+            }
+        })
     }
 
     fun loadLocations() {
