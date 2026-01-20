@@ -630,4 +630,116 @@ interface ApiService {
         @Query("pagination[limit]") limit: Int = 5
     ): Call<de.meply.meply.data.locations.LocationsResponse>
 
+    /**
+     * Get all public locations (published)
+     * @param type Optional filter by type (Geschäft, Cafe, Club, Location)
+     * @param pageSize Number of results per page
+     */
+    @GET("locations/public")
+    fun getPublicLocations(
+        @Query("filters[Typ][\$eq]") type: String? = null,
+        @Query("pagination[pageSize]") pageSize: Int = 100,
+        @Query("populate") populate: String = "*"
+    ): Call<de.meply.meply.data.locations.LocationsResponse>
+
+    /**
+     * Get locations nearby a postal code
+     * @param zip Postal code to search around
+     * @param radius Search radius in km
+     * @param type Optional filter by type
+     */
+    @GET("locations/nearby")
+    fun getNearbyLocations(
+        @Query("zip") zip: String,
+        @Query("radius") radius: Int,
+        @Query("filters[Typ][\$eq]") type: String? = null,
+        @Query("pagination[pageSize]") pageSize: Int = 100
+    ): Call<de.meply.meply.data.locations.LocationsResponse>
+
+    // ===== EVENTS ENDPOINTS =====
+
+    /**
+     * Get all events for the current user
+     * Uses filters to get only the user's own events
+     * @param authorDocumentId The author's profile document ID
+     * @param publicationState "preview" to get both drafts and published
+     */
+    @GET("events")
+    fun getMyEvents(
+        @Query("filters[author][documentId][\$eq]") authorDocumentId: String,
+        @Query("publicationState") publicationState: String = "preview",
+        @Query("populate") populate: String = "*"
+    ): Call<de.meply.meply.data.events.EventsResponse>
+
+    /**
+     * Get a single event by document ID
+     * @param documentId The event's document ID
+     * @param publicationState "preview" to include drafts
+     */
+    @GET("events/{documentId}")
+    fun getEvent(
+        @Path("documentId") documentId: String,
+        @Query("publicationState") publicationState: String = "preview",
+        @Query("populate[0]") populateAuthor: String = "author",
+        @Query("populate[1]") populateLocation: String = "location"
+    ): Call<de.meply.meply.data.events.EventSingleResponse>
+
+    /**
+     * Create a new event
+     */
+    @POST("events")
+    fun createEvent(
+        @Body request: de.meply.meply.data.events.CreateEventRequest
+    ): Call<de.meply.meply.data.events.EventActionResponse>
+
+    /**
+     * Update an existing event
+     * @param documentId The event's document ID
+     */
+    @PUT("events/{documentId}")
+    fun updateEvent(
+        @Path("documentId") documentId: String,
+        @Body request: de.meply.meply.data.events.CreateEventRequest
+    ): Call<de.meply.meply.data.events.EventActionResponse>
+
+    /**
+     * Delete an event
+     * @param documentId The event's document ID
+     */
+    @DELETE("events/{documentId}")
+    fun deleteEvent(
+        @Path("documentId") documentId: String
+    ): Call<Void>
+
+    /**
+     * Publish an event
+     * @param documentId The event's document ID
+     */
+    @POST("events/{documentId}/publish")
+    fun publishEvent(
+        @Path("documentId") documentId: String
+    ): Call<de.meply.meply.data.events.EventActionResponse>
+
+    /**
+     * Unpublish an event
+     * @param documentId The event's document ID
+     */
+    @POST("events/{documentId}/unpublish")
+    fun unpublishEvent(
+        @Path("documentId") documentId: String
+    ): Call<de.meply.meply.data.events.EventActionResponse>
+
+    // ===== PLAYER MATCHING ENDPOINTS =====
+
+    /**
+     * Get best matching players nearby
+     * @param profileId The current user's profile ID
+     * @param limit Maximum number of results (default 20)
+     */
+    @GET("matches/best/{profileId}")
+    fun getBestMatches(
+        @Path("profileId") profileId: Int,
+        @Query("limit") limit: Int = 20
+    ): Call<List<de.meply.meply.data.players.PlayerMatch>>
+
 }

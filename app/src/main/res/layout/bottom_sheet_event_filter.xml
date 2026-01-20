@@ -45,47 +45,39 @@
 
     <!-- PLZ Input -->
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Meply.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:hint="Postleitzahl"
-        app:hintEnabled="true"
-        app:hintTextColor="@color/text_secondary"
-        app:boxBackgroundMode="outline"
-        app:boxStrokeColor="@color/primary"
-        app:boxBackgroundColor="@color/background_card">
+        android:hint="Postleitzahl">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editZip"
+            style="@style/Widget.Meply.TextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
             android:maxLength="5"
-            android:imeOptions="actionNext"
-            android:textColor="@color/text_primary" />
+            android:imeOptions="actionNext" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Radius Input -->
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Meply.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:hint="Radius in km"
-        app:hintEnabled="true"
-        app:hintTextColor="@color/text_secondary"
-        app:boxBackgroundMode="outline"
-        app:boxStrokeColor="@color/primary"
-        app:boxBackgroundColor="@color/background_card"
         app:suffixText="km"
-        app:suffixTextColor="@color/text_secondary">
+        app:suffixTextColor="@color/text_disabled">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editRadius"
+            style="@style/Widget.Meply.TextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
-            android:imeOptions="actionDone"
-            android:textColor="@color/text_primary" />
+            android:imeOptions="actionDone" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Search Button -->

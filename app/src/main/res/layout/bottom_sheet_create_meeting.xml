@@ -88,41 +88,37 @@
 
             <!-- Title Input -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Titel *"
-                app:hintTextColor="@color/text_secondary"
-                app:boxStrokeColor="@color/primary">
+                android:hint="Titel *">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/titleInput"
+                    style="@style/Widget.Meply.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:maxLines="1"
-                    android:textColor="@color/text_disabled"
-                    android:background="@color/background_card" />
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Description Input -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Meply.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Beschreibung (optional)"
-                app:hintTextColor="@color/text_secondary"
-                app:boxStrokeColor="@color/primary">
+                android:hint="Beschreibung (optional)">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/descriptionInput"
+                    style="@style/Widget.Meply.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top|start"
                     android:inputType="textMultiLine"
-                    android:minLines="3"
-                    android:textColor="@color/text_disabled"
-                    android:background="@color/background_card" />
+                    android:minLines="3" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

@@ -93,21 +93,18 @@
 
                 <!-- Price Input -->
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Meply.TextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Preis (€)"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:hintTextColor="@color/text_disabled"
-                    app:boxStrokeColor="@color/primary"
-                    app:boxBackgroundColor="@color/white"
                     android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/priceInput"
+                        style="@style/Widget.Meply.TextInputEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/text_on_light" />
+                        android:inputType="numberDecimal" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -145,23 +142,20 @@
 
                 <!-- Description Input -->
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Meply.TextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Beschreibung (optional)"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:hintTextColor="@color/text_disabled"
-                    app:boxStrokeColor="@color/primary"
-                    app:boxBackgroundColor="@color/white"
                     android:layout_marginBottom="12dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/descriptionInput"
+                        style="@style/Widget.Meply.TextInputEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textMultiLine"
                         android:minLines="3"
-                        android:gravity="top|start"
-                        android:textColor="@color/text_on_light" />
+                        android:gravity="top|start" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
