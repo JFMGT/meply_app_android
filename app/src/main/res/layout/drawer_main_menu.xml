@@ -70,6 +70,23 @@
             android:clickable="true"
             android:focusable="true" />
 
+        <TextView
+            android:id="@+id/menuLocationsOverview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:paddingStart="24dp"
+            android:drawableStart="@android:drawable/ic_menu_compass"
+            android:drawablePadding="16dp"
+            android:drawableTint="@color/primary_dark"
+            android:text="Locations entdecken"
+            android:textColor="@color/text_on_light"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
+
     </LinearLayout>
 
     <!-- Spacer to push footer items to bottom -->

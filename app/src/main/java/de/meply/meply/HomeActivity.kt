@@ -36,6 +36,7 @@ import de.meply.meply.ui.uploads.MyUploadsFragment
 import de.meply.meply.ui.locations.MyLocationsFragment
 import de.meply.meply.ui.events.MyEventsFragment
 import de.meply.meply.ui.players.PlayersFragment
+import de.meply.meply.ui.locations.LocationsOverviewFragment
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -59,6 +60,7 @@ class HomeActivity : AppCompatActivity() {
     private val locations by lazy { MyLocationsFragment() }
     private val myEvents by lazy { MyEventsFragment() }
     private val players by lazy { PlayersFragment() }
+    private val locationsOverview by lazy { LocationsOverviewFragment() }
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toolbarCreateButton: View
@@ -152,6 +154,12 @@ class HomeActivity : AppCompatActivity() {
         // Mitspieler menu item
         findViewById<TextView>(R.id.menuPlayers).setOnClickListener {
             openPlayers()
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
+        // Locations overview menu item
+        findViewById<TextView>(R.id.menuLocationsOverview).setOnClickListener {
+            openLocationsOverview()
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
@@ -365,6 +373,16 @@ class HomeActivity : AppCompatActivity() {
         toolbarAddEventButton.visibility = View.GONE
         deselectBottomNav()
         switchTo(players, "players")
+    }
+
+    private fun openLocationsOverview() {
+        toolbarCreateButton.visibility = View.GONE
+        toolbarFilterButton.visibility = View.GONE
+        toolbarAddGameButton.visibility = View.GONE
+        toolbarAddLocationButton.visibility = View.GONE
+        toolbarAddEventButton.visibility = View.GONE
+        deselectBottomNav()
+        switchTo(locationsOverview, "locationsOverview")
     }
 
     private fun deselectBottomNav() {

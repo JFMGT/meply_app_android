@@ -630,6 +630,34 @@ interface ApiService {
         @Query("pagination[limit]") limit: Int = 5
     ): Call<de.meply.meply.data.locations.LocationsResponse>
 
+    /**
+     * Get all public locations (published)
+     * @param type Optional filter by type (Geschäft, Cafe, Club, Location)
+     * @param pageSize Number of results per page
+     */
+    @GET("locations/public")
+    fun getPublicLocations(
+        @Query("filters[Typ][\$eq]") type: String? = null,
+        @Query("pagination[pageSize]") pageSize: Int = 100,
+        @Query("populate") populate: String = "*"
+    ): Call<de.meply.meply.data.locations.LocationsResponse>
+
+    /**
+     * Get locations nearby a postal code
+     * @param zip Postal code to search around
+     * @param radius Search radius in km
+     * @param type Optional filter by type
+     */
+    @GET("locations/nearby")
+    fun getNearbyLocations(
+        @Query("zip") zip: String,
+        @Query("radius") radius: Int,
+        @Query("filters[Typ][\$eq]") type: String? = null,
+        @Query("pagination[pageSize]") pageSize: Int = 100
+    ): Call<de.meply.meply.data.locations.LocationsResponse>
+        @Query("pagination[limit]") limit: Int = 5
+    ): Call<de.meply.meply.data.locations.LocationsResponse>
+
     // ===== EVENTS ENDPOINTS =====
 
     /**
