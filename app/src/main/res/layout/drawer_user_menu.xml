@@ -113,6 +113,19 @@
             android:clickable="true"
             android:focusable="true" />
 
+        <TextView
+            android:id="@+id/menuUploads"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:paddingStart="24dp"
+            android:text="Meine Bilder"
+            android:textColor="@color/text_on_primary"
+            android:textSize="16sp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
+
     </LinearLayout>
 
     <!-- Spacer to push logout to bottom -->

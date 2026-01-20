@@ -33,6 +33,7 @@ import de.meply.meply.ui.collection.MyCollectionFragment
 import de.meply.meply.ui.markt.MarktFragment
 import de.meply.meply.ui.profile.UserProfileActivity
 import de.meply.meply.ui.collection.AddGameSearchBottomSheet
+import de.meply.meply.ui.uploads.MyUploadsActivity
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -166,6 +167,11 @@ class HomeActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.menuCollection).setOnClickListener {
             openCollection()
+            drawerLayout.closeDrawer(GravityCompat.END)
+        }
+
+        findViewById<TextView>(R.id.menuUploads).setOnClickListener {
+            MyUploadsActivity.start(this)
             drawerLayout.closeDrawer(GravityCompat.END)
         }
 
