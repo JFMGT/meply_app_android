@@ -33,7 +33,7 @@ import de.meply.meply.ui.collection.MyCollectionFragment
 import de.meply.meply.ui.markt.MarktFragment
 import de.meply.meply.ui.profile.UserProfileActivity
 import de.meply.meply.ui.collection.AddGameSearchBottomSheet
-import de.meply.meply.ui.uploads.MyUploadsActivity
+import de.meply.meply.ui.uploads.MyUploadsFragment
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -53,6 +53,7 @@ class HomeActivity : AppCompatActivity() {
     private val followers by lazy { FollowersFragment() }
     private val gesuche by lazy { GesucheFragment() }
     private val collection by lazy { MyCollectionFragment() }
+    private val uploads by lazy { MyUploadsFragment() }
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var toolbarCreateButton: View
@@ -171,7 +172,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         findViewById<TextView>(R.id.menuUploads).setOnClickListener {
-            MyUploadsActivity.start(this)
+            openUploads()
             drawerLayout.closeDrawer(GravityCompat.END)
         }
 
@@ -275,6 +276,14 @@ class HomeActivity : AppCompatActivity() {
         toolbarAddGameButton.visibility = View.VISIBLE
         deselectBottomNav()
         switchTo(collection, "collection")
+    }
+
+    private fun openUploads() {
+        toolbarCreateButton.visibility = View.GONE
+        toolbarFilterButton.visibility = View.GONE
+        toolbarAddGameButton.visibility = View.GONE
+        deselectBottomNav()
+        switchTo(uploads, "uploads")
     }
 
     private fun deselectBottomNav() {
