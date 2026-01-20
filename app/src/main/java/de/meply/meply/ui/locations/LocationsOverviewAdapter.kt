@@ -5,6 +5,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
@@ -37,6 +38,7 @@ class LocationsOverviewAdapter(
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val typeIcon: ImageView = itemView.findViewById(R.id.location_type_icon)
         private val title: TextView = itemView.findViewById(R.id.location_title)
         private val type: TextView = itemView.findViewById(R.id.location_type)
         private val address: TextView = itemView.findViewById(R.id.location_address)
@@ -52,6 +54,15 @@ class LocationsOverviewAdapter(
 
             // Title
             title.text = loc.titel ?: "Unbekannt"
+
+            // Type icon based on location type
+            val iconRes = when (loc.typ?.lowercase()) {
+                "cafe" -> R.drawable.ic_location_cafe
+                "geschäft", "geschaeft" -> R.drawable.ic_location_shop
+                "club" -> R.drawable.ic_location_club
+                else -> R.drawable.ic_location_default
+            }
+            typeIcon.setImageResource(iconRes)
 
             // Type badge
             type.text = loc.getLocalizedType()
