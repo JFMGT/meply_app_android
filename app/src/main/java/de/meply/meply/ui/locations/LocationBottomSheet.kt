@@ -43,11 +43,21 @@ class LocationBottomSheet : BottomSheetDialogFragment() {
     companion object {
         private const val TAG = "LocationBottomSheet"
         private const val ARG_LOCATION_DOCUMENT_ID = "location_document_id"
+        private var pendingLocation: Location? = null
 
         fun newInstance(locationDocumentId: String? = null): LocationBottomSheet {
             return LocationBottomSheet().apply {
                 arguments = Bundle().apply {
                     locationDocumentId?.let { putString(ARG_LOCATION_DOCUMENT_ID, it) }
+                }
+            }
+        }
+
+        fun newInstanceWithLocation(location: Location): LocationBottomSheet {
+            pendingLocation = location
+            return LocationBottomSheet().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_LOCATION_DOCUMENT_ID, location.documentId)
                 }
             }
         }
@@ -95,8 +105,17 @@ class LocationBottomSheet : BottomSheetDialogFragment() {
         // Load location data if editing
         val documentId = arguments?.getString(ARG_LOCATION_DOCUMENT_ID)
         if (documentId != null) {
-            setLoading(true)
-            loadLocation(documentId)
+            // Use pending location if available (passed directly)
+            if (pendingLocation != null && pendingLocation?.documentId == documentId) {
+                editingLocation = pendingLocation
+                pendingLocation = null
+                Log.d(TAG, "Using pending location: ${editingLocation?.titel}")
+                updateUI()
+            } else {
+                // Fallback: load from API
+                setLoading(true)
+                loadLocation(documentId)
+            }
         } else {
             updateUI()
         }
@@ -122,7 +141,7 @@ class LocationBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupTypeSpinner() {
         val types = LocationType.getAllTypes()
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, types)
+        val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, types)
         typeSpinner.setAdapter(adapter)
 
         // Set default value

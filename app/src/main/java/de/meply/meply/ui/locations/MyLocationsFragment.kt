@@ -148,8 +148,7 @@ class MyLocationsFragment : Fragment() {
     }
 
     private fun onEditLocation(location: Location) {
-        val documentId = location.documentId ?: return
-        val sheet = LocationBottomSheet.newInstance(documentId)
+        val sheet = LocationBottomSheet.newInstanceWithLocation(location)
         sheet.setOnLocationSavedListener {
             loadLocations()
         }

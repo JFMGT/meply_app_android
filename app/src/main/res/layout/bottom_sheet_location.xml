@@ -117,7 +117,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="text"
                         android:maxLines="1"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:background="@color/background_card" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -137,7 +137,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="text"
                         android:maxLines="1"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:background="@color/background_card" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -165,7 +165,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:maxLines="1"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:background="@color/background_card" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -185,7 +185,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="text"
                         android:maxLines="1"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:background="@color/background_card" />
 
                 </com.google.android.material.textfield.TextInputLayout>
