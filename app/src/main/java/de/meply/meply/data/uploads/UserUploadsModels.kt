@@ -1,13 +1,26 @@
 package de.meply.meply.data.uploads
 
 import com.google.gson.annotations.SerializedName
+import de.meply.meply.network.ApiClient
 
 /**
- * Response from /user-uploads/me
+ * Response from /user-uploads/me (Strapi format)
  * Lists all images uploaded by the current user
  */
 data class UserUploadsResponse(
-    @SerializedName("results") val results: List<UserUpload>?,
+    @SerializedName("data") val data: List<UserUpload>?,
+    @SerializedName("meta") val meta: UploadsMeta?
+) {
+    // Helper to get results (for compatibility)
+    val results: List<UserUpload>?
+        get() = data
+
+    // Helper to get pagination (for compatibility)
+    val pagination: UploadsPagination?
+        get() = meta?.pagination
+}
+
+data class UploadsMeta(
     @SerializedName("pagination") val pagination: UploadsPagination?
 )
 
@@ -29,20 +42,44 @@ data class UserUpload(
 )
 
 /**
- * File details for an uploaded image
+ * File details for an uploaded image (Strapi format)
  */
 data class UploadedFile(
     @SerializedName("id") val id: Int?,
     @SerializedName("url") val url: String?,
-    @SerializedName("thumbnailUrl") val thumbnailUrl: String?,
-    @SerializedName("previewUrl") val previewUrl: String?,
     @SerializedName("name") val name: String?,
     @SerializedName("ext") val ext: String?,
     @SerializedName("mime") val mime: String?,
     @SerializedName("size") val size: Long?,
     @SerializedName("width") val width: Int?,
-    @SerializedName("height") val height: Int?
+    @SerializedName("height") val height: Int?,
+    @SerializedName("formats") val formats: ImageFormats?
 ) {
+    /**
+     * Get full URL for the image
+     */
+    fun getFullUrl(): String? {
+        return url?.let { ApiClient.STRAPI_IMAGE_BASE + it }
+    }
+
+    /**
+     * Get thumbnail URL (from formats or fallback to main url)
+     */
+    fun getThumbnailUrl(): String? {
+        val thumbPath = formats?.thumbnail?.url ?: url
+        return thumbPath?.let { ApiClient.STRAPI_IMAGE_BASE + it }
+    }
+
+    /**
+     * Get preview URL (medium > small > main url)
+     */
+    fun getPreviewUrl(): String? {
+        val previewPath = formats?.medium?.url
+            ?: formats?.small?.url
+            ?: url
+        return previewPath?.let { ApiClient.STRAPI_IMAGE_BASE + it }
+    }
+
     /**
      * Get formatted file size (KB/MB)
      */
@@ -65,19 +102,24 @@ data class UploadedFile(
             "–"
         }
     }
-
-    /**
-     * Get localized reason text
-     */
-    fun getLocalizedReason(reason: String?): String {
-        return when (reason) {
-            "post" -> "Beitrag"
-            "avatar" -> "Profilbild"
-            "message" -> "Nachricht"
-            else -> reason ?: "Unbekannt"
-        }
-    }
 }
+
+/**
+ * Image format variants from Strapi
+ */
+data class ImageFormats(
+    @SerializedName("thumbnail") val thumbnail: ImageFormat?,
+    @SerializedName("small") val small: ImageFormat?,
+    @SerializedName("medium") val medium: ImageFormat?,
+    @SerializedName("large") val large: ImageFormat?
+)
+
+data class ImageFormat(
+    @SerializedName("url") val url: String?,
+    @SerializedName("width") val width: Int?,
+    @SerializedName("height") val height: Int?,
+    @SerializedName("size") val size: Double?
+)
 
 /**
  * Response from /user-uploads/own/{id} DELETE

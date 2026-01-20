@@ -50,8 +50,8 @@ class UserUploadsAdapter(
         fun bind(upload: UserUpload) {
             val file = upload.file
 
-            // Load thumbnail
-            val thumbnailUrl = file?.thumbnailUrl ?: file?.url
+            // Load thumbnail using the helper method that adds base URL
+            val thumbnailUrl = file?.getThumbnailUrl()
             if (!thumbnailUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(thumbnailUrl)

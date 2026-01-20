@@ -36,7 +36,8 @@ class ImageViewerActivity : AppCompatActivity() {
 
         fun start(context: Context, upload: UserUpload) {
             val intent = Intent(context, ImageViewerActivity::class.java).apply {
-                putExtra(EXTRA_IMAGE_URL, upload.file?.previewUrl ?: upload.file?.url)
+                // Use helper methods that add base URL
+                putExtra(EXTRA_IMAGE_URL, upload.file?.getPreviewUrl() ?: upload.file?.getFullUrl())
                 putExtra(EXTRA_IMAGE_NAME, upload.file?.name)
                 putExtra(EXTRA_IMAGE_MIME, upload.file?.mime)
                 putExtra(EXTRA_IMAGE_SIZE, upload.file?.size ?: 0L)
