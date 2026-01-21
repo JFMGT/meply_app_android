@@ -40,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Lade Spieler..."
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_secondary_on_light"
                     android:textSize="14sp" />
 
                 <TextView
@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="Entdecke Spieler in deiner Nähe basierend auf euren gemeinsamen Spielevorlieben."
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_secondary_on_light"
                     android:textSize="13sp" />
 
             </LinearLayout>
@@ -86,7 +86,7 @@
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:src="@android:drawable/ic_menu_myplaces"
-                    app:tint="@color/text_disabled"
+                    app:tint="@color/text_secondary_on_light"
                     android:contentDescription="Keine Spieler" />
 
                 <TextView
@@ -104,7 +104,7 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:text="Füge mehr Spiele zu deiner Sammlung hinzu oder erweitere deinen Suchradius im Profil."
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_secondary_on_light"
                     android:textSize="14sp" />
 
             </LinearLayout>

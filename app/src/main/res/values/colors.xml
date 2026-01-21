@@ -27,6 +27,8 @@
     <color name="text_disabled">#666666</color>
     <!-- Text on light background -->
     <color name="text_on_light">#151d26</color>
+    <!-- Secondary text on light background (good contrast) -->
+    <color name="text_secondary_on_light">#505050</color>
     <!-- Text on primary (yellow) background -->
     <color name="text_on_primary">#151d26</color>
 

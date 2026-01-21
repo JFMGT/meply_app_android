@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Lade Locations..."
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_secondary_on_light"
                     android:textSize="14sp" />
 
                 <!-- Active Filter Indicator -->
@@ -129,7 +129,7 @@
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:src="@android:drawable/ic_menu_mapmode"
-                    app:tint="@color/text_disabled"
+                    app:tint="@color/text_secondary_on_light"
                     android:contentDescription="Keine Locations" />
 
                 <TextView
@@ -148,7 +148,7 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:text="Versuche einen anderen Suchradius oder eine andere PLZ."
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_secondary_on_light"
                     android:textSize="14sp" />
 
             </LinearLayout>

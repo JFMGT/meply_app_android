@@ -46,7 +46,7 @@
                     android:inputType="textMultiLine"
                     android:maxLength="5000"
                     android:minLines="5"
-                    android:textColor="@color/text_disabled"
+                    android:textColor="@color/text_on_light"
                     android:background="@color/background_card" />
 
             </com.google.android.material.textfield.TextInputLayout>

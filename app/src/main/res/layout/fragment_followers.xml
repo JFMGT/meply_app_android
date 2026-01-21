@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Übersicht über Anfragen, Follower und Personen denen du folgst."
-                android:textColor="@color/text_disabled"
+                android:textColor="@color/text_secondary_on_light"
                 android:textSize="13sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -52,7 +52,7 @@
         app:tabIndicatorColor="@color/primary"
         app:tabIndicatorHeight="3dp"
         app:tabSelectedTextColor="@color/primary"
-        app:tabTextColor="@color/text_disabled"
+        app:tabTextColor="@color/text_secondary_on_light"
         app:tabTextAppearance="@style/TabTextAppearance" />
 
     <!-- ViewPager Card with SwipeRefresh -->

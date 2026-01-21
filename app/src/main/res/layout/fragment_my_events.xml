@@ -44,7 +44,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Verwalte deine Events und Veranstaltungen"
-                        android:textColor="@color/text_disabled"
+                        android:textColor="@color/text_secondary_on_light"
                         android:textSize="14sp" />
 
                     <TextView
@@ -90,7 +90,7 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:src="@android:drawable/ic_menu_my_calendar"
-                        app:tint="@color/text_disabled" />
+                        app:tint="@color/text_secondary_on_light" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -106,7 +106,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Erstelle dein erstes Event!"
-                        android:textColor="@color/text_disabled"
+                        android:textColor="@color/text_secondary_on_light"
                         android:textSize="14sp" />
 
                     <Button
