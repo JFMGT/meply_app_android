@@ -55,7 +55,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:layout_marginBottom="16dp"
                     app:cardBackgroundColor="@color/background_card"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp">
@@ -69,10 +68,9 @@
                 <!-- Dots Indicator (außerhalb der Card) -->
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabDots"
-                    android:layout_width="wrap_content"
-                    android:layout_height="16dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="12dp"
                     android:background="@android:color/transparent"
                     app:tabBackground="@drawable/tab_selector"
                     app:tabGravity="center"
