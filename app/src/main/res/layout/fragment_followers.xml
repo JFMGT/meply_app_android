@@ -4,98 +4,92 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:padding="16dp">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefresh"
+    <!-- Header Card -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="@color/background_card"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Header Card -->
-            <com.google.android.material.card.MaterialCardView
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/background_card"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp">
+                android:text="Follower"
+                android:textColor="@color/text_on_light"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Follower"
-                        android:textColor="@color/text_on_light"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Übersicht über Anfragen, Follower und Personen denen du folgst."
-                        android:textColor="@color/text_disabled"
-                        android:textSize="13sp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Tab Layout with labels (above ViewPager) -->
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabDots"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:background="@color/background_card"
-                app:tabGravity="fill"
-                app:tabMode="fixed"
-                app:tabIndicatorColor="@color/primary"
-                app:tabIndicatorHeight="3dp"
-                app:tabSelectedTextColor="@color/primary"
-                app:tabTextColor="@color/text_disabled"
-                app:tabTextAppearance="@style/TabTextAppearance" />
-
-            <!-- ViewPager Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                app:cardBackgroundColor="@color/background_card"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <androidx.viewpager2.widget.ViewPager2
-                        android:id="@+id/viewPager"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
-                    <!-- Progress Bar (overlay) -->
-                    <ProgressBar
-                        android:id="@+id/progressBar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:visibility="gone" />
-
-                </FrameLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
+                android:layout_marginTop="4dp"
+                android:text="Übersicht über Anfragen, Follower und Personen denen du folgst."
+                android:textColor="@color/text_disabled"
+                android:textSize="13sp" />
         </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Tab Layout with labels (above ViewPager) -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabDots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@color/background_card"
+        app:tabGravity="fill"
+        app:tabMode="fixed"
+        app:tabIndicatorColor="@color/primary"
+        app:tabIndicatorHeight="3dp"
+        app:tabSelectedTextColor="@color/primary"
+        app:tabTextColor="@color/text_disabled"
+        app:tabTextAppearance="@style/TabTextAppearance" />
+
+    <!-- ViewPager Card with SwipeRefresh -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardBackgroundColor="@color/background_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <!-- Progress Bar (overlay) -->
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>
