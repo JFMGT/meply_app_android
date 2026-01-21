@@ -73,9 +73,15 @@ class FollowersFragment : Fragment() {
 
         viewPager.adapter = pagerAdapter
 
-        // Setup dots indicator
+        // Setup tabs with labels
         TabLayoutMediator(tabDots, viewPager) { tab, position ->
-            // Empty lambda - we just want dots, no text
+            tab.text = when (position) {
+                0 -> "Anfragen"
+                1 -> "Follower"
+                2 -> "Folge ich"
+                3 -> "Blockiert"
+                else -> ""
+            }
         }.attach()
     }
 

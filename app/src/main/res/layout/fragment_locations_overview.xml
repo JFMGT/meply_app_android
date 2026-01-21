@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Header Card with Filter -->
+        <!-- Header Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,13 +26,52 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Title Row with Filter Button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Locations entdecken"
-                    android:textColor="@color/text_on_light"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Locations entdecken"
+                        android:textColor="@color/text_on_light"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <!-- Filter Button -->
+                    <LinearLayout
+                        android:id="@+id/filterButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="8dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Filter"
+                            android:textColor="@color/primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginStart="4dp"
+                            android:src="@android:drawable/ic_menu_sort_by_size"
+                            app:tint="@color/primary" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/locations_stats"
@@ -43,126 +82,17 @@
                     android:textColor="@color/text_disabled"
                     android:textSize="14sp" />
 
-                <!-- Filter Row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- Active Filter Indicator -->
+                <TextView
+                    android:id="@+id/activeFilterText"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <!-- PLZ Input -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Meply.TextInputLayout"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="PLZ">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/plzInput"
-                            style="@style/Widget.Meply.TextInputEditText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:maxLength="5"
-                            android:imeOptions="actionDone" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Radius Dropdown -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Meply.TextInputLayout.Dropdown"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:hint="Umkreis">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/radiusSpinner"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:textColor="@color/text_on_light" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </LinearLayout>
-
-                <!-- Type Filter Chips -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:scrollbars="none">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/typeChipGroup"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        app:selectionRequired="false">
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipAll"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Alle"
-                            android:checked="true"
-                            app:chipBackgroundColor="@color/chip_background_selector"
-                            app:checkedIconVisible="false" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipGeschaeft"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Geschäft"
-                            app:chipBackgroundColor="@color/chip_background_selector"
-                            app:checkedIconVisible="false" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipCafe"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Cafe"
-                            app:chipBackgroundColor="@color/chip_background_selector"
-                            app:checkedIconVisible="false" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipClub"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Club"
-                            app:chipBackgroundColor="@color/chip_background_selector"
-                            app:checkedIconVisible="false" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipLocation"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Location"
-                            app:chipBackgroundColor="@color/chip_background_selector"
-                            app:checkedIconVisible="false" />
-
-                    </com.google.android.material.chip.ChipGroup>
-
-                </HorizontalScrollView>
-
-                <!-- Search Button -->
-                <Button
-                    android:id="@+id/btnSearch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Suchen"
-                    android:backgroundTint="@color/primary"
-                    android:textColor="@color/text_on_light" />
+                    android:layout_marginTop="8dp"
+                    android:padding="8dp"
+                    android:background="@drawable/badge_type_background"
+                    android:textColor="@color/primary_dark"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

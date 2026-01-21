@@ -6,11 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -18,9 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
-import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
 import de.meply.meply.data.locations.Location
 import de.meply.meply.data.locations.LocationsResponse
@@ -35,21 +28,12 @@ class LocationsOverviewFragment : Fragment() {
 
     companion object {
         private const val TAG = "LocationsOverview"
-        private val RADIUS_OPTIONS = listOf(
-            "10 km" to 10,
-            "25 km" to 25,
-            "50 km" to 50,
-            "100 km" to 100,
-            "200 km" to 200
-        )
     }
 
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var locationsStats: TextView
-    private lateinit var plzInput: TextInputEditText
-    private lateinit var radiusSpinner: AutoCompleteTextView
-    private lateinit var typeChipGroup: ChipGroup
-    private lateinit var btnSearch: Button
+    private lateinit var filterButton: View
+    private lateinit var activeFilterText: TextView
     private lateinit var loadingProgress: ProgressBar
     private lateinit var emptyCard: MaterialCardView
     private lateinit var emptyHint: TextView
@@ -58,8 +42,10 @@ class LocationsOverviewFragment : Fragment() {
     private lateinit var adapter: LocationsOverviewAdapter
     private val locations = mutableListOf<LocationsOverviewAdapter.LocationWithDistance>()
 
-    private var selectedType: String? = null
-    private var selectedRadius: Int = 50
+    // Filter state
+    private var currentPlz: String? = null
+    private var currentRadius: Int = 50
+    private var currentType: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,48 +58,20 @@ class LocationsOverviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeViews(view)
-        setupRadiusSpinner()
-        setupTypeChips()
         setupRecyclerView()
         setupListeners()
         loadInitialPLZ()
-        loadLocations()
     }
 
     private fun initializeViews(view: View) {
         swipeRefresh = view.findViewById(R.id.swipeRefresh)
         locationsStats = view.findViewById(R.id.locations_stats)
-        plzInput = view.findViewById(R.id.plzInput)
-        radiusSpinner = view.findViewById(R.id.radiusSpinner)
-        typeChipGroup = view.findViewById(R.id.typeChipGroup)
-        btnSearch = view.findViewById(R.id.btnSearch)
+        filterButton = view.findViewById(R.id.filterButton)
+        activeFilterText = view.findViewById(R.id.activeFilterText)
         loadingProgress = view.findViewById(R.id.loading_progress)
         emptyCard = view.findViewById(R.id.empty_card)
         emptyHint = view.findViewById(R.id.empty_hint)
         locationsRecycler = view.findViewById(R.id.locations_recycler)
-    }
-
-    private fun setupRadiusSpinner() {
-        val radiusLabels = RADIUS_OPTIONS.map { it.first }
-        val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, radiusLabels)
-        radiusSpinner.setAdapter(adapter)
-        radiusSpinner.setText("50 km", false)
-
-        radiusSpinner.setOnItemClickListener { _, _, position, _ ->
-            selectedRadius = RADIUS_OPTIONS[position].second
-        }
-    }
-
-    private fun setupTypeChips() {
-        typeChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
-            selectedType = when {
-                checkedIds.contains(R.id.chipGeschaeft) -> "Geschäft"
-                checkedIds.contains(R.id.chipCafe) -> "Cafe"
-                checkedIds.contains(R.id.chipClub) -> "Club"
-                checkedIds.contains(R.id.chipLocation) -> "Location"
-                else -> null
-            }
-        }
     }
 
     private fun setupRecyclerView() {
@@ -130,19 +88,54 @@ class LocationsOverviewFragment : Fragment() {
             loadLocations()
         }
 
-        btnSearch.setOnClickListener {
-            hideKeyboard()
+        filterButton.setOnClickListener {
+            showFilterBottomSheet()
+        }
+    }
+
+    private fun showFilterBottomSheet() {
+        val bottomSheet = LocationsFilterBottomSheet.newInstance(
+            plz = currentPlz,
+            radius = currentRadius,
+            type = currentType
+        )
+
+        bottomSheet.setOnFilterAppliedListener { filterValues ->
+            currentPlz = filterValues.plz
+            currentRadius = filterValues.radius
+            currentType = filterValues.type
+            updateActiveFilterIndicator()
             loadLocations()
         }
 
-        plzInput.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                hideKeyboard()
-                loadLocations()
-                true
-            } else {
-                false
-            }
+        bottomSheet.setOnFilterResetListener {
+            currentPlz = null
+            currentRadius = 50
+            currentType = null
+            updateActiveFilterIndicator()
+            loadLocations()
+        }
+
+        bottomSheet.show(childFragmentManager, "locationsFilter")
+    }
+
+    private fun updateActiveFilterIndicator() {
+        val filters = mutableListOf<String>()
+
+        currentPlz?.takeIf { it.length == 5 }?.let {
+            filters.add("PLZ: $it")
+            filters.add("$currentRadius km")
+        }
+
+        currentType?.let {
+            filters.add(it)
+        }
+
+        if (filters.isNotEmpty()) {
+            activeFilterText.text = filters.joinToString(" • ")
+            activeFilterText.visibility = View.VISIBLE
+        } else {
+            activeFilterText.visibility = View.GONE
         }
     }
 
@@ -157,30 +150,32 @@ class LocationsOverviewFragment : Fragment() {
                 if (response.isSuccessful) {
                     val postalCode = response.body()?.data?.postalCode
                     if (!postalCode.isNullOrBlank()) {
-                        plzInput.setText(postalCode)
+                        currentPlz = postalCode
+                        updateActiveFilterIndicator()
                     }
                 }
+                // Load locations after attempting to get PLZ
+                loadLocations()
             }
 
             override fun onFailure(call: Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
                 // Silently fail - PLZ prefill is not critical
                 Log.d(TAG, "Could not load initial PLZ: ${t.message}")
+                loadLocations()
             }
         })
     }
 
     fun loadLocations() {
-        val plz = plzInput.text?.toString()?.trim()
-
         if (!swipeRefresh.isRefreshing) {
             loadingProgress.visibility = View.VISIBLE
         }
         locationsStats.text = "Suche Locations..."
 
         // Decide which API to call based on whether PLZ is provided
-        if (!plz.isNullOrBlank() && plz.length == 5) {
+        if (!currentPlz.isNullOrBlank() && currentPlz!!.length == 5) {
             // Use nearby endpoint with PLZ and radius
-            loadNearbyLocations(plz)
+            loadNearbyLocations(currentPlz!!)
         } else {
             // Use public endpoint (all locations)
             loadAllLocations()
@@ -190,8 +185,8 @@ class LocationsOverviewFragment : Fragment() {
     private fun loadNearbyLocations(plz: String) {
         ApiClient.retrofit.getNearbyLocations(
             zip = plz,
-            radius = selectedRadius,
-            type = selectedType
+            radius = currentRadius,
+            type = currentType
         ).enqueue(object : Callback<LocationsResponse> {
             override fun onResponse(
                 call: Call<LocationsResponse>,
@@ -208,7 +203,7 @@ class LocationsOverviewFragment : Fragment() {
 
     private fun loadAllLocations() {
         ApiClient.retrofit.getPublicLocations(
-            type = selectedType
+            type = currentType
         ).enqueue(object : Callback<LocationsResponse> {
             override fun onResponse(
                 call: Call<LocationsResponse>,
@@ -234,8 +229,6 @@ class LocationsOverviewFragment : Fragment() {
             locations.clear()
 
             // Convert to LocationWithDistance
-            // Note: The nearby endpoint might return distance in the response
-            // For now, we'll set distance to null as the API structure isn't clear
             locations.addAll(data.map { LocationsOverviewAdapter.LocationWithDistance(it, null) })
 
             adapter.submitList(locations.toList())
@@ -264,11 +257,10 @@ class LocationsOverviewFragment : Fragment() {
 
     private fun updateUI() {
         val count = locations.size
-        val plz = plzInput.text?.toString()?.trim()
 
         locationsStats.text = when {
             count == 0 -> "Keine Locations gefunden"
-            !plz.isNullOrBlank() && plz.length == 5 -> "$count Locations im Umkreis von $selectedRadius km"
+            !currentPlz.isNullOrBlank() && currentPlz!!.length == 5 -> "$count Locations im Umkreis von $currentRadius km"
             count == 1 -> "1 Location"
             else -> "$count Locations"
         }
@@ -278,10 +270,10 @@ class LocationsOverviewFragment : Fragment() {
             locationsRecycler.visibility = View.GONE
 
             // Update hint based on search type
-            emptyHint.text = if (!plzInput.text.isNullOrBlank()) {
+            emptyHint.text = if (!currentPlz.isNullOrBlank()) {
                 "Versuche einen größeren Suchradius oder eine andere PLZ."
             } else {
-                "Gib eine PLZ ein um Locations in deiner Nähe zu finden."
+                "Tippe auf 'Filter' um nach PLZ und Umkreis zu suchen."
             }
         } else {
             emptyCard.visibility = View.GONE
@@ -290,17 +282,11 @@ class LocationsOverviewFragment : Fragment() {
     }
 
     private fun onLocationClick(location: Location) {
-        // TODO: Open location detail page or WebView
-        // For now, open in browser if website available
+        // Open in browser if website available
         if (!location.website.isNullOrBlank()) {
             val url = if (location.website.startsWith("http")) location.website else "https://${location.website}"
             val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
             startActivity(intent)
         }
-    }
-
-    private fun hideKeyboard() {
-        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(plzInput.windowToken, 0)
     }
 }
