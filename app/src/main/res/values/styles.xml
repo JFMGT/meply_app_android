@@ -146,7 +146,7 @@
     </style>
 
     <!-- Tab Text Appearance for Follower Tabs -->
-    <style name="TabTextAppearance" parent="TextAppearance.MaterialComponents.Tab">
+    <style name="TabTextAppearance" parent="TextAppearance.AppCompat.Caption">
         <item name="android:textSize">12sp</item>
         <item name="android:textAllCaps">false</item>
         <item name="textAllCaps">false</item>
