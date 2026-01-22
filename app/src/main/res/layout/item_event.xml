@@ -69,7 +69,7 @@
                     android:id="@+id/likeIcon"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@android:drawable/btn_star_big_off"
+                    android:src="@drawable/ic_star_outline"
                     app:tint="@color/text_on_light"
                     android:contentDescription="Likes" />
 

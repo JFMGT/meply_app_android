@@ -87,7 +87,7 @@
                                 android:id="@+id/likeIcon"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@android:drawable/btn_star_big_off"
+                                android:src="@drawable/ic_star_outline"
                                 app:tint="@color/text_on_light"
                                 android:contentDescription="Gefällt mir" />
 

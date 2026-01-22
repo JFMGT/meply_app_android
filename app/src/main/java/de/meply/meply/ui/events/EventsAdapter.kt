@@ -83,9 +83,9 @@ class EventsAdapter(
 
             // Like icon based on liked state
             if (a.liked) {
-                likeIcon.setImageResource(android.R.drawable.btn_star_big_on)
+                likeIcon.setImageResource(R.drawable.ic_star_filled)
             } else {
-                likeIcon.setImageResource(android.R.drawable.btn_star_big_off)
+                likeIcon.setImageResource(R.drawable.ic_star_outline)
             }
 
             // Meeting count

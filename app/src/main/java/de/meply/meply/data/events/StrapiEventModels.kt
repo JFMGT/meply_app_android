@@ -61,6 +61,7 @@ data class FlatEventData(
     val publishedAt: String?,
     val country: String?,
     val likes: Int?,
+    @SerializedName(value = "liked", alternate = ["isLiked"]) val liked: Boolean = false,
     // coordinates war ein Objekt, das müsste auch eine eigene Datenklasse sein
     val coordinates: CoordinatesData?
     // val authorCanEdit: Any? // Typ unklar, Any? oder spezifischer Typ

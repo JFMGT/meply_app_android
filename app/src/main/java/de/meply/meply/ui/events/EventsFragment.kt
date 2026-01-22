@@ -1,5 +1,6 @@
 package de.meply.meply.ui.events
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +41,23 @@ class EventsFragment : Fragment() {
 
     // Cache of loaded events (for updating liked state)
     private val loadedEvents = mutableListOf<EventItem>()
+
+    // ActivityResultLauncher for event detail
+    private val eventDetailLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.let { data ->
+                val documentId = data.getStringExtra(EventDetailActivity.RESULT_DOCUMENT_ID)
+                val likeCount = data.getIntExtra(EventDetailActivity.RESULT_LIKE_COUNT, 0)
+                val isLiked = data.getBooleanExtra(EventDetailActivity.RESULT_IS_LIKED, false)
+
+                if (documentId != null) {
+                    updateEventLikeState(documentId, likeCount, isLiked)
+                }
+            }
+        }
+    }
 
     private var currentZip: String? = null
     private var currentRadius: Double? = null
@@ -160,7 +179,23 @@ class EventsFragment : Fragment() {
         val eventId = item.attributes.documentId
             ?: item.id.toString()
 
-        EventDetailActivity.start(requireContext(), eventId)
+        val intent = EventDetailActivity.createIntent(requireContext(), eventId)
+        eventDetailLauncher.launch(intent)
+    }
+
+    private fun updateEventLikeState(documentId: String, likeCount: Int, isLiked: Boolean) {
+        val index = loadedEvents.indexOfFirst { it.attributes.documentId == documentId }
+        if (index != -1) {
+            val oldEvent = loadedEvents[index]
+            val updatedAttributes = oldEvent.attributes.copy(
+                likes = likeCount,
+                liked = isLiked
+            )
+            val updatedEvent = oldEvent.copy(attributes = updatedAttributes)
+            loadedEvents[index] = updatedEvent
+            adapter.submit(loadedEvents.toList())
+            Log.d("EventsFragment", "Updated event like state from detail: documentId=$documentId, likeCount=$likeCount, isLiked=$isLiked")
+        }
     }
 
     private fun onEventLikeClicked(item: EventItem, position: Int) {

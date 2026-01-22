@@ -77,6 +77,7 @@ class EventDetailActivity : BaseDetailActivity() {
     private var currentEventDocumentId: String? = null
     private var currentLikeCount: Int = 0
     private var isLiked: Boolean = false
+    private var likeStateChanged: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -197,7 +198,9 @@ class EventDetailActivity : BaseDetailActivity() {
                     val result = response.body()
                     currentLikeCount = result?.getActualLikeCount() ?: currentLikeCount
                     isLiked = result?.status == "liked"
+                    likeStateChanged = true
                     updateLikeUI()
+                    updateResultForCaller()
                     Log.d("EventDetailActivity", "Like toggled: ${result?.status}, count: $currentLikeCount")
                 } else {
                     Log.e("EventDetailActivity", "Failed to toggle like: ${response.code()}")
@@ -215,9 +218,20 @@ class EventDetailActivity : BaseDetailActivity() {
     private fun updateLikeUI() {
         likeCount.text = currentLikeCount.toString()
         if (isLiked) {
-            likeIcon.setImageResource(android.R.drawable.btn_star_big_on)
+            likeIcon.setImageResource(R.drawable.ic_star_filled)
         } else {
-            likeIcon.setImageResource(android.R.drawable.btn_star_big_off)
+            likeIcon.setImageResource(R.drawable.ic_star_outline)
+        }
+    }
+
+    private fun updateResultForCaller() {
+        if (likeStateChanged && currentEventDocumentId != null) {
+            val resultIntent = Intent().apply {
+                putExtra(RESULT_DOCUMENT_ID, currentEventDocumentId)
+                putExtra(RESULT_LIKE_COUNT, currentLikeCount)
+                putExtra(RESULT_IS_LIKED, isLiked)
+            }
+            setResult(RESULT_OK, resultIntent)
         }
     }
 
@@ -351,8 +365,9 @@ class EventDetailActivity : BaseDetailActivity() {
         currentEventStartDate = eventData.startDate
         currentEventEndDate = eventData.endDate
 
-        // Like count
+        // Like count and state
         currentLikeCount = eventData.likes ?: 0
+        isLiked = eventData.liked
         updateLikeUI()
 
         // Date
@@ -549,11 +564,21 @@ class EventDetailActivity : BaseDetailActivity() {
 
     companion object {
         private const val EXTRA_EVENT_SLUG_OR_ID = "event_slug_or_id"
+        const val RESULT_DOCUMENT_ID = "result_document_id"
+        const val RESULT_LIKE_COUNT = "result_like_count"
+        const val RESULT_IS_LIKED = "result_is_liked"
+
         fun start(context: Context, eventSlugOrId: String) {
             val intent = Intent(context, EventDetailActivity::class.java).apply {
                 putExtra(EXTRA_EVENT_SLUG_OR_ID, eventSlugOrId)
             }
             context.startActivity(intent)
+        }
+
+        fun createIntent(context: Context, eventSlugOrId: String): Intent {
+            return Intent(context, EventDetailActivity::class.java).apply {
+                putExtra(EXTRA_EVENT_SLUG_OR_ID, eventSlugOrId)
+            }
         }
     }
 }
