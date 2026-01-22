@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
@@ -234,8 +235,10 @@ class EventDetailActivity : BaseDetailActivity() {
         likeCount.text = currentLikeCount.toString()
         if (isLiked) {
             likeIcon.setImageResource(R.drawable.ic_star_filled)
+            likeIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary))
         } else {
             likeIcon.setImageResource(R.drawable.ic_star_outline)
+            likeIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_on_light))
         }
     }
 

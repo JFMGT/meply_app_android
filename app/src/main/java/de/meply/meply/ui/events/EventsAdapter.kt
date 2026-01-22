@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.meply.meply.R
 import de.meply.meply.data.events.EventAttributes
@@ -81,11 +82,13 @@ class EventsAdapter(
             val likes = a.likes ?: 0
             likeCount.text = likes.toString()
 
-            // Like icon based on liked state
+            // Like icon based on liked state - set both drawable and tint
             if (a.liked) {
                 likeIcon.setImageResource(R.drawable.ic_star_filled)
+                likeIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.primary))
             } else {
                 likeIcon.setImageResource(R.drawable.ic_star_outline)
+                likeIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.text_on_light))
             }
 
             // Meeting count

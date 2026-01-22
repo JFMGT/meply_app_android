@@ -70,7 +70,6 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_star_outline"
-                    app:tint="@color/text_on_light"
                     android:contentDescription="Likes" />
 
                 <TextView
