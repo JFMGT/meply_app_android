@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Spielbereit markieren"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/text_on_light"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginBottom="8dp" />
@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Zeige anderen Mitgliedern, dass du gerade Mitspieler suchst."
-        android:textColor="@color/text_secondary"
+        android:textColor="@color/text_secondary_on_light"
         android:textSize="14sp"
         android:layout_marginBottom="24dp" />
 
@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Wie lange bist du verfügbar?"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/text_on_light"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="12dp" />
@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Heute"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/text_on_light"
             android:padding="8dp" />
 
         <RadioButton
@@ -54,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Bis morgen"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/text_on_light"
             android:padding="8dp" />
 
         <RadioButton
@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Dieses Wochenende"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/text_on_light"
             android:padding="8dp" />
 
         <RadioButton
@@ -70,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Diese Woche"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/text_on_light"
             android:padding="8dp" />
 
     </RadioGroup>
@@ -80,7 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Wo möchtest du spielen?"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/text_on_light"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="12dp" />
@@ -90,7 +90,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Bei mir zuhause (Gastgeber)"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/text_on_light"
         android:padding="8dp" />
 
     <CheckBox
@@ -98,7 +98,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Bei anderen (Gast)"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/text_on_light"
         android:padding="8dp" />
 
     <CheckBox
@@ -106,7 +106,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="An neutralem Ort (Cafe, Spieletreff, etc.)"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/text_on_light"
         android:padding="8dp"
         android:layout_marginBottom="20dp" />
 
@@ -128,7 +128,8 @@
             android:minLines="2"
             android:maxLines="4"
             android:maxLength="500"
-            style="@style/Widget.Meply.TextInputEditText" />
+            android:textColor="@color/text_on_light"
+            android:textColorHint="@color/text_secondary_on_light" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -147,6 +148,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Abbrechen"
+        android:textColor="@color/text_secondary_on_light"
         style="@style/Widget.MaterialComponents.Button.TextButton" />
 
 </LinearLayout>
