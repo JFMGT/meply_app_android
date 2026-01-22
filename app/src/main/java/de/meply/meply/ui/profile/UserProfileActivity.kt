@@ -439,11 +439,17 @@ class UserProfileActivity : BaseDetailActivity() {
     private fun updateAvailabilityCard(profile: UserProfileData) {
         val availability = profile.availability
 
+        Log.d(TAG, "updateAvailabilityCard - availability: $availability")
+        Log.d(TAG, "updateAvailabilityCard - expiresAt: ${availability?.expiresAt}")
+        Log.d(TAG, "updateAvailabilityCard - isActive: ${availability?.isActive()}")
+
         if (availability == null || !availability.isActive()) {
+            Log.d(TAG, "updateAvailabilityCard - hiding card (null or not active)")
             availabilityCard.visibility = View.GONE
             return
         }
 
+        Log.d(TAG, "updateAvailabilityCard - showing card!")
         availabilityCard.visibility = View.VISIBLE
 
         // Format expiry date
