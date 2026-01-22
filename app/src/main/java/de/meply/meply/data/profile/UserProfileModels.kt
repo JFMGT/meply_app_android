@@ -1,6 +1,7 @@
 package de.meply.meply.data.profile
 
 import com.google.gson.annotations.SerializedName
+import java.time.Instant
 
 /**
  * Response from GET /profiles/slug/{username}
@@ -29,11 +30,56 @@ data class UserProfileData(
     @SerializedName("boardGameArenaUsername") val boardGameArenaUsername: String?,
     @SerializedName("allowProfileView") val allowProfileView: Boolean?,
     @SerializedName("showBoardGameRatings") val showBoardGameRatings: Boolean?,
-    @SerializedName("avatar") val avatar: List<AvatarImage>?
+    @SerializedName("avatar") val avatar: List<AvatarImage>?,
+    @SerializedName("availability") val availability: ProfileAvailability?
 )
 
 data class AvatarImage(
     @SerializedName("url") val url: String
+)
+
+/**
+ * Availability data for a user profile
+ */
+data class ProfileAvailability(
+    @SerializedName("expiresAt") val expiresAt: String?,
+    @SerializedName("hostingPreference") val hostingPreference: List<String>?,
+    @SerializedName("note") val note: String?,
+    @SerializedName("boardgames") val boardgames: List<ProfileAvailabilityGame>?
+) {
+    /**
+     * Check if the availability is still active (not expired)
+     */
+    fun isActive(): Boolean {
+        if (expiresAt.isNullOrEmpty()) return false
+        return try {
+            val expiry = Instant.parse(expiresAt)
+            expiry.isAfter(Instant.now())
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Get hosting preference as display string
+     */
+    fun getHostingDisplayText(): String {
+        val prefs = hostingPreference ?: return ""
+        val texts = mutableListOf<String>()
+        if (prefs.contains("home")) texts.add("Gastgeber")
+        if (prefs.contains("away")) texts.add("Gast")
+        if (prefs.contains("neutral")) texts.add("Neutral")
+        return texts.joinToString(" / ")
+    }
+}
+
+/**
+ * Boardgame reference in profile availability
+ */
+data class ProfileAvailabilityGame(
+    @SerializedName("id") val id: Int?,
+    @SerializedName("documentId") val documentId: String?,
+    @SerializedName("title") val title: String?
 )
 
 /**

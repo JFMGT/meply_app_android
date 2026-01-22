@@ -100,6 +100,13 @@ class UserProfileActivity : BaseDetailActivity() {
     private lateinit var postsAdapter: FeedAdapter
     private val userPosts: MutableList<Post> = mutableListOf()
 
+    // Availability (Spielbereit) elements
+    private lateinit var availabilityCard: MaterialCardView
+    private lateinit var availabilityExpires: TextView
+    private lateinit var availabilityHosting: TextView
+    private lateinit var availabilityNote: TextView
+    private lateinit var availabilityGames: TextView
+
     private var userSlug: String? = null
     private var profileData: UserProfileData? = null
     private var currentUserId: String? = null
@@ -178,6 +185,13 @@ class UserProfileActivity : BaseDetailActivity() {
         postsEmptyCard = findViewById(R.id.posts_empty_card)
         postsEmptyMessage = findViewById(R.id.posts_empty_message)
         postsRecycler = findViewById(R.id.posts_recycler)
+
+        // Availability card
+        availabilityCard = findViewById(R.id.availability_card)
+        availabilityExpires = findViewById(R.id.availability_expires)
+        availabilityHosting = findViewById(R.id.availability_hosting)
+        availabilityNote = findViewById(R.id.availability_note)
+        availabilityGames = findViewById(R.id.availability_games)
 
         btnSendMessage.setOnClickListener { onSendMessage() }
         btnFollow.setOnClickListener { onFollowClick() }
@@ -372,6 +386,9 @@ class UserProfileActivity : BaseDetailActivity() {
 
         // External profiles
         setupExternalProfiles(profile)
+
+        // Availability (Spielbereit)
+        updateAvailabilityCard(profile)
     }
 
     private fun loadAvatar(profile: UserProfileData) {
@@ -417,6 +434,75 @@ class UserProfileActivity : BaseDetailActivity() {
         }
 
         externalProfilesCard.visibility = if (hasExternalProfile) View.VISIBLE else View.GONE
+    }
+
+    private fun updateAvailabilityCard(profile: UserProfileData) {
+        val availability = profile.availability
+
+        if (availability == null || !availability.isActive()) {
+            availabilityCard.visibility = View.GONE
+            return
+        }
+
+        availabilityCard.visibility = View.VISIBLE
+
+        // Format expiry date
+        availabilityExpires.text = "Gültig bis: ${formatAvailabilityExpiry(availability.expiresAt)}"
+
+        // Hosting preference
+        val hostingText = availability.getHostingDisplayText()
+        if (hostingText.isNotEmpty()) {
+            availabilityHosting.text = hostingText
+            availabilityHosting.visibility = View.VISIBLE
+        } else {
+            availabilityHosting.visibility = View.GONE
+        }
+
+        // Note
+        if (!availability.note.isNullOrBlank()) {
+            availabilityNote.text = "\"${availability.note}\""
+            availabilityNote.visibility = View.VISIBLE
+        } else {
+            availabilityNote.visibility = View.GONE
+        }
+
+        // Boardgames
+        val games = availability.boardgames
+        if (!games.isNullOrEmpty()) {
+            val gamesTitles = games.mapNotNull { it.title }.joinToString(", ")
+            if (gamesTitles.isNotEmpty()) {
+                availabilityGames.text = "🎲 $gamesTitles"
+                availabilityGames.visibility = View.VISIBLE
+            } else {
+                availabilityGames.visibility = View.GONE
+            }
+        } else {
+            availabilityGames.visibility = View.GONE
+        }
+    }
+
+    private fun formatAvailabilityExpiry(isoDate: String?): String {
+        if (isoDate.isNullOrEmpty()) return "Unbekannt"
+
+        return try {
+            val instant = java.time.Instant.parse(isoDate)
+            val localDateTime = instant.atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()
+            val today = java.time.LocalDate.now()
+            val tomorrow = today.plusDays(1)
+            val expiryDate = localDateTime.toLocalDate()
+
+            val timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+            val dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+            when {
+                expiryDate == today -> "Heute, ${localDateTime.format(timeFormatter)} Uhr"
+                expiryDate == tomorrow -> "Morgen, ${localDateTime.format(timeFormatter)} Uhr"
+                else -> "${expiryDate.format(dateFormatter)}, ${localDateTime.format(timeFormatter)} Uhr"
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing expiry date", e)
+            isoDate
+        }
     }
 
     private fun loadMatchScore() {
