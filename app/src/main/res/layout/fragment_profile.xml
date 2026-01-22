@@ -80,11 +80,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Spielbereit"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/text_on_light"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:drawableStart="@android:drawable/ic_menu_my_calendar"
-                        android:drawablePadding="8dp" />
+                        android:drawablePadding="8dp"
+                        app:drawableTint="@color/text_on_light" />
 
                     <ProgressBar
                         android:id="@+id/availability_progress"
@@ -107,7 +108,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Zeige anderen, dass du gerade Mitspieler suchst."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/text_secondary_on_light"
                         android:textSize="14sp" />
 
                     <Button
@@ -159,7 +160,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="Gültig bis: Heute, 23:59"
-                                android:textColor="@color/text_secondary"
+                                android:textColor="@color/text_secondary_on_light"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -168,7 +169,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Gastgeber / Gast"
-                                android:textColor="@color/text_secondary"
+                                android:textColor="@color/text_secondary_on_light"
                                 android:textSize="13sp" />
 
                             <TextView
@@ -176,7 +177,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:textColor="@color/text_secondary"
+                                android:textColor="@color/text_secondary_on_light"
                                 android:textSize="13sp"
                                 android:textStyle="italic"
                                 android:visibility="gone" />
