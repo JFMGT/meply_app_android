@@ -201,6 +201,10 @@ class EventsFragment : Fragment() {
     private fun onEventLikeClicked(item: EventItem, position: Int) {
         val documentId = item.attributes.documentId ?: return
 
+        // Store current state before API call
+        val currentLikeCount = item.attributes.likes ?: 0
+        val wasLiked = item.attributes.liked
+
         val request = LikeToggleRequest(
             targetDocumentId = documentId,
             targetType = "event"
@@ -213,8 +217,16 @@ class EventsFragment : Fragment() {
             ) {
                 if (response.isSuccessful) {
                     val result = response.body()
-                    val newLikeCount = result?.getActualLikeCount() ?: 0
                     val isLiked = result?.status == "liked"
+
+                    // Calculate new like count locally since API doesn't return it
+                    val newLikeCount = if (isLiked && !wasLiked) {
+                        currentLikeCount + 1
+                    } else if (!isLiked && wasLiked) {
+                        maxOf(0, currentLikeCount - 1)
+                    } else {
+                        currentLikeCount
+                    }
 
                     // Update the local cached event
                     if (position in loadedEvents.indices) {
@@ -230,7 +242,7 @@ class EventsFragment : Fragment() {
                         adapter.submit(loadedEvents.toList())
                     }
 
-                    Log.d("EventsFragment", "Like toggled: ${result?.status}, count: $newLikeCount")
+                    Log.d("EventsFragment", "Like toggled: ${result?.status}, wasLiked=$wasLiked, isLiked=$isLiked, oldCount=$currentLikeCount, newCount=$newLikeCount")
                 } else {
                     Log.e("EventsFragment", "Failed to toggle like: ${response.code()}")
                 }

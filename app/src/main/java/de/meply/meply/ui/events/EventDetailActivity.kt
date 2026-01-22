@@ -184,6 +184,10 @@ class EventDetailActivity : BaseDetailActivity() {
     private fun toggleLike() {
         val documentId = currentEventDocumentId ?: return
 
+        // Store current state before API call
+        val wasLiked = isLiked
+        val oldLikeCount = currentLikeCount
+
         val request = LikeToggleRequest(
             targetDocumentId = documentId,
             targetType = "event"
@@ -196,12 +200,22 @@ class EventDetailActivity : BaseDetailActivity() {
             ) {
                 if (response.isSuccessful) {
                     val result = response.body()
-                    currentLikeCount = result?.getActualLikeCount() ?: currentLikeCount
-                    isLiked = result?.status == "liked"
+                    val newIsLiked = result?.status == "liked"
+
+                    // Calculate new like count locally since API doesn't return it
+                    currentLikeCount = if (newIsLiked && !wasLiked) {
+                        oldLikeCount + 1
+                    } else if (!newIsLiked && wasLiked) {
+                        maxOf(0, oldLikeCount - 1)
+                    } else {
+                        oldLikeCount
+                    }
+
+                    isLiked = newIsLiked
                     likeStateChanged = true
                     updateLikeUI()
                     updateResultForCaller()
-                    Log.d("EventDetailActivity", "Like toggled: ${result?.status}, count: $currentLikeCount")
+                    Log.d("EventDetailActivity", "Like toggled: ${result?.status}, wasLiked=$wasLiked, isLiked=$isLiked, oldCount=$oldLikeCount, newCount=$currentLikeCount")
                 } else {
                     Log.e("EventDetailActivity", "Failed to toggle like: ${response.code()}")
                     Toast.makeText(this@EventDetailActivity, "Fehler beim Liken", Toast.LENGTH_SHORT).show()
