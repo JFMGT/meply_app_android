@@ -16,6 +16,7 @@ import android.util.Log
 import de.meply.meply.R
 import de.meply.meply.data.events.EventItem
 import de.meply.meply.data.events.StrapiListResponse
+import de.meply.meply.data.feed.HasLikedResponse
 import de.meply.meply.data.feed.LikeToggleRequest
 import de.meply.meply.data.feed.LikeToggleResponse
 import de.meply.meply.network.ApiClient
@@ -153,6 +154,9 @@ class EventsFragment : Fragment() {
                         loadedEvents.clear()
                         loadedEvents.addAll(items)
                         adapter.submit(items)
+
+                        // Fetch liked status for all events
+                        fetchLikedStatus(items)
                     }
                 } else {
                     empty.text = "Laden fehlgeschlagen (${response.code()})"
@@ -164,6 +168,48 @@ class EventsFragment : Fragment() {
                 showLoading(false)
                 empty.text = "Netzwerkfehler: ${t.message}"
                 empty.visibility = View.VISIBLE
+            }
+        })
+    }
+
+    /**
+     * Fetch liked status for a list of events and update the UI
+     */
+    private fun fetchLikedStatus(items: List<EventItem>) {
+        val documentIds = items.mapNotNull { it.attributes.documentId }
+        if (documentIds.isEmpty()) return
+
+        ApiClient.retrofit.hasLiked(documentIds).enqueue(object : Callback<HasLikedResponse> {
+            override fun onResponse(
+                call: Call<HasLikedResponse>,
+                response: Response<HasLikedResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val likedIds = response.body()?.liked ?: emptyList()
+                    Log.d("EventsFragment", "Fetched liked status: $likedIds")
+
+                    // Update loaded events with liked status
+                    var updated = false
+                    loadedEvents.forEachIndexed { index, event ->
+                        val docId = event.attributes.documentId
+                        if (docId != null && likedIds.contains(docId)) {
+                            val updatedAttributes = event.attributes.copy(liked = true)
+                            loadedEvents[index] = event.copy(attributes = updatedAttributes)
+                            updated = true
+                        }
+                    }
+
+                    // Refresh adapter if any event was updated
+                    if (updated) {
+                        adapter.submit(loadedEvents.toList())
+                    }
+                } else {
+                    Log.e("EventsFragment", "Failed to fetch liked status: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<HasLikedResponse>, t: Throwable) {
+                Log.e("EventsFragment", "Error fetching liked status", t)
             }
         })
     }

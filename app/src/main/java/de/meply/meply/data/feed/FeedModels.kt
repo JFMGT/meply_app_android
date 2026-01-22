@@ -135,6 +135,14 @@ data class LikeToggleResponse(
 }
 
 /**
+ * Response from GET /api/likes/has-liked
+ * Returns list of document IDs that the user has liked
+ */
+data class HasLikedResponse(
+    @SerializedName("liked") val liked: List<String>? = null
+)
+
+/**
  * Request for POST /api/post-report
  */
 data class ReportPostRequest(

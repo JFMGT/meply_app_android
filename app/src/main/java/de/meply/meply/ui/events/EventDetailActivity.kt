@@ -20,6 +20,7 @@ import com.google.gson.Gson
 import de.meply.meply.BaseDetailActivity
 import de.meply.meply.R
 import de.meply.meply.data.events.StrapiListResponse
+import de.meply.meply.data.feed.HasLikedResponse
 import de.meply.meply.data.feed.LikeToggleRequest
 import de.meply.meply.data.feed.LikeToggleResponse
 import de.meply.meply.data.meetings.MeetingData
@@ -249,6 +250,36 @@ class EventDetailActivity : BaseDetailActivity() {
         }
     }
 
+    /**
+     * Fetch liked status for this event
+     */
+    private fun fetchLikedStatus(documentId: String) {
+        ApiClient.retrofit.hasLiked(listOf(documentId)).enqueue(object : Callback<HasLikedResponse> {
+            override fun onResponse(
+                call: Call<HasLikedResponse>,
+                response: Response<HasLikedResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val likedIds = response.body()?.liked ?: emptyList()
+                    val wasLiked = isLiked
+                    isLiked = likedIds.contains(documentId)
+
+                    // Only update UI if status changed
+                    if (wasLiked != isLiked) {
+                        updateLikeUI()
+                        Log.d("EventDetailActivity", "Liked status updated: $isLiked")
+                    }
+                } else {
+                    Log.e("EventDetailActivity", "Failed to fetch liked status: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<HasLikedResponse>, t: Throwable) {
+                Log.e("EventDetailActivity", "Error fetching liked status", t)
+            }
+        })
+    }
+
     private fun getTodayDateString(): String {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY)
         return sdf.format(Date())
@@ -383,6 +414,11 @@ class EventDetailActivity : BaseDetailActivity() {
         currentLikeCount = eventData.likes ?: 0
         isLiked = eventData.liked
         updateLikeUI()
+
+        // Fetch liked status if we have a document ID
+        eventData.documentId?.let { docId ->
+            fetchLikedStatus(docId)
+        }
 
         // Date
         dateTextView.text = formatEventDate(eventData)

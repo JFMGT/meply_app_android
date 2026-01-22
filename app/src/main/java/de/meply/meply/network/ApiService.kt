@@ -227,6 +227,16 @@ interface ApiService {
     ): Call<LikeToggleResponse>
 
     /**
+     * Check which documents the user has liked
+     * @param documentIds List of document IDs to check
+     * @return HasLikedResponse with list of liked document IDs
+     */
+    @GET("likes/has-liked")
+    fun hasLiked(
+        @Query("documentIds[]") documentIds: List<String>
+    ): Call<HasLikedResponse>
+
+    /**
      * Report a post
      */
     @POST("post-report")
