@@ -233,9 +233,10 @@ class EventDetailActivity : BaseDetailActivity() {
 
     private fun updateLikeUI() {
         likeCount.text = currentLikeCount.toString()
+        // Use white for liked (visible on yellow footer) and dark for not liked
         if (isLiked) {
             likeIcon.setImageResource(R.drawable.ic_star_filled)
-            likeIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary))
+            likeIcon.setColorFilter(ContextCompat.getColor(this, R.color.white))
         } else {
             likeIcon.setImageResource(R.drawable.ic_star_outline)
             likeIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_on_light))

@@ -83,9 +83,10 @@ class EventsAdapter(
             likeCount.text = likes.toString()
 
             // Like icon based on liked state - set both drawable and tint
+            // Use white for liked (visible on yellow footer) and dark for not liked
             if (a.liked) {
                 likeIcon.setImageResource(R.drawable.ic_star_filled)
-                likeIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.primary))
+                likeIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.white))
             } else {
                 likeIcon.setImageResource(R.drawable.ic_star_outline)
                 likeIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.text_on_light))
