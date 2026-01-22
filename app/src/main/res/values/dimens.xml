@@ -6,4 +6,5 @@
 
     <!-- Card styling -->
     <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_stroke_width_active">2dp</dimen>
 </resources>
