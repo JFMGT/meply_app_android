@@ -32,6 +32,7 @@ class PlayersAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val avatar: ImageView = itemView.findViewById(R.id.player_avatar)
+        private val readyBadge: TextView = itemView.findViewById(R.id.ready_badge)
         private val name: TextView = itemView.findViewById(R.id.player_name)
         private val city: TextView = itemView.findViewById(R.id.player_city)
         private val distance: TextView = itemView.findViewById(R.id.player_distance)
@@ -67,6 +68,13 @@ class PlayersAdapter(
 
             // Score
             score.text = "${match.getScorePercent()}%"
+
+            // Ready to Play Badge
+            if (match.isReadyToPlay()) {
+                readyBadge.visibility = View.VISIBLE
+            } else {
+                readyBadge.visibility = View.GONE
+            }
 
             // Avatar
             val avatarUrl = profile?.getAvatarUrl()

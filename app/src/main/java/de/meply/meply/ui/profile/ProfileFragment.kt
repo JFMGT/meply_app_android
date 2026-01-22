@@ -27,6 +27,10 @@ import de.meply.meply.LoginActivity
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.feed.ImageUploadResponse
 import de.meply.meply.data.feed.StrapiUploadResponse
+import de.meply.meply.data.availability.AvailabilityActionResponse
+import de.meply.meply.data.availability.SetAvailabilityRequest
+import de.meply.meply.data.availability.UserAvailability
+import de.meply.meply.data.availability.UserAvailabilityResponse
 import de.meply.meply.data.profile.InviteCodesResponse
 import de.meply.meply.data.profile.ProfileItem
 import de.meply.meply.data.profile.ProfileMeData
@@ -34,6 +38,9 @@ import de.meply.meply.data.profile.ProfileResponse
 import de.meply.meply.data.profile.UpdateProfileRequest
 import de.meply.meply.network.ApiClient
 import de.meply.meply.network.ApiService
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import de.meply.meply.utils.AvatarUtils
 import android.content.Intent
 import com.google.android.material.card.MaterialCardView
@@ -74,6 +81,20 @@ class ProfileFragment : Fragment() {
     private lateinit var btnCancelDeletion: Button
     private lateinit var btnDeleteAccount: Button
 
+    // Availability (Spielbereit) Views
+    private lateinit var availabilityCard: MaterialCardView
+    private lateinit var availabilityProgress: ProgressBar
+    private lateinit var availabilityInactive: View
+    private lateinit var availabilityActive: View
+    private lateinit var btnSetAvailable: Button
+    private lateinit var btnEditAvailability: Button
+    private lateinit var btnRemoveAvailability: Button
+    private lateinit var availabilityStatusText: TextView
+    private lateinit var availabilityExpiresText: TextView
+    private lateinit var availabilityHostingText: TextView
+    private lateinit var availabilityNoteText: TextView
+
+    private var currentAvailability: UserAvailability? = null
     private var loadedProfile: ProfileItem? = null
     private var currentScheduledDeletionAt: String? = null
     private var currentProfileId: String? = null
@@ -138,6 +159,19 @@ class ProfileFragment : Fragment() {
         btnCancelDeletion = view.findViewById(R.id.btn_cancel_deletion)
         btnDeleteAccount = view.findViewById(R.id.btn_delete_account)
 
+        // Initialize Availability Views
+        availabilityCard = view.findViewById(R.id.availability_card)
+        availabilityProgress = view.findViewById(R.id.availability_progress)
+        availabilityInactive = view.findViewById(R.id.availability_inactive)
+        availabilityActive = view.findViewById(R.id.availability_active)
+        btnSetAvailable = view.findViewById(R.id.btn_set_available)
+        btnEditAvailability = view.findViewById(R.id.btn_edit_availability)
+        btnRemoveAvailability = view.findViewById(R.id.btn_remove_availability)
+        availabilityStatusText = view.findViewById(R.id.availability_status_text)
+        availabilityExpiresText = view.findViewById(R.id.availability_expires_text)
+        availabilityHostingText = view.findViewById(R.id.availability_hosting_text)
+        availabilityNoteText = view.findViewById(R.id.availability_note_text)
+
         setupGenderSpinner()
         setupInviteCodesRecycler()
 
@@ -146,8 +180,14 @@ class ProfileFragment : Fragment() {
         btnDeleteAccount.setOnClickListener { confirmDeleteAccount() }
         btnCancelDeletion.setOnClickListener { cancelAccountDeletion() }
 
+        // Availability button listeners
+        btnSetAvailable.setOnClickListener { showAvailabilityBottomSheet() }
+        btnEditAvailability.setOnClickListener { showAvailabilityBottomSheet(currentAvailability) }
+        btnRemoveAvailability.setOnClickListener { confirmRemoveAvailability() }
+
         loadProfile()
         loadInviteCodes()
+        loadMyAvailability()
 
         return view
     }
@@ -855,6 +895,167 @@ class ProfileFragment : Fragment() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         activity?.finish()
+    }
+
+    // ===== AVAILABILITY (SPIELBEREIT) METHODS =====
+
+    private fun loadMyAvailability() {
+        availabilityProgress.visibility = View.VISIBLE
+
+        ApiClient.retrofit.getMyAvailability()
+            .enqueue(object : Callback<UserAvailabilityResponse> {
+                override fun onResponse(
+                    call: Call<UserAvailabilityResponse>,
+                    response: Response<UserAvailabilityResponse>
+                ) {
+                    availabilityProgress.visibility = View.GONE
+                    if (response.isSuccessful) {
+                        val availability = response.body()?.data
+                        currentAvailability = availability
+                        updateAvailabilityUI(availability)
+                    } else {
+                        Log.e("ProfileFragment", "Error loading availability: ${response.code()}")
+                        updateAvailabilityUI(null)
+                    }
+                }
+
+                override fun onFailure(call: Call<UserAvailabilityResponse>, t: Throwable) {
+                    availabilityProgress.visibility = View.GONE
+                    Log.e("ProfileFragment", "Network error loading availability", t)
+                    updateAvailabilityUI(null)
+                }
+            })
+    }
+
+    private fun updateAvailabilityUI(availability: UserAvailability?) {
+        if (availability != null && availability.isCurrentlyActive()) {
+            // Active state
+            availabilityInactive.visibility = View.GONE
+            availabilityActive.visibility = View.VISIBLE
+
+            // Update card style to show active status
+            availabilityCard.strokeWidth = resources.getDimensionPixelSize(R.dimen.card_stroke_width_active)
+
+            // Format expiry date
+            val expiresText = formatExpiryDate(availability.expiresAt)
+            availabilityExpiresText.text = "Gültig bis: $expiresText"
+
+            // Hosting preference
+            availabilityHostingText.text = availability.getHostingDisplayText()
+
+            // Note (if present)
+            if (!availability.note.isNullOrBlank()) {
+                availabilityNoteText.text = "\"${availability.note}\""
+                availabilityNoteText.visibility = View.VISIBLE
+            } else {
+                availabilityNoteText.visibility = View.GONE
+            }
+        } else {
+            // Inactive state
+            availabilityInactive.visibility = View.VISIBLE
+            availabilityActive.visibility = View.GONE
+            availabilityCard.strokeWidth = 0
+            currentAvailability = null
+        }
+    }
+
+    private fun formatExpiryDate(isoDate: String?): String {
+        if (isoDate.isNullOrEmpty()) return "Unbekannt"
+
+        return try {
+            val instant = Instant.parse(isoDate)
+            val localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
+            val today = java.time.LocalDate.now()
+            val tomorrow = today.plusDays(1)
+            val expiryDate = localDateTime.toLocalDate()
+
+            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+            when {
+                expiryDate == today -> "Heute, ${localDateTime.format(timeFormatter)} Uhr"
+                expiryDate == tomorrow -> "Morgen, ${localDateTime.format(timeFormatter)} Uhr"
+                else -> "${expiryDate.format(dateFormatter)}, ${localDateTime.format(timeFormatter)} Uhr"
+            }
+        } catch (e: Exception) {
+            Log.e("ProfileFragment", "Error parsing expiry date", e)
+            isoDate
+        }
+    }
+
+    private fun showAvailabilityBottomSheet(existingAvailability: UserAvailability? = null) {
+        val bottomSheet = AvailabilityBottomSheet.newInstance(existingAvailability) { request ->
+            saveAvailability(request)
+        }
+        bottomSheet.show(childFragmentManager, "availability_bottom_sheet")
+    }
+
+    private fun saveAvailability(request: SetAvailabilityRequest) {
+        availabilityProgress.visibility = View.VISIBLE
+
+        ApiClient.retrofit.setMyAvailability(request)
+            .enqueue(object : Callback<AvailabilityActionResponse> {
+                override fun onResponse(
+                    call: Call<AvailabilityActionResponse>,
+                    response: Response<AvailabilityActionResponse>
+                ) {
+                    availabilityProgress.visibility = View.GONE
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        Toast.makeText(requireContext(), "Du bist jetzt als spielbereit markiert!", Toast.LENGTH_SHORT).show()
+                        currentAvailability = response.body()?.data
+                        updateAvailabilityUI(currentAvailability)
+                    } else {
+                        val errorMsg = response.body()?.message ?: "Fehler beim Speichern"
+                        Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
+                        Log.e("ProfileFragment", "Error saving availability: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<AvailabilityActionResponse>, t: Throwable) {
+                    availabilityProgress.visibility = View.GONE
+                    Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("ProfileFragment", "Network error saving availability", t)
+                }
+            })
+    }
+
+    private fun confirmRemoveAvailability() {
+        MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Meply_AlertDialog)
+            .setTitle("Spielbereit-Status entfernen")
+            .setMessage("Möchtest du deinen Spielbereit-Status wirklich entfernen?")
+            .setPositiveButton("Entfernen") { _, _ ->
+                removeAvailability()
+            }
+            .setNegativeButton("Abbrechen", null)
+            .show()
+    }
+
+    private fun removeAvailability() {
+        availabilityProgress.visibility = View.VISIBLE
+
+        ApiClient.retrofit.deleteMyAvailability()
+            .enqueue(object : Callback<AvailabilityActionResponse> {
+                override fun onResponse(
+                    call: Call<AvailabilityActionResponse>,
+                    response: Response<AvailabilityActionResponse>
+                ) {
+                    availabilityProgress.visibility = View.GONE
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        Toast.makeText(requireContext(), "Spielbereit-Status entfernt", Toast.LENGTH_SHORT).show()
+                        currentAvailability = null
+                        updateAvailabilityUI(null)
+                    } else {
+                        Toast.makeText(requireContext(), "Fehler beim Entfernen", Toast.LENGTH_SHORT).show()
+                        Log.e("ProfileFragment", "Error removing availability: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<AvailabilityActionResponse>, t: Throwable) {
+                    availabilityProgress.visibility = View.GONE
+                    Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("ProfileFragment", "Network error removing availability", t)
+                }
+            })
     }
 }
 

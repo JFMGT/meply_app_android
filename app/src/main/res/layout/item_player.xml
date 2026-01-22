@@ -15,13 +15,33 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <!-- Avatar -->
-        <ImageView
-            android:id="@+id/player_avatar"
+        <!-- Avatar with Ready Badge -->
+        <FrameLayout
             android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="Avatar" />
+            android:layout_height="56dp">
+
+            <ImageView
+                android:id="@+id/player_avatar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="Avatar" />
+
+            <!-- Ready to Play Badge -->
+            <TextView
+                android:id="@+id/ready_badge"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/ready_badge_background"
+                android:gravity="center"
+                android:text="▶"
+                android:textColor="@color/text_on_light"
+                android:textSize="10sp"
+                android:visibility="gone"
+                android:contentDescription="Spielbereit" />
+
+        </FrameLayout>
 
         <!-- Info Container -->
         <LinearLayout

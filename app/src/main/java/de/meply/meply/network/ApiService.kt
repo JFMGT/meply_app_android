@@ -752,4 +752,30 @@ interface ApiService {
         @Query("limit") limit: Int = 20
     ): Call<List<de.meply.meply.data.players.PlayerMatch>>
 
+    // ===== USER AVAILABILITY (SPIELBEREIT) ENDPOINTS =====
+
+    /**
+     * Get own availability status
+     * Returns the current user's "ready to play" status
+     */
+    @GET("user-availabilities/my")
+    fun getMyAvailability(): Call<de.meply.meply.data.availability.UserAvailabilityResponse>
+
+    /**
+     * Set or update own availability status
+     * Creates a new availability or updates the existing one
+     * @param request The availability data (expiresAt, hostingPreference, note, boardgames)
+     */
+    @POST("user-availabilities/my")
+    fun setMyAvailability(
+        @Body request: de.meply.meply.data.availability.SetAvailabilityRequest
+    ): Call<de.meply.meply.data.availability.AvailabilityActionResponse>
+
+    /**
+     * Delete own availability status
+     * Removes the "ready to play" status
+     */
+    @DELETE("user-availabilities/my")
+    fun deleteMyAvailability(): Call<de.meply.meply.data.availability.AvailabilityActionResponse>
+
 }

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/background_card">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Spielbereit markieren"
+        android:textColor="@color/text_on_light"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Zeige anderen Mitgliedern, dass du gerade Mitspieler suchst."
+        android:textColor="@color/text_secondary_on_light"
+        android:textSize="14sp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Duration Selection -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wie lange bist du verfügbar?"
+        android:textColor="@color/text_on_light"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <RadioGroup
+        android:id="@+id/duration_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+
+        <RadioButton
+            android:id="@+id/duration_today"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Heute"
+            android:textColor="@color/text_on_light"
+            android:buttonTint="@color/checkbox_light_color"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/duration_tomorrow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bis morgen"
+            android:textColor="@color/text_on_light"
+            android:buttonTint="@color/checkbox_light_color"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/duration_weekend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dieses Wochenende"
+            android:textColor="@color/text_on_light"
+            android:buttonTint="@color/checkbox_light_color"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/duration_week"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Diese Woche"
+            android:textColor="@color/text_on_light"
+            android:buttonTint="@color/checkbox_light_color"
+            android:padding="8dp" />
+
+    </RadioGroup>
+
+    <!-- Hosting Preference -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wo möchtest du spielen?"
+        android:textColor="@color/text_on_light"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <CheckBox
+        android:id="@+id/hosting_home"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bei mir zuhause (Gastgeber)"
+        android:textColor="@color/text_on_light"
+        android:buttonTint="@color/checkbox_light_color"
+        android:padding="8dp" />
+
+    <CheckBox
+        android:id="@+id/hosting_away"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bei anderen (Gast)"
+        android:textColor="@color/text_on_light"
+        android:buttonTint="@color/checkbox_light_color"
+        android:padding="8dp" />
+
+    <CheckBox
+        android:id="@+id/hosting_neutral"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="An neutralem Ort (Cafe, Spieletreff, etc.)"
+        android:textColor="@color/text_on_light"
+        android:buttonTint="@color/checkbox_light_color"
+        android:padding="8dp"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Note -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        style="@style/Widget.Meply.TextInputLayout"
+        app:counterEnabled="true"
+        app:counterMaxLength="500">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/note_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Notiz (optional)"
+            android:inputType="textMultiLine"
+            android:minLines="2"
+            android:maxLines="4"
+            android:maxLength="500"
+            android:textColor="@color/text_on_light"
+            android:textColorHint="@color/text_secondary_on_light" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Buttons -->
+    <Button
+        android:id="@+id/btn_save_availability"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Spielbereit markieren"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/text_on_light" />
+
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Abbrechen"
+        android:textColor="@color/text_secondary_on_light"
+        style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+</LinearLayout>

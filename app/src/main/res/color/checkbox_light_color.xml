@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Checked state: use primary color -->
+    <item android:color="@color/primary" android:state_checked="true" />
+    <!-- Unchecked state: use a visible gray -->
+    <item android:color="@color/text_disabled" android:state_checked="false" />
+    <!-- Default -->
+    <item android:color="@color/text_disabled" />
+</selector>
