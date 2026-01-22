@@ -320,80 +320,104 @@
                     app:cardBackgroundColor="@color/background_card"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp"
-                    app:strokeColor="@color/primary"
-                    app:strokeWidth="2dp">
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:orientation="vertical">
 
-                        <!-- Header with Play Icon -->
+                        <!-- Yellow Header (always visible, clickable) -->
                         <LinearLayout
+                            android:id="@+id/availability_header"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                            android:gravity="center_vertical"
+                            android:background="@color/primary"
+                            android:padding="16dp"
+                            android:clickable="true"
+                            android:focusable="true">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="▶"
                                 android:textSize="18sp"
-                                android:textColor="@color/primary" />
+                                android:textColor="@color/text_on_light" />
 
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
+                                android:layout_weight="1"
                                 android:layout_marginStart="8dp"
                                 android:text="Spielbereit"
-                                android:textColor="@color/primary"
+                                android:textColor="@color/text_on_light"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
+                            <!-- Expand/Collapse Arrow -->
+                            <TextView
+                                android:id="@+id/availability_expand_icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="▼"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_on_light" />
+
                         </LinearLayout>
 
-                        <!-- Expires Info -->
-                        <TextView
-                            android:id="@+id/availability_expires"
+                        <!-- Details Section (initially hidden, white background) -->
+                        <LinearLayout
+                            android:id="@+id/availability_details"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textColor="@color/text_secondary_on_light"
-                            android:textSize="14sp"
-                            android:text="Gültig bis: Heute, 23:59" />
+                            android:orientation="vertical"
+                            android:background="@color/background_card"
+                            android:padding="16dp"
+                            android:visibility="gone">
 
-                        <!-- Hosting Preference -->
-                        <TextView
-                            android:id="@+id/availability_hosting"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:textColor="@color/text_secondary_on_light"
-                            android:textSize="14sp"
-                            android:text="Gastgeber / Gast" />
+                            <!-- Expires Info -->
+                            <TextView
+                                android:id="@+id/availability_expires"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/text_on_light"
+                                android:textSize="14sp"
+                                android:text="Gültig bis: Heute, 23:59" />
 
-                        <!-- Note (optional) -->
-                        <TextView
-                            android:id="@+id/availability_note"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textColor="@color/text_on_light"
-                            android:textSize="14sp"
-                            android:textStyle="italic"
-                            android:visibility="gone" />
+                            <!-- Hosting Preference -->
+                            <TextView
+                                android:id="@+id/availability_hosting"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:textColor="@color/text_secondary_on_light"
+                                android:textSize="14sp"
+                                android:text="Gastgeber / Gast" />
 
-                        <!-- Boardgames (optional) -->
-                        <TextView
-                            android:id="@+id/availability_games"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textColor="@color/text_secondary_on_light"
-                            android:textSize="13sp"
-                            android:visibility="gone" />
+                            <!-- Note (optional) -->
+                            <TextView
+                                android:id="@+id/availability_note"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:textColor="@color/text_on_light"
+                                android:textSize="14sp"
+                                android:textStyle="italic"
+                                android:visibility="gone" />
+
+                            <!-- Boardgames (optional) -->
+                            <TextView
+                                android:id="@+id/availability_games"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:textColor="@color/text_secondary_on_light"
+                                android:textSize="13sp"
+                                android:visibility="gone" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

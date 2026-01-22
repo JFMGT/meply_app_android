@@ -102,10 +102,14 @@ class UserProfileActivity : BaseDetailActivity() {
 
     // Availability (Spielbereit) elements
     private lateinit var availabilityCard: MaterialCardView
+    private lateinit var availabilityHeader: View
+    private lateinit var availabilityDetails: View
+    private lateinit var availabilityExpandIcon: TextView
     private lateinit var availabilityExpires: TextView
     private lateinit var availabilityHosting: TextView
     private lateinit var availabilityNote: TextView
     private lateinit var availabilityGames: TextView
+    private var isAvailabilityExpanded: Boolean = false
 
     private var userSlug: String? = null
     private var profileData: UserProfileData? = null
@@ -188,10 +192,16 @@ class UserProfileActivity : BaseDetailActivity() {
 
         // Availability card
         availabilityCard = findViewById(R.id.availability_card)
+        availabilityHeader = findViewById(R.id.availability_header)
+        availabilityDetails = findViewById(R.id.availability_details)
+        availabilityExpandIcon = findViewById(R.id.availability_expand_icon)
         availabilityExpires = findViewById(R.id.availability_expires)
         availabilityHosting = findViewById(R.id.availability_hosting)
         availabilityNote = findViewById(R.id.availability_note)
         availabilityGames = findViewById(R.id.availability_games)
+
+        // Toggle availability details on header click
+        availabilityHeader.setOnClickListener { toggleAvailabilityDetails() }
 
         btnSendMessage.setOnClickListener { onSendMessage() }
         btnFollow.setOnClickListener { onFollowClick() }
@@ -439,12 +449,23 @@ class UserProfileActivity : BaseDetailActivity() {
     private fun updateAvailabilityCard(profile: UserProfileData) {
         val availability = profile.availability
 
+        Log.d(TAG, "updateAvailabilityCard - availability: $availability")
+        Log.d(TAG, "updateAvailabilityCard - expiresAt: ${availability?.expiresAt}")
+        Log.d(TAG, "updateAvailabilityCard - isActive: ${availability?.isActive()}")
+
         if (availability == null || !availability.isActive()) {
+            Log.d(TAG, "updateAvailabilityCard - hiding card (null or not active)")
             availabilityCard.visibility = View.GONE
             return
         }
 
+        Log.d(TAG, "updateAvailabilityCard - showing card!")
         availabilityCard.visibility = View.VISIBLE
+
+        // Reset to collapsed state
+        isAvailabilityExpanded = false
+        availabilityDetails.visibility = View.GONE
+        availabilityExpandIcon.text = "▼"
 
         // Format expiry date
         availabilityExpires.text = "Gültig bis: ${formatAvailabilityExpiry(availability.expiresAt)}"
@@ -502,6 +523,18 @@ class UserProfileActivity : BaseDetailActivity() {
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing expiry date", e)
             isoDate
+        }
+    }
+
+    private fun toggleAvailabilityDetails() {
+        isAvailabilityExpanded = !isAvailabilityExpanded
+
+        if (isAvailabilityExpanded) {
+            availabilityDetails.visibility = View.VISIBLE
+            availabilityExpandIcon.text = "▲"
+        } else {
+            availabilityDetails.visibility = View.GONE
+            availabilityExpandIcon.text = "▼"
         }
     }
 
