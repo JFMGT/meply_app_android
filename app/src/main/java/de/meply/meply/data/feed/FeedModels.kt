@@ -26,6 +26,7 @@ data class Post(
     @SerializedName("content") val content: String?,
     @SerializedName("visibility") val visibility: String = "members", // public, members, follower
     @SerializedName("createdAt") val createdAt: String?,
+    @SerializedName("deletedAt") val deletedAt: String? = null, // Timestamp when post was deleted (soft delete)
     @SerializedName(value = "liked", alternate = ["isLiked"]) val liked: Boolean = false,
     @SerializedName(value = "likeCount", alternate = ["likes"]) val likeCount: Int = 0,
     @SerializedName("replyCount") val replyCount: Int = 0,
@@ -33,7 +34,16 @@ data class Post(
     @SerializedName("image") val image: List<PostImage>? = null,
     @SerializedName("parent") val parent: PostParent? = null,
     @SerializedName("children") val children: List<Post>? = null // For thread view
-)
+) {
+    /**
+     * Check if this post has been deleted (soft delete)
+     * A post is considered deleted if:
+     * - deletedAt is not null, OR
+     * - author is null (legacy indicator for deleted posts)
+     */
+    val isDeleted: Boolean
+        get() = deletedAt != null || author == null
+}
 
 data class PostAuthor(
     @SerializedName("id") val id: Int,

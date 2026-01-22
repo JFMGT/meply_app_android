@@ -166,36 +166,64 @@ class ThreadAdapter(
             }
         }
 
-        // Author info
+        // Check if post is deleted
+        val isDeleted = post.isDeleted
         val author = post.author
-        holder.username.text = author?.username ?: "Unbekannt"
 
-        // Avatar
-        val avatarUrl = author?.avatar?.firstOrNull()?.formats?.thumbnail?.url
-        if (avatarUrl != null) {
-            Glide.with(context)
-                .load(imageBaseUrl + avatarUrl)
-                .circleCrop()
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .into(holder.avatar)
+        // Author info - show "Gelöschter Beitrag" for deleted posts
+        if (isDeleted) {
+            holder.username.text = "Gelöschter Beitrag"
+            holder.username.setTextColor(context.getColor(R.color.text_secondary))
         } else {
-            val userId = author?.userId ?: author?.documentId ?: "default"
-            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
-            Glide.with(context)
-                .load(defaultAvatarUrl)
-                .circleCrop()
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .into(holder.avatar)
+            holder.username.text = author?.username ?: "Unbekannt"
+            holder.username.setTextColor(context.getColor(R.color.text_on_light))
+        }
+
+        // Avatar - show placeholder with reduced opacity for deleted posts
+        if (isDeleted) {
+            holder.avatar.setImageResource(R.drawable.ic_launcher_foreground)
+            holder.avatar.alpha = 0.5f
+        } else {
+            holder.avatar.alpha = 1.0f
+            val avatarUrl = author?.avatar?.firstOrNull()?.formats?.thumbnail?.url
+            if (avatarUrl != null) {
+                Glide.with(context)
+                    .load(imageBaseUrl + avatarUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .into(holder.avatar)
+            } else {
+                val userId = author?.userId ?: author?.documentId ?: "default"
+                val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+                Glide.with(context)
+                    .load(defaultAvatarUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .into(holder.avatar)
+            }
         }
 
         // Meta info
-        holder.meta.text = formatRelativeTime(post.createdAt)
+        if (isDeleted) {
+            holder.meta.text = "Beitrag gelöscht"
+        } else {
+            holder.meta.text = formatRelativeTime(post.createdAt)
+        }
 
-        // Content
-        holder.content.text = post.content ?: ""
+        // Content - show placeholder for deleted posts
+        if (isDeleted) {
+            holder.content.text = "[Dieser Beitrag wurde gelöscht]"
+            holder.content.setTextColor(context.getColor(R.color.text_secondary))
+        } else {
+            holder.content.text = post.content ?: ""
+            holder.content.setTextColor(context.getColor(R.color.text_on_light))
+        }
 
-        // Images
-        if (!post.image.isNullOrEmpty()) {
+        // Images - hide for deleted posts
+        if (isDeleted || post.image.isNullOrEmpty()) {
+            holder.imageViewPager.visibility = View.GONE
+            holder.imageCounter.visibility = View.GONE
+        } else {
             holder.imageViewPager.visibility = View.VISIBLE
             holder.imageCounter.visibility = if (post.image.size > 1) View.VISIBLE else View.GONE
 
@@ -216,22 +244,35 @@ class ThreadAdapter(
             })
 
             holder.imageCounter.text = "1 / ${imageUrls.size}"
-        } else {
-            holder.imageViewPager.visibility = View.GONE
-            holder.imageCounter.visibility = View.GONE
         }
 
-        // Like button
+        // Like button - disable for deleted posts
         val likeIcon = if (post.liked) R.drawable.ic_star_filled else R.drawable.ic_star_outline
         holder.likeButton.setImageResource(likeIcon)
         holder.likeCount.text = post.likeCount.toString()
-        holder.likeButton.setOnClickListener { onLikeClick(post) }
+        if (isDeleted) {
+            holder.likeButton.isEnabled = false
+            holder.likeButton.alpha = 0.5f
+            holder.likeButton.setOnClickListener(null)
+        } else {
+            holder.likeButton.isEnabled = true
+            holder.likeButton.alpha = 1.0f
+            holder.likeButton.setOnClickListener { onLikeClick(post) }
+        }
 
-        // Reply button
+        // Reply button - disable for deleted posts
         holder.replyCount.text = post.replyCount.toString()
-        holder.replyButton.setOnClickListener { onReplyClick(post) }
+        if (isDeleted) {
+            holder.replyButton.isEnabled = false
+            holder.replyButton.alpha = 0.5f
+            holder.replyButton.setOnClickListener(null)
+        } else {
+            holder.replyButton.isEnabled = true
+            holder.replyButton.alpha = 1.0f
+            holder.replyButton.setOnClickListener { onReplyClick(post) }
+        }
 
-        // Show deeper replies link
+        // Show deeper replies link - still show for deleted posts if there are hidden children
         if (threadPost.hasHiddenChildren && onOpenThreadClick != null) {
             holder.showRepliesLink.visibility = View.VISIBLE
             holder.showRepliesLink.text = "Weitere Antworten anzeigen"
@@ -242,8 +283,13 @@ class ThreadAdapter(
             holder.showRepliesLink.visibility = View.GONE
         }
 
-        // Options button
-        holder.optionsButton.setOnClickListener { onOptionsClick(post, it) }
+        // Options button - hide for deleted posts
+        if (isDeleted) {
+            holder.optionsButton.visibility = View.GONE
+        } else {
+            holder.optionsButton.visibility = View.VISIBLE
+            holder.optionsButton.setOnClickListener { onOptionsClick(post, it) }
+        }
     }
 
     override fun getItemCount(): Int = posts.size

@@ -104,20 +104,38 @@ class ThreadActivity : BaseDetailActivity() {
                     if (post != null) {
                         rootPost = post
                         // Debug logging to see like data
-                        Log.d("ThreadActivity", "Root post: documentId=${post.documentId}, liked=${post.liked}, likeCount=${post.likeCount}")
+                        Log.d("ThreadActivity", "Root post: documentId=${post.documentId}, liked=${post.liked}, likeCount=${post.likeCount}, isDeleted=${post.isDeleted}")
                         post.children?.forEachIndexed { index, child ->
                             Log.d("ThreadActivity", "Child $index: documentId=${child.documentId}, liked=${child.liked}, likeCount=${child.likeCount}")
                         }
                         threadAdapter.updateThread(post)
                         Log.d("ThreadActivity", "Thread loaded successfully")
+                    } else {
+                        // Empty response - show error
+                        Toast.makeText(
+                            this@ThreadActivity,
+                            "Beitrag konnte nicht geladen werden",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
+                    // Handle specific error codes
+                    val errorMessage = when (response.code()) {
+                        404 -> "Dieser Beitrag wurde gelöscht oder existiert nicht mehr"
+                        403 -> "Keine Berechtigung für diesen Beitrag"
+                        else -> "Fehler beim Laden: ${response.code()}"
+                    }
                     Toast.makeText(
                         this@ThreadActivity,
-                        "Fehler beim Laden: ${response.code()}",
-                        Toast.LENGTH_SHORT
+                        errorMessage,
+                        Toast.LENGTH_LONG
                     ).show()
                     Log.e("ThreadActivity", "Error loading thread: ${response.code()} - ${response.message()}")
+
+                    // Close activity on 404 (post doesn't exist)
+                    if (response.code() == 404) {
+                        finish()
+                    }
                 }
             }
 

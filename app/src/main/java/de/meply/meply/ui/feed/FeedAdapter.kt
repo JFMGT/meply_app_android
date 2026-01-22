@@ -67,62 +67,88 @@ class FeedAdapter(
         val post = posts[position]
         val context = holder.itemView.context
 
-        Log.d("FeedAdapter", "onBindViewHolder position=$position, documentId=${post.documentId}, likeCount=${post.likeCount}, liked=${post.liked}")
+        Log.d("FeedAdapter", "onBindViewHolder position=$position, documentId=${post.documentId}, likeCount=${post.likeCount}, liked=${post.liked}, isDeleted=${post.isDeleted}")
 
-        // Author kann null sein wenn z.B. der Elternbeitrag gelöscht wurde
+        // Check if post is deleted
+        val isDeleted = post.isDeleted
         val author = post.author
 
-        // Username
-        holder.username.text = author?.username ?: "Unbekannt"
-
-        // Make username clickable if callback is provided
-        val authorUserslug = author?.userslug
-        if (onAuthorClick != null && !authorUserslug.isNullOrEmpty()) {
-            holder.username.setTextColor(context.getColor(android.R.color.holo_blue_dark))
-            holder.username.setOnClickListener {
-                onAuthorClick.invoke(authorUserslug)
-            }
-        } else {
-            // Reset to default if no callback
-            holder.username.setTextColor(context.getColor(R.color.text_on_light))
+        // Username - show "Gelöschter Beitrag" for deleted posts
+        if (isDeleted) {
+            holder.username.text = "Gelöschter Beitrag"
+            holder.username.setTextColor(context.getColor(R.color.text_secondary))
             holder.username.setOnClickListener(null)
-        }
-
-        // Avatar
-        val avatarUrl = author?.avatar?.firstOrNull()?.formats?.thumbnail?.url
-        if (avatarUrl != null) {
-            // User has uploaded avatar
-            Glide.with(context)
-                .load(imageBaseUrl + avatarUrl)
-                .circleCrop()
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .into(holder.avatar)
         } else {
-            // Generate default avatar based on userId (matching PHP implementation)
-            val userId = author?.userId ?: author?.documentId ?: "default"
-            val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
-            Glide.with(context)
-                .load(defaultAvatarUrl)
-                .circleCrop()
-                .placeholder(R.drawable.ic_launcher_foreground)
-                .into(holder.avatar)
+            holder.username.text = author?.username ?: "Unbekannt"
+
+            // Make username clickable if callback is provided
+            val authorUserslug = author?.userslug
+            if (onAuthorClick != null && !authorUserslug.isNullOrEmpty()) {
+                holder.username.setTextColor(context.getColor(android.R.color.holo_blue_dark))
+                holder.username.setOnClickListener {
+                    onAuthorClick.invoke(authorUserslug)
+                }
+            } else {
+                // Reset to default if no callback
+                holder.username.setTextColor(context.getColor(R.color.text_on_light))
+                holder.username.setOnClickListener(null)
+            }
         }
 
-        // Meta: timestamp + visibility
-        val relativeTime = formatRelativeTime(post.createdAt)
-        val visibilityText = when (post.visibility) {
-            "public" -> "öffentlich"
-            "members" -> "Mitglieder"
-            "follower" -> "Follower"
-            else -> post.visibility
+        // Avatar - show placeholder for deleted posts
+        if (isDeleted) {
+            holder.avatar.setImageResource(R.drawable.ic_launcher_foreground)
+            holder.avatar.alpha = 0.5f
+        } else {
+            holder.avatar.alpha = 1.0f
+            val avatarUrl = author?.avatar?.firstOrNull()?.formats?.thumbnail?.url
+            if (avatarUrl != null) {
+                // User has uploaded avatar
+                Glide.with(context)
+                    .load(imageBaseUrl + avatarUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .into(holder.avatar)
+            } else {
+                // Generate default avatar based on userId (matching PHP implementation)
+                val userId = author?.userId ?: author?.documentId ?: "default"
+                val defaultAvatarUrl = AvatarUtils.getDefaultAvatarUrl(userId)
+                Glide.with(context)
+                    .load(defaultAvatarUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .into(holder.avatar)
+            }
         }
-        holder.meta.text = "$relativeTime • $visibilityText"
 
-        // Content
-        holder.content.text = post.content ?: ""
+        // Meta: timestamp + visibility (or deletion notice)
+        if (isDeleted) {
+            holder.meta.text = "Beitrag gelöscht"
+        } else {
+            val relativeTime = formatRelativeTime(post.createdAt)
+            val visibilityText = when (post.visibility) {
+                "public" -> "öffentlich"
+                "members" -> "Mitglieder"
+                "follower" -> "Follower"
+                else -> post.visibility
+            }
+            holder.meta.text = "$relativeTime • $visibilityText"
+        }
 
-        // Images
-        if (!post.image.isNullOrEmpty()) {
+        // Content - show placeholder for deleted posts
+        if (isDeleted) {
+            holder.content.text = "[Dieser Beitrag wurde gelöscht]"
+            holder.content.setTextColor(context.getColor(R.color.text_secondary))
+        } else {
+            holder.content.text = post.content ?: ""
+            holder.content.setTextColor(context.getColor(R.color.text_on_light))
+        }
+
+        // Images - hide for deleted posts
+        if (isDeleted || post.image.isNullOrEmpty()) {
+            holder.imageViewPager.visibility = View.GONE
+            holder.imageCounter.visibility = View.GONE
+        } else {
             holder.imageViewPager.visibility = View.VISIBLE
             holder.imageCounter.visibility = View.VISIBLE
 
@@ -145,12 +171,9 @@ class FeedAdapter(
 
             // Initial counter
             holder.imageCounter.text = "1 / ${imageUrls.size}"
-        } else {
-            holder.imageViewPager.visibility = View.GONE
-            holder.imageCounter.visibility = View.GONE
         }
 
-        // Like button
+        // Like button - disable for deleted posts
         val likeIcon = if (post.liked) {
             R.drawable.ic_star_filled
         } else {
@@ -158,17 +181,33 @@ class FeedAdapter(
         }
         holder.likeButton.setImageResource(likeIcon)
         holder.likeCount.text = post.likeCount.toString()
-        holder.likeButton.setOnClickListener {
-            onLikeClick(post)
+        if (isDeleted) {
+            holder.likeButton.isEnabled = false
+            holder.likeButton.alpha = 0.5f
+            holder.likeButton.setOnClickListener(null)
+        } else {
+            holder.likeButton.isEnabled = true
+            holder.likeButton.alpha = 1.0f
+            holder.likeButton.setOnClickListener {
+                onLikeClick(post)
+            }
         }
 
-        // Reply button
+        // Reply button - disable for deleted posts
         holder.replyCount.text = post.replyCount.toString()
-        holder.replyButton.setOnClickListener {
-            onReplyClick(post)
+        if (isDeleted) {
+            holder.replyButton.isEnabled = false
+            holder.replyButton.alpha = 0.5f
+            holder.replyButton.setOnClickListener(null)
+        } else {
+            holder.replyButton.isEnabled = true
+            holder.replyButton.alpha = 1.0f
+            holder.replyButton.setOnClickListener {
+                onReplyClick(post)
+            }
         }
 
-        // Show replies link
+        // Show replies link - still show for deleted posts if there are replies
         if (post.replyCount > 0) {
             holder.showRepliesLink.visibility = View.VISIBLE
             val repliesText = if (post.replyCount == 1) {
@@ -184,9 +223,14 @@ class FeedAdapter(
             holder.showRepliesLink.visibility = View.GONE
         }
 
-        // Options button
-        holder.optionsButton.setOnClickListener {
-            onOptionsClick(post, it)
+        // Options button - hide for deleted posts
+        if (isDeleted) {
+            holder.optionsButton.visibility = View.GONE
+        } else {
+            holder.optionsButton.visibility = View.VISIBLE
+            holder.optionsButton.setOnClickListener {
+                onOptionsClick(post, it)
+            }
         }
     }
 
