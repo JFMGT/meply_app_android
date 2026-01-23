@@ -67,9 +67,9 @@ object ApiClient {
                 // This is used for system token calls (like creating boardgames)
                 Log.d("ApiClientAuth", "ApiClient Interceptor: Using explicit Authorization header (system token)")
             } else if (isLoginOrRegister) {
-                // Keine Aktion für Login- oder Registrierungs-Aufrufe, da kein JWT benötigt wird
-                b.header("Authorization", "Bearer $APP_JWT")
-                Log.d("ApiClientAuth", "ApiClient Interceptor: Auth call, using APP_JWT.")
+                // Keine Aktion für Login- oder Registrierungs-Aufrufe
+                // Diese Endpoints sind öffentlich und erwarten KEINEN Authorization Header
+                Log.d("ApiClientAuth", "ApiClient Interceptor: Auth call (login/register), no Authorization header needed.")
             } else {
                 val currentJwt = userJwt // Hole den aktuellen JWT
                 // SEHR WICHTIGES LOG, um den Zustand des JWT vor der Verwendung zu sehen:
