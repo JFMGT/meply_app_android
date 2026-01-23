@@ -33,6 +33,15 @@ interface ApiService {
     fun login(
     @Body body: LoginRequest
     ): Call<AuthResponse>
+
+    /**
+     * Register a new user with registration code
+     * This endpoint is public (no auth required)
+     */
+    @POST("auth/register-with-code")
+    fun register(
+        @Body body: de.meply.meply.data.RegisterRequest
+    ): Call<de.meply.meply.data.RegisterResponse>
     // Events Nearby (Liste)
     @GET("events/nearby")
     fun getNearbyEvents(
