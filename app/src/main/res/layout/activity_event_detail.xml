@@ -87,7 +87,7 @@
                                 android:id="@+id/likeIcon"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/ic_star_filled"
+                                android:src="@drawable/ic_star_outline"
                                 android:contentDescription="Gefällt mir" />
 
                             <TextView
