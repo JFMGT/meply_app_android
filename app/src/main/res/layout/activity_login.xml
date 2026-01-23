@@ -56,4 +56,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:textColor="@color/error" />
+
+    <TextView
+        android:id="@+id/registerLink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:padding="8dp"
+        android:textColor="@color/primary"
+        android:textSize="14sp"
+        android:text="Noch kein Account? Registrieren" />
 </LinearLayout>

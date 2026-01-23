@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="32dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:paddingBottom="16dp"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:text="Registrieren" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:paddingBottom="24dp"
+            android:textSize="14sp"
+            android:text="Werde Teil der Meply-Community!" />
+
+        <!-- Username -->
+        <EditText
+            android:id="@+id/usernameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@color/background_card"
+            android:hint="Benutzername"
+            android:inputType="text"
+            android:padding="16dp"
+            android:textColor="@color/text_on_light"
+            android:textColorHint="@color/text_disabled"
+            android:maxLength="20" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:text="3-20 Zeichen, nur Buchstaben, Zahlen, _ und -" />
+
+        <!-- Email -->
+        <EditText
+            android:id="@+id/emailInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@color/background_card"
+            android:hint="E-Mail-Adresse"
+            android:inputType="textEmailAddress"
+            android:padding="16dp"
+            android:textColor="@color/text_on_light"
+            android:textColorHint="@color/text_disabled" />
+
+        <!-- Password -->
+        <EditText
+            android:id="@+id/passwordInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@color/background_card"
+            android:hint="Passwort"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:textColor="@color/text_on_light"
+            android:textColorHint="@color/text_disabled" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:text="Mindestens 8 Zeichen" />
+
+        <!-- Password Confirm -->
+        <EditText
+            android:id="@+id/passwordConfirmInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@color/background_card"
+            android:hint="Passwort bestätigen"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:textColor="@color/text_on_light"
+            android:textColorHint="@color/text_disabled" />
+
+        <!-- Registration Code -->
+        <EditText
+            android:id="@+id/registrationCodeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@color/background_card"
+            android:hint="Registrierungsschlüssel"
+            android:inputType="text"
+            android:padding="16dp"
+            android:textColor="@color/text_on_light"
+            android:textColorHint="@color/text_disabled" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:text="Den Registrierungsschlüssel erhältst du von einem Community-Mitglied." />
+
+        <!-- Privacy Checkbox -->
+        <CheckBox
+            android:id="@+id/privacyCheckbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:buttonTint="@color/primary"
+            android:text="Ich habe die Datenschutzerklärung gelesen und akzeptiere sie." />
+
+        <!-- Register Button -->
+        <Button
+            android:id="@+id/registerButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:text="Registrieren"
+            android:textColor="@color/text_on_light" />
+
+        <!-- Error Text -->
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/error" />
+
+        <!-- Success Text -->
+        <TextView
+            android:id="@+id/successText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/success"
+            android:visibility="gone" />
+
+        <!-- Back to Login Link -->
+        <TextView
+            android:id="@+id/backToLoginLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:padding="8dp"
+            android:textColor="@color/primary"
+            android:textSize="14sp"
+            android:text="Bereits registriert? Zum Login" />
+
+    </LinearLayout>
+</ScrollView>
