@@ -82,13 +82,12 @@ class EventsAdapter(
             val likes = a.likes ?: 0
             likeCount.text = likes.toString()
 
-            // Like icon based on liked state - set both drawable and tint
-            // Use white for liked (visible on yellow footer) and dark for not liked
+            // Like icon based on liked state - use single filled star, change color only
+            // White for liked (visible on yellow footer) and dark for not liked
+            likeIcon.setImageResource(R.drawable.ic_star_filled)
             if (a.liked) {
-                likeIcon.setImageResource(R.drawable.ic_star_filled)
                 likeIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.white))
             } else {
-                likeIcon.setImageResource(R.drawable.ic_star_outline)
                 likeIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.text_on_light))
             }
 
