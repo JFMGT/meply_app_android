@@ -115,7 +115,8 @@ class RegisterActivity : AppCompatActivity() {
             username = username,
             email = email,
             password = password,
-            registrationCode = registrationCode
+            registrationCode = registrationCode,
+            privacyAccepted = privacyAccepted
         )
 
         // Make API call
