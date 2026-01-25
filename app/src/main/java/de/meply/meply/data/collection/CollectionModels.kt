@@ -164,6 +164,7 @@ data class FindOrCreateBoardgameRequest(
  */
 data class FindOrCreateBoardgameResponse(
     @SerializedName("id") val id: Int,
+    @SerializedName("documentId") val documentId: String?,
     @SerializedName("existed") val existed: Boolean,
     @SerializedName("isPublic") val isPublic: Boolean?,
     @SerializedName("upgraded") val upgraded: Boolean?,

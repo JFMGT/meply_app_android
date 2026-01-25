@@ -12,6 +12,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
+import de.meply.meply.data.collection.AddToCollectionRequest
+import de.meply.meply.data.collection.AddToCollectionResponse
 import de.meply.meply.data.collection.FindOrCreateBoardgameRequest
 import de.meply.meply.data.collection.FindOrCreateBoardgameResponse
 import de.meply.meply.network.ApiClient
@@ -138,18 +140,11 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                     response: Response<FindOrCreateBoardgameResponse>
                 ) {
                     val body = response.body()
-                    val gameId = body?.id
+                    val documentId = body?.documentId
 
-                    if (response.isSuccessful && gameId != null) {
-                        showLoading(false)
-                        val message = if (body.existed) {
-                            "Spiel \"$title\" gefunden und hinzugefuegt"
-                        } else {
-                            "Spiel \"$title\" erstellt und hinzugefuegt"
-                        }
-                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-                        onGameCreatedListener?.invoke(gameId.toString())
-                        dismiss()
+                    if (response.isSuccessful && documentId != null) {
+                        // Step 2: Add game to user's collection
+                        addGameToCollection(documentId, title, body.existed)
                     } else {
                         showLoading(false)
                         val errorMsg = when (response.code()) {
@@ -170,6 +165,45 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
             })
     }
 
+
+    private fun addGameToCollection(documentId: String, title: String, existed: Boolean) {
+        val addRequest = AddToCollectionRequest(boardgameId = documentId)
+
+        ApiClient.retrofit.addToCollection(addRequest)
+            .enqueue(object : Callback<AddToCollectionResponse> {
+                override fun onResponse(
+                    call: Call<AddToCollectionResponse>,
+                    response: Response<AddToCollectionResponse>
+                ) {
+                    showLoading(false)
+
+                    if (response.isSuccessful) {
+                        val message = if (existed) {
+                            "Spiel \"$title\" zur Sammlung hinzugefuegt"
+                        } else {
+                            "Spiel \"$title\" erstellt und hinzugefuegt"
+                        }
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                        onGameCreatedListener?.invoke(documentId)
+                        dismiss()
+                    } else {
+                        val addResponse = response.body()
+                        if (addResponse?.alreadyExists == true) {
+                            Toast.makeText(requireContext(), "Spiel ist bereits in deiner Sammlung", Toast.LENGTH_SHORT).show()
+                            onGameCreatedListener?.invoke(documentId)
+                            dismiss()
+                        } else {
+                            Toast.makeText(requireContext(), "Spiel erstellt, aber Hinzufuegen fehlgeschlagen", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<AddToCollectionResponse>, t: Throwable) {
+                    showLoading(false)
+                    Toast.makeText(requireContext(), "Verbindungsfehler beim Hinzufuegen", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
 
     private fun showLoading(loading: Boolean) {
         progressBar.visibility = if (loading) View.VISIBLE else View.GONE
