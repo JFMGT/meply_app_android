@@ -31,7 +31,6 @@ class LoginActivity : AppCompatActivity() {
         AuthManager.getJwt(this)?.let { jwt ->
             // ✅ JWT auch im ApiClient setzen für API-Calls
             ApiClient.setJwt(jwt)
-            Log.d("LoginActivityAuth", "Auto-Login: JWT in ApiClient gesetzt: '$jwt'")
 
             // Fetch profile documentId if not already saved
             if (AuthManager.getProfileDocumentId(this) == null) {
@@ -76,19 +75,15 @@ class LoginActivity : AppCompatActivity() {
                         val username = body?.user?.username ?: "Unbekannt"
 
                         if (jwt.isNullOrBlank()) {
-                            Log.e("LoginActivityAuth", "Login-Antwort erfolgreich, aber JWT ist null oder leer.")
                             errorText.text = "Kein Token erhalten."
                             return
                         }
-
-                        Log.d("LoginActivityAuth", "Login erfolgreich! Erhaltener JWT: '$jwt'")
 
                         // ✅ JWT im AuthManager für Persistenz speichern (z.B. SharedPreferences)
                         AuthManager.saveJwt(this@LoginActivity, jwt)
 
                         // ✅ JWT AUCH im ApiClient für den aktuellen Laufzeitgebrauch im Interceptor setzen
                         ApiClient.setJwt(jwt)
-                        Log.d(TAG, "Manueller Login: Nach ApiClient.setJwt. Aktueller JWT im ApiClient: '${ApiClient.getCurrentJwt()}'")
 
                         // Fetch and save profile documentId
                         fetchAndSaveProfileId(username)

@@ -1,6 +1,5 @@
-package de.meply.meply.network // Dein Package-Name
+package de.meply.meply.network
 
-import android.util.Log // Sicherstellen, dass der Import da ist
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -17,68 +16,43 @@ object ApiClient {
     @Volatile private var userJwt: String? = null
 
     fun setJwt(jwt: String?) {
-        Log.d("ApiClientAuth", "ApiClient: Setting JWT to: $jwt") // << --- LOG HINZUGEFÜGT
         userJwt = jwt
     }
 
     fun clearJwt() {
-        Log.d("ApiClientAuth", "ApiClient: Clearing JWT. Was: $userJwt") // << --- LOG HINZUGEFÜGT
         userJwt = null
     }
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
-        // Um den Authorization Header im Log zu sehen, dies VORÜBERGEHEND auskommentieren:
-        // redactHeader("Authorization")
-    }
-
-    // Explizite öffentliche Getter-Methode für den Zugriff von außen (z.B. für Logs)
-    fun getCurrentJwt(): String? {
-        return userJwt
+        redactHeader("Authorization")
     }
 
     private val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val req = chain.request()
             val path = req.url.encodedPath
-            val isLogin = path.contains("/auth/local") // Login braucht APP_JWT
-            val isRegister = path.contains("/auth/register") // Registrierung ist öffentlich (kein Auth)
+            val isLogin = path.contains("/auth/local")
+            val isRegister = path.contains("/auth/register")
             val b = req.newBuilder()
 
-            // Check if request already has an Authorization header (e.g., from @Header annotation)
             val existingAuthHeader = req.header("Authorization")
 
-            // Logging für jede Anfrage im Auth Interceptor
-            Log.d("ApiClientAuth", "ApiClient Interceptor: Request URL: ${req.url}")
-            Log.d("ApiClientAuth", "ApiClient Interceptor: Is Login: $isLogin, Is Register: $isRegister")
-            Log.d("ApiClientAuth", "ApiClient Interceptor: Existing Auth header: ${existingAuthHeader != null}")
-
             if (existingAuthHeader != null) {
-                // Request already has explicit Authorization header - don't override it
-                // This is used for system token calls (like creating boardgames)
-                Log.d("ApiClientAuth", "ApiClient Interceptor: Using explicit Authorization header (system token)")
+                // Request already has explicit Authorization header - don't override
             } else if (isRegister) {
-                // Registrierung ist ein öffentlicher Endpoint - KEIN Authorization Header
-                // (Web-Version sendet auch keinen Auth-Header für /auth/register-with-code)
-                Log.d("ApiClientAuth", "ApiClient Interceptor: Register call, no Authorization header needed.")
+                // Register is public - no auth header
             } else if (isLogin) {
-                // Login braucht den APP_JWT (wie Web-Version mit STRAPI_API_TOKEN)
                 b.header("Authorization", "Bearer $APP_JWT")
-                Log.d("ApiClientAuth", "ApiClient Interceptor: Login call, using APP_JWT.")
             } else {
-                val currentJwt = userJwt // Hole den aktuellen JWT
-                // SEHR WICHTIGES LOG, um den Zustand des JWT vor der Verwendung zu sehen:
-                Log.d("ApiClientAuth", "ApiClient Interceptor: Non-auth call. Current JWT in ApiClient: '$currentJwt'")
+                val currentJwt = userJwt
                 if (!currentJwt.isNullOrBlank()) {
                     b.header("Authorization", "Bearer $currentJwt")
-                    Log.i("ApiClientAuth", "ApiClient Interceptor: Authorization header ADDED: Bearer $currentJwt")
-                } else {
-                    Log.w("ApiClientAuth", "ApiClient Interceptor: Authorization header NOT ADDED (JWT in ApiClient is null or blank).")
                 }
             }
             chain.proceed(b.build())
         }
-        .addInterceptor(loggingInterceptor) // Logging Interceptor hinzufügen
+        .addInterceptor(loggingInterceptor)
         .build()
 
     val retrofit: ApiService by lazy {
