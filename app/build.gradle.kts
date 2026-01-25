@@ -23,6 +23,7 @@ android {
             buildConfigField("String", "API_BASE", "\"https://admin.meeplemates.de/api/\"")
             buildConfigField("String", "IMAGE_BASE", "\"https://admin.meeplemates.de\"")
             buildConfigField("String", "WEB_BASE", "\"https://dev.meply.de\"")
+            buildConfigField("String", "APP_JWT", "\"7390af640e9802bca102d00294a68093bac023d80b545a2ce0dfa527af366e47c033f3a6c99fc4a5334a9ad7582f8f433415f0ada1d9bfa65e52104e1b3e347f88b2b7e960f6bbdcce27b1e163b9601de2dbb4ba0c71acf14326527f0b733bda507b96b23108a94961ddf3e3f5b92308ea5627f2557d5aded1ef44715cde8bda\"")
         }
         release {
             isMinifyEnabled = false
@@ -33,6 +34,7 @@ android {
             buildConfigField("String", "API_BASE", "\"https://api.meeplemates.de/api/\"")
             buildConfigField("String", "IMAGE_BASE", "\"https://api.meeplemates.de\"")
             buildConfigField("String", "WEB_BASE", "\"https://meply.de\"")
+            buildConfigField("String", "APP_JWT", "\"HIER_LIVE_TOKEN_EINTRAGEN\"")
         }
     }
     compileOptions {

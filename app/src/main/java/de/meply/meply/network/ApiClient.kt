@@ -11,8 +11,7 @@ object ApiClient {
     private val BASE_URL = BuildConfig.API_BASE
     val STRAPI_IMAGE_BASE = BuildConfig.IMAGE_BASE
     // APP_JWT - used for user authentication (login/register)
-    private const val APP_JWT = "7390af640e9802bca102d00294a68093bac023d80b545a2ce0dfa527af366e47c033f3a6c99fc4a5334a9ad7582f8f433415f0ada1d9bfa65e52104e1b3e347f88b2b7e960f6bbdcce27b1e163b9601de2dbb4ba0c71acf14326527f0b733bda507b96b23108a94961ddf3e3f5b92308ea5627f2557d5aded1ef44715cde8bda"
-    //private const val APP_JWT = "6c7f20141f6312b426b587a0d40a469cb72f85f3b2e51e750d86b7700f75f03d2de6097882b576d3f700e31b0a6baa67b2e4e9e182509d8f2242fd8432635ed204badad96a09c5775b9f1d63ae1851ad86d8a62cfe08d613cea65d3431f80f57df3836a5c80909bb87ea5f19db85cd4317c5803c28206ef2d966c60cd5b041eb"
+    private val APP_JWT = BuildConfig.APP_JWT
 
     @Volatile private var userJwt: String? = null
 
