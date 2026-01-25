@@ -144,3 +144,28 @@ data class CollectionActionResponse(
     @SerializedName("message") val message: String?,
     @SerializedName("error") val error: String?
 )
+
+/**
+ * Request for POST /boardgames/find-or-create
+ * Finds existing boardgame by BGG ID or title, or creates a new one
+ */
+data class FindOrCreateBoardgameRequest(
+    @SerializedName("title") val title: String,
+    @SerializedName("bggId") val bggId: String? = null,
+    @SerializedName("isManualCreation") val isManualCreation: Boolean = true,
+    @SerializedName("minAge") val minAge: Int? = null,
+    @SerializedName("minPlayer") val minPlayer: Int? = null,
+    @SerializedName("maxPlayer") val maxPlayer: Int? = null,
+    @SerializedName("releaseDate") val releaseDate: String? = null
+)
+
+/**
+ * Response from POST /boardgames/find-or-create
+ */
+data class FindOrCreateBoardgameResponse(
+    @SerializedName("id") val id: Int,
+    @SerializedName("existed") val existed: Boolean,
+    @SerializedName("isPublic") val isPublic: Boolean?,
+    @SerializedName("upgraded") val upgraded: Boolean?,
+    @SerializedName("message") val message: String?
+)

@@ -12,9 +12,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
-import de.meply.meply.data.collection.StrapiCreateBoardgameData
-import de.meply.meply.data.collection.StrapiCreateBoardgameRequest
-import de.meply.meply.data.collection.StrapiCreateBoardgameResponse
+import de.meply.meply.data.collection.FindOrCreateBoardgameRequest
+import de.meply.meply.data.collection.FindOrCreateBoardgameResponse
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -122,38 +121,34 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
 
         showLoading(true)
 
-        // Step 1: Create the boardgame directly in Strapi (like web version)
-        // IMPORTANT: Use system token like web version (useSystemToken=true in PHP)
-        // because regular users don't have permission to create boardgames directly
-        val strapiData = StrapiCreateBoardgameData(
+        // Use find-or-create route: finds existing game or creates new one
+        // Uses User JWT (no system token needed)
+        val request = FindOrCreateBoardgameRequest(
             title = title,
-            minPlayers = minPlayers,
-            maxPlayers = maxPlayers,
-            minAge = minAge
+            minPlayer = minPlayers,
+            maxPlayer = maxPlayers,
+            minAge = minAge,
+            isManualCreation = true
         )
-        val request = StrapiCreateBoardgameRequest(data = strapiData)
-        val systemToken = ApiClient.getSystemToken()
 
-        ApiClient.retrofit.createBoardgameWithSystemToken(systemToken, request)
-            .enqueue(object : Callback<StrapiCreateBoardgameResponse> {
+        ApiClient.retrofit.findOrCreateBoardgame(request)
+            .enqueue(object : Callback<FindOrCreateBoardgameResponse> {
                 override fun onResponse(
-                    call: Call<StrapiCreateBoardgameResponse>,
-                    response: Response<StrapiCreateBoardgameResponse>
+                    call: Call<FindOrCreateBoardgameResponse>,
+                    response: Response<FindOrCreateBoardgameResponse>
                 ) {
                     val body = response.body()
-                    val gameId = body?.data?.id
-                    val documentId = body?.data?.documentId
+                    val gameId = body?.id
 
-                    // Debug logging - VERSION 2: No manual add-to-collection call
-                    android.util.Log.d("CreateGame", "[V2] Create response: code=${response.code()}, gameId=$gameId, documentId=$documentId")
-                    android.util.Log.d("CreateGame", "[V2] Response body: $body - NO manual add-to-collection will be called")
-
-                    if (response.isSuccessful && documentId != null) {
-                        // Game created successfully - Strapi already adds it to the user's collection
-                        // No need to call addGameToCollection separately
+                    if (response.isSuccessful && gameId != null) {
                         showLoading(false)
-                        Toast.makeText(requireContext(), "Spiel \"$title\" erstellt und hinzugefuegt", Toast.LENGTH_SHORT).show()
-                        onGameCreatedListener?.invoke(documentId)
+                        val message = if (body.existed) {
+                            "Spiel \"$title\" gefunden und hinzugefuegt"
+                        } else {
+                            "Spiel \"$title\" erstellt und hinzugefuegt"
+                        }
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                        onGameCreatedListener?.invoke(gameId.toString())
                         dismiss()
                     } else {
                         showLoading(false)
@@ -162,15 +157,15 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                             401 -> "Nicht autorisiert"
                             403 -> "Keine Berechtigung"
                             404 -> "API-Endpunkt nicht gefunden"
-                            else -> "Fehler beim Erstellen (${response.code()})"
+                            else -> "Fehler beim Erstellen"
                         }
                         Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                override fun onFailure(call: Call<StrapiCreateBoardgameResponse>, t: Throwable) {
+                override fun onFailure(call: Call<FindOrCreateBoardgameResponse>, t: Throwable) {
                     showLoading(false)
-                    Toast.makeText(requireContext(), "Netzwerkfehler: ${t.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Verbindungsfehler. Bitte versuche es erneut.", Toast.LENGTH_SHORT).show()
                 }
             })
     }

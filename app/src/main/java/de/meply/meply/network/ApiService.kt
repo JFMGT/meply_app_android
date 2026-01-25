@@ -495,18 +495,14 @@ interface ApiService {
     ): Call<de.meply.meply.data.events.StrapiListResponse<de.meply.meply.data.collection.BoardgameSearchResult>>
 
     /**
-     * Create a new boardgame directly in Strapi
-     * Uses standard Strapi POST /boardgames endpoint with data wrapper
-     * This is step 1 of the two-step create-and-add process (like the web version)
-     *
-     * IMPORTANT: Uses explicit system token (like web version's useSystemToken=true)
-     * because regular users don't have permission to create boardgames directly
+     * Find or create a boardgame
+     * Searches by BGG ID first, then by title. Creates if not found.
+     * Uses User JWT (no system token needed)
      */
-    @POST("boardgames")
-    fun createBoardgameWithSystemToken(
-        @retrofit2.http.Header("Authorization") authorization: String,
-        @Body request: de.meply.meply.data.collection.StrapiCreateBoardgameRequest
-    ): Call<de.meply.meply.data.collection.StrapiCreateBoardgameResponse>
+    @POST("boardgames/find-or-create")
+    fun findOrCreateBoardgame(
+        @Body request: de.meply.meply.data.collection.FindOrCreateBoardgameRequest
+    ): Call<de.meply.meply.data.collection.FindOrCreateBoardgameResponse>
 
     /**
      * Add a boardgame to user's collection
