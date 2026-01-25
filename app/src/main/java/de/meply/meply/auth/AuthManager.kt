@@ -2,10 +2,11 @@ package de.meply.meply.auth
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 
 object AuthManager {
-    // Name für die Standard SharedPreferences-Datei
-    private const val PREFS_FILE_NAME = "auth_prefs" // Zurück zum alten Namen oder ein neuer
+    private const val PREFS_FILE_NAME = "auth_prefs_encrypted"
     private const val KEY_JWT = "jwt"
     private const val KEY_PROFILE_DOCUMENT_ID = "profile_document_id"
     private const val KEY_PROFILE_ID = "profile_id"
@@ -13,9 +14,18 @@ object AuthManager {
     private const val KEY_SCHEDULED_DELETION_AT = "scheduled_deletion_at"
     private const val KEY_DELETION_WARNING_SHOWN = "deletion_warning_shown"
 
-    // Hilfsmethode, um die Standard-SharedPreferences zu bekommen
     private fun getSharedPreferences(context: Context): SharedPreferences {
-        return context.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        return EncryptedSharedPreferences.create(
+            context,
+            PREFS_FILE_NAME,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
 
     fun saveJwt(context: Context, jwt: String) {
