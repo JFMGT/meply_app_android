@@ -323,13 +323,9 @@ class MyCollectionActivity : BaseDetailActivity() {
         hideSearchResults()
         searchInput.text.clear()
 
-        val documentId = result.documentId
-        if (documentId.isNullOrBlank()) {
-            Toast.makeText(this, "Fehler: Spiel hat keine ID", Toast.LENGTH_SHORT).show()
-            return
-        }
+        val gameId = result.id
 
-        val request = AddToCollectionRequest(boardgameId = documentId)
+        val request = AddToCollectionRequest(boardgameId = gameId)
         ApiClient.retrofit.addToCollection(request)
             .enqueue(object : Callback<AddToCollectionResponse> {
                 override fun onResponse(

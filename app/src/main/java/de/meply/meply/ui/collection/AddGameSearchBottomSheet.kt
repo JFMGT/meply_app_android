@@ -169,15 +169,11 @@ class AddGameSearchBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun addGameToCollection(game: BoardgameSearchResult) {
-        val documentId = game.documentId
-        if (documentId == null) {
-            Toast.makeText(requireContext(), "Fehler: Spiel hat keine documentId", Toast.LENGTH_SHORT).show()
-            return
-        }
+        val gameId = game.id
 
         showLoading(true)
 
-        ApiClient.retrofit.addToCollection(AddToCollectionRequest(documentId))
+        ApiClient.retrofit.addToCollection(AddToCollectionRequest(gameId))
             .enqueue(object : Callback<AddToCollectionResponse> {
                 override fun onResponse(
                     call: Call<AddToCollectionResponse>,

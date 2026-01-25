@@ -142,9 +142,11 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                     val body = response.body()
                     val documentId = body?.documentId
 
-                    if (response.isSuccessful && documentId != null) {
-                        // Step 2: Add game to user's collection
-                        addGameToCollection(documentId, title, body.existed)
+                    val gameId = body?.id
+
+                    if (response.isSuccessful && gameId != null && documentId != null) {
+                        // Step 2: Add game to user's collection (using numeric id, not documentId)
+                        addGameToCollection(gameId, documentId, title, body.existed)
                     } else {
                         showLoading(false)
                         val errorMsg = when (response.code()) {
@@ -166,8 +168,9 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
     }
 
 
-    private fun addGameToCollection(documentId: String, title: String, existed: Boolean) {
-        val addRequest = AddToCollectionRequest(boardgameId = documentId)
+    private fun addGameToCollection(gameId: Int, documentId: String, title: String, existed: Boolean) {
+        // API expects numeric id, not documentId
+        val addRequest = AddToCollectionRequest(boardgameId = gameId)
 
         ApiClient.retrofit.addToCollection(addRequest)
             .enqueue(object : Callback<AddToCollectionResponse> {
