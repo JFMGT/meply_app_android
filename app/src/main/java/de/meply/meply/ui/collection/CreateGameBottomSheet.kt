@@ -140,13 +140,11 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                     response: Response<FindOrCreateBoardgameResponse>
                 ) {
                     val body = response.body()
-                    val documentId = body?.documentId
-
                     val gameId = body?.id
 
-                    if (response.isSuccessful && gameId != null && documentId != null) {
-                        // Step 2: Add game to user's collection (using numeric id, not documentId)
-                        addGameToCollection(gameId, documentId, title, body.existed)
+                    if (response.isSuccessful && gameId != null) {
+                        // Step 2: Add game to user's collection (using numeric id)
+                        addGameToCollection(gameId, title, body.existed)
                     } else {
                         showLoading(false)
                         val errorMsg = when (response.code()) {
@@ -168,7 +166,7 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
     }
 
 
-    private fun addGameToCollection(gameId: Int, documentId: String, title: String, existed: Boolean) {
+    private fun addGameToCollection(gameId: Int, title: String, existed: Boolean) {
         // API expects numeric id, not documentId
         val addRequest = AddToCollectionRequest(boardgameId = gameId)
 
@@ -187,13 +185,13 @@ class CreateGameBottomSheet : BottomSheetDialogFragment() {
                             "Spiel \"$title\" erstellt und hinzugefuegt"
                         }
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-                        onGameCreatedListener?.invoke(documentId)
+                        onGameCreatedListener?.invoke(gameId.toString())
                         dismiss()
                     } else {
                         val addResponse = response.body()
                         if (addResponse?.alreadyExists == true) {
                             Toast.makeText(requireContext(), "Spiel ist bereits in deiner Sammlung", Toast.LENGTH_SHORT).show()
-                            onGameCreatedListener?.invoke(documentId)
+                            onGameCreatedListener?.invoke(gameId.toString())
                             dismiss()
                         } else {
                             Toast.makeText(requireContext(), "Spiel erstellt, aber Hinzufuegen fehlgeschlagen", Toast.LENGTH_SHORT).show()
