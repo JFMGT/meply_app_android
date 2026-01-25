@@ -12,6 +12,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import de.meply.meply.R
 import de.meply.meply.data.feed.Post
+import de.meply.meply.network.ApiClient
 import de.meply.meply.utils.AvatarUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,7 +31,7 @@ class ThreadAdapter(
     private val onOptionsClick: (Post, View) -> Unit,
     private val onImageClick: (List<String>, Int) -> Unit,
     private val onOpenThreadClick: ((Post) -> Unit)? = null,
-    private val imageBaseUrl: String = "https://admin.meeplemates.de"
+    private val imageBaseUrl: String = ApiClient.STRAPI_IMAGE_BASE
 ) : RecyclerView.Adapter<ThreadAdapter.ThreadViewHolder>() {
 
     companion object {

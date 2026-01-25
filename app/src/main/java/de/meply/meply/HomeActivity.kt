@@ -165,12 +165,12 @@ class HomeActivity : AppCompatActivity() {
 
         // Footer items
         findViewById<TextView>(R.id.menuImpressum).setOnClickListener {
-            openWebView("https://dev.meply.de/pages/impressum/", "Impressum")
+            openWebView("${BuildConfig.WEB_BASE}/pages/impressum/", "Impressum")
             drawerLayout.closeDrawer(GravityCompat.START)
         }
 
         findViewById<TextView>(R.id.menuDatenschutz).setOnClickListener {
-            openWebView("https://dev.meply.de/pages/datenschutzerklaerung/", "Datenschutzerklärung")
+            openWebView("${BuildConfig.WEB_BASE}/pages/datenschutzerklaerung/", "Datenschutzerklärung")
             drawerLayout.closeDrawer(GravityCompat.START)
         }
     }

@@ -19,12 +19,20 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE", "\"https://admin.meeplemates.de/api/\"")
+            buildConfigField("String", "IMAGE_BASE", "\"https://admin.meeplemates.de\"")
+            buildConfigField("String", "WEB_BASE", "\"https://dev.meply.de\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "API_BASE", "\"https://api.meeplemates.de/api/\"")
+            buildConfigField("String", "IMAGE_BASE", "\"https://api.meeplemates.de\"")
+            buildConfigField("String", "WEB_BASE", "\"https://meply.de\"")
         }
     }
     compileOptions {
@@ -36,6 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

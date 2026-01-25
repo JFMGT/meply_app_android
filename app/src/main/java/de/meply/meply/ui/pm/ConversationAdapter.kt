@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.meply.meply.R
 import de.meply.meply.data.messages.Conversation
+import de.meply.meply.network.ApiClient
 import de.meply.meply.utils.AvatarUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -19,7 +20,7 @@ class ConversationAdapter(
     private val conversations: MutableList<Conversation>,
     private val onConversationClick: (Conversation) -> Unit,
     private val currentUserId: String?,
-    private val imageBaseUrl: String = "https://admin.meeplemates.de"
+    private val imageBaseUrl: String = ApiClient.STRAPI_IMAGE_BASE
 ) : RecyclerView.Adapter<ConversationAdapter.ConversationViewHolder>() {
 
     inner class ConversationViewHolder(view: View) : RecyclerView.ViewHolder(view) {

@@ -1,9 +1,10 @@
 package de.meply.meply.utils
 
+import de.meply.meply.BuildConfig
 import java.util.zip.CRC32
 
 object AvatarUtils {
-    private const val AVATAR_BASE_URL = "https://dev.meply.de/etc/images"
+    private val AVATAR_BASE_URL = "${BuildConfig.WEB_BASE}/etc/images"
 
     /**
      * Calculate avatar index based on user ID using CRC32 hash
