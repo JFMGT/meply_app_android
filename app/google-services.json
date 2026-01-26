@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "369767419147",
+    "project_id": "meply-app",
+    "storage_bucket": "meply-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369767419147:android:5dcc84eb06a428adb3e60e",
+        "android_client_info": {
+          "package_name": "de.meply.meply"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4Qtje1Sw5H8saY9heIy-98ZRKhslikkU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
