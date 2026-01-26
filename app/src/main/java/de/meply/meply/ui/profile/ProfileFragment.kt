@@ -73,6 +73,10 @@ class ProfileFragment : Fragment() {
     private lateinit var checkboxShowInUserList: CheckBox
     private lateinit var checkboxAllowProfileView: CheckBox
     private lateinit var checkboxShowRatings: CheckBox
+    private lateinit var checkboxPushEnabled: CheckBox
+    private lateinit var spinnerPushFrequency: Spinner
+    private lateinit var editPushQuietStart: TextInputEditText
+    private lateinit var editPushQuietEnd: TextInputEditText
     private lateinit var btnSave: Button
     private lateinit var inviteCodesInfo: TextView
     private lateinit var inviteCodesRecycler: RecyclerView
@@ -102,6 +106,8 @@ class ProfileFragment : Fragment() {
     private var photoUri: Uri? = null
 
     private val genderOptions = listOf("Keine Angabe", "Weiblich", "Männlich", "Divers", "anderes")
+    private val pushFrequencyOptions = listOf("Sofort", "Stündlich", "Alle 4 Stunden", "Täglich")
+    private val pushFrequencyValues = listOf("instant", "hourly", "every4hours", "daily")
 
     // Activity Result Contracts
     private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -151,6 +157,10 @@ class ProfileFragment : Fragment() {
         checkboxShowInUserList = view.findViewById(R.id.checkbox_show_in_user_list)
         checkboxAllowProfileView = view.findViewById(R.id.checkbox_allow_profile_view)
         checkboxShowRatings = view.findViewById(R.id.checkbox_show_ratings)
+        checkboxPushEnabled = view.findViewById(R.id.checkbox_push_enabled)
+        spinnerPushFrequency = view.findViewById(R.id.spinner_push_frequency)
+        editPushQuietStart = view.findViewById(R.id.edit_push_quiet_start)
+        editPushQuietEnd = view.findViewById(R.id.edit_push_quiet_end)
         btnSave = view.findViewById(R.id.btn_save)
         inviteCodesInfo = view.findViewById(R.id.invite_codes_info)
         inviteCodesRecycler = view.findViewById(R.id.invite_codes_recycler)
@@ -173,6 +183,7 @@ class ProfileFragment : Fragment() {
         availabilityNoteText = view.findViewById(R.id.availability_note_text)
 
         setupGenderSpinner()
+        setupPushFrequencySpinner()
         setupInviteCodesRecycler()
 
         btnSave.setOnClickListener { saveProfile() }
@@ -200,6 +211,16 @@ class ProfileFragment : Fragment() {
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerGender.adapter = adapter
+    }
+
+    private fun setupPushFrequencySpinner() {
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            pushFrequencyOptions
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerPushFrequency.adapter = adapter
     }
 
     private fun setupInviteCodesRecycler() {
@@ -289,6 +310,20 @@ class ProfileFragment : Fragment() {
         checkboxAllowProfileView.isChecked = profile.attributes?.allowProfileView ?: false
         checkboxShowRatings.isChecked = profile.attributes?.showBoardGameRatings ?: false
 
+        // Set push notification settings
+        checkboxPushEnabled.isChecked = profile.attributes?.pushEnabled ?: true
+
+        // Set push frequency spinner
+        val pushFrequencyApi = profile.attributes?.pushFrequency ?: "instant"
+        val pushFrequencyIndex = pushFrequencyValues.indexOf(pushFrequencyApi)
+        if (pushFrequencyIndex >= 0) {
+            spinnerPushFrequency.setSelection(pushFrequencyIndex)
+        }
+
+        // Set quiet time fields
+        editPushQuietStart.setText(profile.attributes?.pushQuietStart ?: "")
+        editPushQuietEnd.setText(profile.attributes?.pushQuietEnd ?: "")
+
         Log.d("ProfileFragment", "Privacy setting: $privacySetting, checked: ${checkboxFollowPrivacy.isChecked}")
     }
 
@@ -335,6 +370,13 @@ class ProfileFragment : Fragment() {
         updateMap?.set("showInUserList", checkboxShowInUserList.isChecked)
         updateMap?.set("allowProfileView", checkboxAllowProfileView.isChecked)
         updateMap?.set("showBoardGameRatings", checkboxShowRatings.isChecked)
+
+        // Push notification settings
+        updateMap?.set("pushEnabled", checkboxPushEnabled.isChecked)
+        val pushFrequencyIndex = spinnerPushFrequency.selectedItemPosition
+        updateMap?.set("pushFrequency", pushFrequencyValues.getOrElse(pushFrequencyIndex) { "instant" })
+        updateMap?.set("pushQuietStart", editPushQuietStart.text.toString().ifEmpty { null })
+        updateMap?.set("pushQuietEnd", editPushQuietEnd.text.toString().ifEmpty { null })
 
         val request = UpdateProfileRequest(updateMap)
 
@@ -1077,6 +1119,10 @@ fun ApiService.ProfileData.toAttributes(): de.meply.meply.data.profile.ProfileAt
         usersCanFollow = null,  // Not available in ProfileData, will be fetched separately
         allowProfileView = this.allowProfileView,
         showBoardGameRatings = this.showBoardGameRatings,
+        pushEnabled = null,  // Not available in ProfileData
+        pushFrequency = null,
+        pushQuietStart = null,
+        pushQuietEnd = null,
         latitude = this.latitude,
         longitude = this.longitude,
         cords = this.cords
@@ -1098,6 +1144,10 @@ fun de.meply.meply.data.profile.ProfileAttributes.toMutableMap(): MutableMap<Str
         "followPrivacy" to this.followPrivacy,
         "allowProfileView" to this.allowProfileView,
         "showBoardGameRatings" to this.showBoardGameRatings,
+        "pushEnabled" to this.pushEnabled,
+        "pushFrequency" to this.pushFrequency,
+        "pushQuietStart" to this.pushQuietStart,
+        "pushQuietEnd" to this.pushQuietEnd,
         "latitude" to this.latitude,
         "longitude" to this.longitude,
         "cords" to this.cords

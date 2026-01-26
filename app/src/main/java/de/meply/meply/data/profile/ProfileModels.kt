@@ -38,6 +38,12 @@ data class ProfileAttributes(
     @SerializedName("allowProfileView") val allowProfileView: Boolean?,
     @SerializedName("showBoardGameRatings") val showBoardGameRatings: Boolean?,
 
+    // Push notification settings
+    @SerializedName("pushEnabled") val pushEnabled: Boolean?,
+    @SerializedName("pushFrequency") val pushFrequency: String?,             // "instant" | "hourly" | "every4hours" | "daily"
+    @SerializedName("pushQuietStart") val pushQuietStart: String?,           // Time format: "HH:mm"
+    @SerializedName("pushQuietEnd") val pushQuietEnd: String?,               // Time format: "HH:mm"
+
     // optional/technisch
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?,
@@ -87,6 +93,10 @@ data class ProfileMeData(
     @SerializedName("usersCanFollow") val usersCanFollow: String?,
     @SerializedName("allowProfileView") val allowProfileView: Boolean?,
     @SerializedName("showBoardGameRatings") val showBoardGameRatings: Boolean?,
+    @SerializedName("pushEnabled") val pushEnabled: Boolean?,
+    @SerializedName("pushFrequency") val pushFrequency: String?,
+    @SerializedName("pushQuietStart") val pushQuietStart: String?,
+    @SerializedName("pushQuietEnd") val pushQuietEnd: String?,
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?,
     @SerializedName("cords") val cords: Any?,  // Can be String or Object
@@ -111,6 +121,10 @@ data class ProfileMeData(
             usersCanFollow = usersCanFollow,
             allowProfileView = allowProfileView,
             showBoardGameRatings = showBoardGameRatings,
+            pushEnabled = pushEnabled,
+            pushFrequency = pushFrequency,
+            pushQuietStart = pushQuietStart,
+            pushQuietEnd = pushQuietEnd,
             latitude = latitude,
             longitude = longitude,
             cords = when (cords) {
