@@ -16,6 +16,11 @@ class MoreMenuBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val v = inflater.inflate(R.layout.bottom_sheet_more, container, false)
 
+        // Show DEV badge for debug builds
+        if (BuildConfig.DEBUG) {
+            v.findViewById<TextView>(R.id.devBadge).visibility = View.VISIBLE
+        }
+
         v.findViewById<TextView>(R.id.item_profile).setOnClickListener {
             // Navigate to Profile Fragment
             val activity = requireActivity() as? HomeActivity

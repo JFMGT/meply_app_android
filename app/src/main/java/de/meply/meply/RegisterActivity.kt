@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import de.meply.meply.data.RegisterRequest
 import de.meply.meply.data.RegisterResponse
 import de.meply.meply.network.ApiClient
+import de.meply.meply.network.RateLimitChecker
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -108,8 +109,33 @@ class RegisterActivity : AppCompatActivity() {
 
         // Disable button during request
         registerButton.isEnabled = false
-        registerButton.text = "Wird registriert..."
+        registerButton.text = "Wird geprüft..."
 
+        // Check rate limit before registration
+        RateLimitChecker.checkRegister { result ->
+            runOnUiThread {
+                if (result.blocked) {
+                    registerButton.isEnabled = true
+                    registerButton.text = "Registrieren"
+                    val waitText = result.waitMinutes?.let { " Bitte warte ca. $it Minute(n)." } ?: ""
+                    errorText.text = "Zu viele Registrierungsversuche.$waitText"
+                    return@runOnUiThread
+                }
+
+                // Rate limit OK - proceed with registration
+                registerButton.text = "Wird registriert..."
+                executeRegistration(username, email, password, registrationCode, privacyAccepted)
+            }
+        }
+    }
+
+    private fun executeRegistration(
+        username: String,
+        email: String,
+        password: String,
+        registrationCode: String,
+        privacyAccepted: Boolean
+    ) {
         // Create request
         val request = RegisterRequest(
             username = username,
