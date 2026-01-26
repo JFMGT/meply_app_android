@@ -34,7 +34,7 @@ android {
             buildConfigField("String", "API_BASE", "\"https://api.meeplemates.de/api/\"")
             buildConfigField("String", "IMAGE_BASE", "\"https://api.meeplemates.de\"")
             buildConfigField("String", "WEB_BASE", "\"https://meply.de\"")
-            buildConfigField("String", "APP_JWT", "\"HIER_LIVE_TOKEN_EINTRAGEN\"")
+            buildConfigField("String", "APP_JWT", "\"0febdaf22c6b7d956f1ada534670ff90833cf472ca5464b7fac13647d94e755bdc1a67eb638319c1e056190a79fddbfd3db068a496ac09c201c822f4cdfc920f08d381b88f22e79778e4b2c7a8ad2a7f67d25f92b522b40e00aa5f6edcfb3a4790bb20f985e7eb6109b40fabca4094bf7e352183e289df670c18ca8fc9d4229c\"")
         }
     }
     compileOptions {
