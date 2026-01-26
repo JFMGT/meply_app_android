@@ -10,8 +10,10 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import de.meply.meply.HomeActivity
 import de.meply.meply.LoginActivity
 import de.meply.meply.R
+import de.meply.meply.auth.AuthManager
 
 class MeplyMessagingService : FirebaseMessagingService() {
 
@@ -53,10 +55,14 @@ class MeplyMessagingService : FirebaseMessagingService() {
             Log.d(TAG, "Data payload: ${message.data}")
         }
 
+        // Extract elementType from data payload (for deep linking)
+        val elementType = message.data["elementType"]
+        val elementId = message.data["elementId"]
+
         // Only show ONE notification - prefer notification payload, fallback to data
         if (notification != null && !notification.title.isNullOrEmpty()) {
-            // Use notification payload (from server)
-            showNotification(notification.title, notification.body)
+            // Use notification payload (from server) with data for deep linking
+            showNotification(notification.title, notification.body, elementType, elementId)
         } else if (message.data.isNotEmpty()) {
             // Fallback to data payload only if no notification payload
             handleDataMessage(message.data)
@@ -68,12 +74,13 @@ class MeplyMessagingService : FirebaseMessagingService() {
     private fun handleDataMessage(data: Map<String, String>) {
         val title = data["title"] ?: "Meply"
         val body = data["body"] ?: data["message"] ?: ""
-        val type = data["type"] // e.g., "new_message", "new_follower", "new_reply"
+        val elementType = data["elementType"]
+        val elementId = data["elementId"]
 
-        showNotification(title, body, type)
+        showNotification(title, body, elementType, elementId)
     }
 
-    private fun showNotification(title: String?, body: String?, type: String? = null) {
+    private fun showNotification(title: String?, body: String?, elementType: String? = null, elementId: String? = null) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Create notification channel for Android O and above
@@ -89,22 +96,28 @@ class MeplyMessagingService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
 
+        // Determine target activity based on login state
+        val isLoggedIn = AuthManager.getToken(this) != null
+        val targetClass = if (isLoggedIn) HomeActivity::class.java else LoginActivity::class.java
+
         // Create intent to open app when notification is clicked
-        val intent = Intent(this, LoginActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            type?.let { putExtra("notification_type", it) }
+        val intent = Intent(this, targetClass).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            // Pass deep linking data
+            elementType?.let { putExtra("elementType", it) }
+            elementId?.let { putExtra("elementId", it) }
         }
 
         val pendingIntent = PendingIntent.getActivity(
             this,
-            0,
+            System.currentTimeMillis().toInt(), // Unique request code for each notification
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         // Build notification
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_mail)
             .setContentTitle(title ?: "Meply")
             .setContentText(body)
             .setAutoCancel(true)

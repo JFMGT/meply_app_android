@@ -119,6 +119,41 @@ class HomeActivity : AppCompatActivity() {
         setupDeletionWarningBanner()
         loadUserData()
         requestNotificationPermission()
+
+        // Handle deep linking from push notifications
+        handlePushNotificationIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // Handle deep linking when activity is already running
+        intent?.let { handlePushNotificationIntent(it) }
+    }
+
+    /**
+     * Handle deep linking from push notifications
+     * Opens the appropriate screen based on elementType
+     */
+    private fun handlePushNotificationIntent(intent: Intent) {
+        val elementType = intent.getStringExtra("elementType")
+        val elementId = intent.getStringExtra("elementId")
+
+        Log.d("HomeActivity", "Push notification deep link: elementType=$elementType, elementId=$elementId")
+
+        when (elementType) {
+            "conversation" -> {
+                // Navigate to PM tab
+                val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+                bottomNav.selectedItemId = R.id.nav_pm
+            }
+            // Add more elementTypes here as needed
+            // "event" -> { ... }
+            // "post" -> { ... }
+        }
+
+        // Clear the extras so they don't trigger again on config change
+        intent.removeExtra("elementType")
+        intent.removeExtra("elementId")
     }
 
     /**
