@@ -87,7 +87,6 @@ dependencies {
     // (google-services.json only has de.meply.meply, not de.meply.meply.dev)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
-    implementation(libs.firebase.analytics)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
