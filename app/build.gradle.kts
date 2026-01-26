@@ -83,9 +83,10 @@ dependencies {
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.github.yalantis:ucrop:2.2.8")
 
-    // Firebase (only for release builds)
-    releaseImplementation(platform(libs.firebase.bom))
-    releaseImplementation(libs.firebase.messaging)
+    // Firebase - included in all builds for compilation, but only works in release
+    // (google-services.json only has de.meply.meply, not de.meply.meply.dev)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
