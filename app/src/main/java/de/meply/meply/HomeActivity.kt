@@ -1,6 +1,7 @@
 package de.meply.meply
 
 import android.content.Intent
+import de.meply.meply.BuildConfig
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -522,6 +523,11 @@ class HomeActivity : AppCompatActivity() {
         val drawerAvatar = findViewById<ImageView>(R.id.drawerUserAvatar)
         val drawerUserName = findViewById<TextView>(R.id.drawerUserName)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+
+        // Show DEV badge for debug builds
+        if (BuildConfig.DEBUG) {
+            findViewById<TextView>(R.id.drawerDevBadge)?.visibility = View.VISIBLE
+        }
 
         ApiClient.retrofit.getMyProfile()
             .enqueue(object : Callback<ProfileResponse<ProfileMeData>> {
