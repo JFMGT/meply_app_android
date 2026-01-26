@@ -158,35 +158,48 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
-     * Get FCM token and log it (later: send to backend)
+     * Get FCM token and register it with the backend
      */
     private fun retrieveFcmToken() {
         FcmTokenManager.getToken(
             onSuccess = { token ->
                 Log.d("HomeActivity", "FCM Token retrieved: $token")
-                // Show token in a dialog for easy copying (temporary for testing)
-                runOnUiThread {
-                    androidx.appcompat.app.AlertDialog.Builder(this)
-                        .setTitle("FCM Token")
-                        .setMessage(token)
-                        .setPositiveButton("Kopieren") { _, _ ->
-                            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                            val clip = android.content.ClipData.newPlainText("FCM Token", token)
-                            clipboard.setPrimaryClip(clip)
-                            android.widget.Toast.makeText(this, "Token kopiert!", android.widget.Toast.LENGTH_SHORT).show()
-                        }
-                        .setNegativeButton("Schließen", null)
-                        .show()
-                }
-                // TODO: Send token to backend to register device for push notifications
+                registerPushDevice(token)
             },
             onFailure = { e ->
                 Log.e("HomeActivity", "Failed to get FCM token", e)
-                runOnUiThread {
-                    android.widget.Toast.makeText(this, "FCM Token Fehler: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
-                }
             }
         )
+    }
+
+    /**
+     * Register the push device token with the backend
+     */
+    private fun registerPushDevice(token: String) {
+        val deviceName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+        val request = de.meply.meply.data.push.RegisterPushDeviceRequest(
+            token = token,
+            platform = "android",
+            deviceName = deviceName
+        )
+
+        ApiClient.retrofit.registerPushDevice(request)
+            .enqueue(object : Callback<de.meply.meply.data.push.PushDeviceResponse> {
+                override fun onResponse(
+                    call: Call<de.meply.meply.data.push.PushDeviceResponse>,
+                    response: Response<de.meply.meply.data.push.PushDeviceResponse>
+                ) {
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        Log.d("HomeActivity", "Push device registered: ${response.body()?.message}")
+                    } else {
+                        Log.e("HomeActivity", "Failed to register push device: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<de.meply.meply.data.push.PushDeviceResponse>, t: Throwable) {
+                    Log.e("HomeActivity", "Error registering push device", t)
+                }
+            })
     }
 
     private fun setupToolbar() {
@@ -484,10 +497,49 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun logout() {
+        // Unregister push device in background before clearing auth
+        unregisterPushDevice()
+
         AuthManager.clear(this)
         val intent = Intent(this, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
+    }
+
+    /**
+     * Unregister the push device token from the backend on logout
+     */
+    private fun unregisterPushDevice() {
+        // Skip in debug builds - no FCM support
+        if (BuildConfig.DEBUG) {
+            return
+        }
+
+        FcmTokenManager.getToken(
+            onSuccess = { token ->
+                val request = de.meply.meply.data.push.UnregisterPushDeviceRequest(token = token)
+                ApiClient.retrofit.unregisterPushDevice(request)
+                    .enqueue(object : Callback<de.meply.meply.data.push.PushDeviceResponse> {
+                        override fun onResponse(
+                            call: Call<de.meply.meply.data.push.PushDeviceResponse>,
+                            response: Response<de.meply.meply.data.push.PushDeviceResponse>
+                        ) {
+                            if (response.isSuccessful) {
+                                Log.d("HomeActivity", "Push device unregistered")
+                            } else {
+                                Log.e("HomeActivity", "Failed to unregister push device: ${response.code()}")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<de.meply.meply.data.push.PushDeviceResponse>, t: Throwable) {
+                            Log.e("HomeActivity", "Error unregistering push device", t)
+                        }
+                    })
+            },
+            onFailure = { e ->
+                Log.e("HomeActivity", "Failed to get FCM token for unregister", e)
+            }
+        )
     }
 
     private fun openWebView(url: String, title: String) {
