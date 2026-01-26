@@ -21,16 +21,25 @@ class MeplyMessagingService : FirebaseMessagingService() {
         private const val CHANNEL_NAME = "Meply Benachrichtigungen"
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        Log.d(TAG, "MeplyMessagingService created")
+    }
+
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d(TAG, "New FCM token: $token")
+        Log.d(TAG, "=== NEW FCM TOKEN ===")
+        Log.d(TAG, "Token: $token")
+        Log.d(TAG, "=====================")
         // TODO: Send token to your backend server
         // This token is used to send push notifications to this device
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        Log.d(TAG, "Message received from: ${message.from}")
+        Log.d(TAG, "=== MESSAGE RECEIVED ===")
+        Log.d(TAG, "From: ${message.from}")
+        Log.d(TAG, "Message ID: ${message.messageId}")
 
         // Check if message contains a notification payload
         message.notification?.let { notification ->
@@ -44,6 +53,8 @@ class MeplyMessagingService : FirebaseMessagingService() {
             Log.d(TAG, "Data payload: ${message.data}")
             handleDataMessage(message.data)
         }
+
+        Log.d(TAG, "========================")
     }
 
     private fun handleDataMessage(data: Map<String, String>) {
