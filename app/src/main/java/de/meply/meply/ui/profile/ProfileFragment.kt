@@ -254,8 +254,8 @@ class ProfileFragment : Fragment() {
         TimePickerDialog(
             requireContext(),
             { _, selectedHour, selectedMinute ->
-                // Format as HH:mm (with leading zeros)
-                val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                // Format as HH:mm:ss (with leading zeros and seconds)
+                val formattedTime = String.format("%02d:%02d:00", selectedHour, selectedMinute)
                 targetField.setText(formattedTime)
             },
             hour,
