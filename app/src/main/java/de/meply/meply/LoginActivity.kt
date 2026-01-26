@@ -12,6 +12,7 @@ import de.meply.meply.auth.AuthManager
 import de.meply.meply.data.AuthResponse
 import de.meply.meply.data.LoginRequest
 import de.meply.meply.network.ApiClient
+import de.meply.meply.network.RateLimitChecker
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -65,40 +66,63 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val request = LoginRequest(identifier, password)
-            val call = ApiClient.retrofit.login(request)
-            call.enqueue(object : Callback<AuthResponse> {
-                override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
-                    if (response.isSuccessful) {
-                        val body = response.body()
-                        val jwt = body?.jwt
-                        val username = body?.user?.username ?: "Unbekannt"
+            // Disable button during rate limit check
+            loginButton.isEnabled = false
+            errorText.text = ""
 
-                        if (jwt.isNullOrBlank()) {
-                            errorText.text = "Kein Token erhalten."
-                            return
-                        }
-
-                        // ✅ JWT im AuthManager für Persistenz speichern (z.B. SharedPreferences)
-                        AuthManager.saveJwt(this@LoginActivity, jwt)
-
-                        // ✅ JWT AUCH im ApiClient für den aktuellen Laufzeitgebrauch im Interceptor setzen
-                        ApiClient.setJwt(jwt)
-
-                        // Fetch and save profile documentId
-                        fetchAndSaveProfileId(username)
-                    } else {
-                        val errMsg = response.errorBody()?.string().orEmpty()
-                        Log.e("LoginActivityAuth", "Login API-Fehler: ${response.code()} - $errMsg")
-                        errorText.text = "Login fehlgeschlagen (${response.code()}): $errMsg"
+            // Check rate limit before login
+            RateLimitChecker.checkLogin { result ->
+                runOnUiThread {
+                    if (result.blocked) {
+                        loginButton.isEnabled = true
+                        val waitText = result.waitMinutes?.let { " Bitte in ca. $it Minute(n) erneut versuchen." } ?: ""
+                        errorText.text = "Zu viele Anmeldeversuche.$waitText"
+                        return@runOnUiThread
                     }
-                }
 
-                override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
-                    errorText.text = "Netzwerkfehler: ${t.message}"
+                    // Rate limit OK - proceed with login
+                    performLogin(identifier, password)
                 }
-            })
+            }
         }
+    }
+
+    private fun performLogin(identifier: String, password: String) {
+        val request = LoginRequest(identifier, password)
+        val call = ApiClient.retrofit.login(request)
+        call.enqueue(object : Callback<AuthResponse> {
+            override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
+                loginButton.isEnabled = true
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val jwt = body?.jwt
+                    val username = body?.user?.username ?: "Unbekannt"
+
+                    if (jwt.isNullOrBlank()) {
+                        errorText.text = "Kein Token erhalten."
+                        return
+                    }
+
+                    // JWT im AuthManager für Persistenz speichern
+                    AuthManager.saveJwt(this@LoginActivity, jwt)
+
+                    // JWT auch im ApiClient für den aktuellen Laufzeitgebrauch setzen
+                    ApiClient.setJwt(jwt)
+
+                    // Fetch and save profile documentId
+                    fetchAndSaveProfileId(username)
+                } else {
+                    val errMsg = response.errorBody()?.string().orEmpty()
+                    Log.e("LoginActivityAuth", "Login API-Fehler: ${response.code()} - $errMsg")
+                    errorText.text = "Login fehlgeschlagen (${response.code()}): $errMsg"
+                }
+            }
+
+            override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
+                loginButton.isEnabled = true
+                errorText.text = "Netzwerkfehler: ${t.message}"
+            }
+        })
     }
 
     private fun fetchAndSaveProfileId(username: String) {
