@@ -42,15 +42,23 @@ class MeplyMessagingService : FirebaseMessagingService() {
         Log.d(TAG, "Message ID: ${message.messageId}")
 
         // Check if message contains a notification payload
-        message.notification?.let { notification ->
+        val notification = message.notification
+        if (notification != null) {
             Log.d(TAG, "Notification Title: ${notification.title}")
             Log.d(TAG, "Notification Body: ${notification.body}")
-            showNotification(notification.title, notification.body)
         }
 
         // Check if message contains a data payload
         if (message.data.isNotEmpty()) {
             Log.d(TAG, "Data payload: ${message.data}")
+        }
+
+        // Only show ONE notification - prefer notification payload, fallback to data
+        if (notification != null && !notification.title.isNullOrEmpty()) {
+            // Use notification payload (from server)
+            showNotification(notification.title, notification.body)
+        } else if (message.data.isNotEmpty()) {
+            // Fallback to data payload only if no notification payload
             handleDataMessage(message.data)
         }
 
