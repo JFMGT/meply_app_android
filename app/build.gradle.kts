@@ -83,9 +83,9 @@ dependencies {
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.github.yalantis:ucrop:2.2.8")
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.messaging)
+    // Firebase (only for release builds)
+    releaseImplementation(platform(libs.firebase.bom))
+    releaseImplementation(libs.firebase.messaging)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -94,4 +94,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+// Disable Google Services plugin for debug builds (no FCM needed for DEV)
+tasks.matching { it.name.contains("processDebugGoogleServices") }.configureEach {
+    enabled = false
 }
