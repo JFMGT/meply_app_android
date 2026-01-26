@@ -117,7 +117,7 @@ class MeplyMessagingService : FirebaseMessagingService() {
 
         // Build notification
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_mail)
+            .setSmallIcon(R.drawable.logo_head)
             .setContentTitle(title ?: "Meply")
             .setContentText(body)
             .setAutoCancel(true)
