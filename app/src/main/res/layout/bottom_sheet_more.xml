@@ -5,6 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <TextView
+        android:id="@+id/devBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="#FF5722"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:text="DEV-Version"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
     <TextView android:id="@+id/item_profile"     android:text="Profil"                  android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <TextView android:id="@+id/item_collection"  android:text="Meine Sammlung"          android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <TextView android:id="@+id/item_uploads"     android:text="Meine Bilder"            android:padding="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>

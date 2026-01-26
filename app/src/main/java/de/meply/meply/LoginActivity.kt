@@ -17,6 +17,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import android.util.Log
+import android.view.View
+
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var emailInput: EditText
@@ -44,6 +46,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_login)
+
+        // Show DEV badge for debug builds
+        if (BuildConfig.DEBUG) {
+            findViewById<TextView>(R.id.devBadge).visibility = View.VISIBLE
+        }
 
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
