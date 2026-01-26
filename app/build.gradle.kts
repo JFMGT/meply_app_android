@@ -28,7 +28,7 @@ android {
             buildConfigField("String", "WEB_BASE", "\"https://dev.meply.de\"")
             buildConfigField("String", "APP_JWT", "\"7390af640e9802bca102d00294a68093bac023d80b545a2ce0dfa527af366e47c033f3a6c99fc4a5334a9ad7582f8f433415f0ada1d9bfa65e52104e1b3e347f88b2b7e960f6bbdcce27b1e163b9601de2dbb4ba0c71acf14326527f0b733bda507b96b23108a94961ddf3e3f5b92308ea5627f2557d5aded1ef44715cde8bda\"")
             buildConfigField("String", "SECLOGIN_URL", "\"https://seclogin.meply.de\"")
-            buildConfigField("String", "SECLOGIN_SECRET", "\"HIER_DEV_SECLOGIN_SECRET_EINTRAGEN\"")
+            buildConfigField("String", "SECLOGIN_SECRET", "\"54331CB8DD9E7B826B62B9FD3592B\"")
         }
         release {
             isMinifyEnabled = false
@@ -41,7 +41,7 @@ android {
             buildConfigField("String", "WEB_BASE", "\"https://meply.de\"")
             buildConfigField("String", "APP_JWT", "\"0febdaf22c6b7d956f1ada534670ff90833cf472ca5464b7fac13647d94e755bdc1a67eb638319c1e056190a79fddbfd3db068a496ac09c201c822f4cdfc920f08d381b88f22e79778e4b2c7a8ad2a7f67d25f92b522b40e00aa5f6edcfb3a4790bb20f985e7eb6109b40fabca4094bf7e352183e289df670c18ca8fc9d4229c\"")
             buildConfigField("String", "SECLOGIN_URL", "\"https://seclogin.meply.de\"")
-            buildConfigField("String", "SECLOGIN_SECRET", "\"HIER_LIVE_SECLOGIN_SECRET_EINTRAGEN\"")
+            buildConfigField("String", "SECLOGIN_SECRET", "\"54331CB8DD9E7B826B62B9FD3592B\"")
         }
     }
     compileOptions {
