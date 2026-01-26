@@ -20,6 +20,8 @@ android {
 
     buildTypes {
         debug {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
             buildConfigField("String", "API_BASE", "\"https://admin.meeplemates.de/api/\"")
             buildConfigField("String", "IMAGE_BASE", "\"https://admin.meeplemates.de\"")
             buildConfigField("String", "WEB_BASE", "\"https://dev.meply.de\"")
