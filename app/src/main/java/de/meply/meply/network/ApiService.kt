@@ -783,4 +783,24 @@ interface ApiService {
     @DELETE("user-availabilities/my")
     fun deleteMyAvailability(): Call<de.meply.meply.data.availability.AvailabilityActionResponse>
 
+    // ===== PUSH DEVICE REGISTRATION ENDPOINTS =====
+
+    /**
+     * Register a push device token
+     * Called after FCM token is retrieved
+     */
+    @POST("user-push-devices/register")
+    fun registerPushDevice(
+        @Body request: de.meply.meply.data.push.RegisterPushDeviceRequest
+    ): Call<de.meply.meply.data.push.PushDeviceResponse>
+
+    /**
+     * Unregister a push device token
+     * Called on logout to deactivate push notifications for this device
+     */
+    @POST("user-push-devices/unregister")
+    fun unregisterPushDevice(
+        @Body request: de.meply.meply.data.push.UnregisterPushDeviceRequest
+    ): Call<de.meply.meply.data.push.PushDeviceResponse>
+
 }
