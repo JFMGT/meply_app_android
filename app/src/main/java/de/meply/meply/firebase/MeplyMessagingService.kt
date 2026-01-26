@@ -97,7 +97,7 @@ class MeplyMessagingService : FirebaseMessagingService() {
         }
 
         // Determine target activity based on login state
-        val isLoggedIn = AuthManager.getToken(this) != null
+        val isLoggedIn = AuthManager.getJwt(this) != null
         val targetClass = if (isLoggedIn) HomeActivity::class.java else LoginActivity::class.java
 
         // Create intent to open app when notification is clicked
