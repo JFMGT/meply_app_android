@@ -1,6 +1,7 @@
 package de.meply.meply
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -163,10 +164,27 @@ class HomeActivity : AppCompatActivity() {
         FcmTokenManager.getToken(
             onSuccess = { token ->
                 Log.d("HomeActivity", "FCM Token retrieved: $token")
+                // Show token in a dialog for easy copying (temporary for testing)
+                runOnUiThread {
+                    androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("FCM Token")
+                        .setMessage(token)
+                        .setPositiveButton("Kopieren") { _, _ ->
+                            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                            val clip = android.content.ClipData.newPlainText("FCM Token", token)
+                            clipboard.setPrimaryClip(clip)
+                            android.widget.Toast.makeText(this, "Token kopiert!", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                        .setNegativeButton("Schließen", null)
+                        .show()
+                }
                 // TODO: Send token to backend to register device for push notifications
             },
             onFailure = { e ->
                 Log.e("HomeActivity", "Failed to get FCM token", e)
+                runOnUiThread {
+                    android.widget.Toast.makeText(this, "FCM Token Fehler: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                }
             }
         )
     }
