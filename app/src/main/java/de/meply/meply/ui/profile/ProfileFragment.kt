@@ -208,20 +208,20 @@ class ProfileFragment : Fragment() {
     private fun setupGenderSpinner() {
         val adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_item,
             genderOptions
         )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         spinnerGender.adapter = adapter
     }
 
     private fun setupPushFrequencySpinner() {
         val adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_item,
             pushFrequencyOptions
         )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         spinnerPushFrequency.adapter = adapter
     }
 
