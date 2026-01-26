@@ -462,8 +462,10 @@
                     android:id="@+id/edit_push_quiet_start"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Von (z.B. 22:00)"
-                    android:inputType="time"
+                    android:hint="Von"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
                     style="@style/Widget.Meply.TextInputEditText" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -478,8 +480,10 @@
                     android:id="@+id/edit_push_quiet_end"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Bis (z.B. 08:00)"
-                    android:inputType="time"
+                    android:hint="Bis"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
                     style="@style/Widget.Meply.TextInputEditText" />
             </com.google.android.material.textfield.TextInputLayout>
 

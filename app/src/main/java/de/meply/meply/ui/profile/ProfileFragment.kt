@@ -44,6 +44,7 @@ import java.time.format.DateTimeFormatter
 import de.meply.meply.utils.AvatarUtils
 import android.content.Intent
 import com.google.android.material.card.MaterialCardView
+import android.app.TimePickerDialog
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -185,6 +186,7 @@ class ProfileFragment : Fragment() {
         setupGenderSpinner()
         setupPushFrequencySpinner()
         setupInviteCodesRecycler()
+        setupTimePickerFields()
 
         btnSave.setOnClickListener { saveProfile() }
         btnChangeAvatar.setOnClickListener { showAvatarOptions() }
@@ -225,6 +227,41 @@ class ProfileFragment : Fragment() {
 
     private fun setupInviteCodesRecycler() {
         inviteCodesRecycler.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    private fun setupTimePickerFields() {
+        // Make time fields non-editable (user must use TimePicker)
+        editPushQuietStart.isFocusable = false
+        editPushQuietStart.isClickable = true
+        editPushQuietEnd.isFocusable = false
+        editPushQuietEnd.isClickable = true
+
+        editPushQuietStart.setOnClickListener { showTimePicker(editPushQuietStart) }
+        editPushQuietEnd.setOnClickListener { showTimePicker(editPushQuietEnd) }
+    }
+
+    private fun showTimePicker(targetField: TextInputEditText) {
+        // Parse existing time or use defaults
+        val currentText = targetField.text.toString()
+        val (hour, minute) = if (currentText.isNotEmpty() && currentText.contains(":")) {
+            val parts = currentText.split(":")
+            Pair(parts[0].toIntOrNull() ?: 22, parts[1].toIntOrNull() ?: 0)
+        } else {
+            // Default times: 22:00 for start, 08:00 for end
+            if (targetField == editPushQuietStart) Pair(22, 0) else Pair(8, 0)
+        }
+
+        TimePickerDialog(
+            requireContext(),
+            { _, selectedHour, selectedMinute ->
+                // Format as HH:mm (with leading zeros)
+                val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                targetField.setText(formattedTime)
+            },
+            hour,
+            minute,
+            true // 24-hour format
+        ).show()
     }
 
     private fun loadProfile() {
