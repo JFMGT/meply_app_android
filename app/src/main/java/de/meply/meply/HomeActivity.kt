@@ -1,6 +1,9 @@
 package de.meply.meply
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import de.meply.meply.BuildConfig
 import android.os.Bundle
 import android.os.Handler
@@ -12,7 +15,9 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -43,6 +48,7 @@ import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
 import de.meply.meply.data.profile.ProfileResponse
 import de.meply.meply.utils.AvatarUtils
+import de.meply.meply.firebase.FcmTokenManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -72,6 +78,18 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var deletionWarningBanner: MaterialCardView
     private var currentUserSlug: String? = null
 
+    // Permission launcher for notification permission (Android 13+)
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Log.d("HomeActivity", "Notification permission granted")
+            retrieveFcmToken()
+        } else {
+            Log.d("HomeActivity", "Notification permission denied")
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,6 +117,58 @@ class HomeActivity : AppCompatActivity() {
         setupDrawerWidth()
         setupDeletionWarningBanner()
         loadUserData()
+        requestNotificationPermission()
+    }
+
+    /**
+     * Request notification permission for push notifications (Android 13+)
+     * Only needed in release builds since DEV doesn't use Firebase
+     */
+    private fun requestNotificationPermission() {
+        // Skip in debug builds - no FCM support
+        if (BuildConfig.DEBUG) {
+            return
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission already granted, get the FCM token
+                    Log.d("HomeActivity", "Notification permission already granted")
+                    retrieveFcmToken()
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // User previously denied, but we can still ask
+                    // For now, just request again - could show explanation dialog first
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                else -> {
+                    // First time asking
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            // Android 12 and below don't need runtime permission
+            retrieveFcmToken()
+        }
+    }
+
+    /**
+     * Get FCM token and log it (later: send to backend)
+     */
+    private fun retrieveFcmToken() {
+        FcmTokenManager.getToken(
+            onSuccess = { token ->
+                Log.d("HomeActivity", "FCM Token retrieved: $token")
+                // TODO: Send token to backend to register device for push notifications
+            },
+            onFailure = { e ->
+                Log.e("HomeActivity", "Failed to get FCM token", e)
+            }
+        )
     }
 
     private fun setupToolbar() {
