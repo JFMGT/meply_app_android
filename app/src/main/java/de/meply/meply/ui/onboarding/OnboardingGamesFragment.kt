@@ -275,18 +275,9 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     }
 
     private fun addGame(game: SimpleGame) {
-        // Add to local list
-        addedGamesList.add(game)
-        addedAdapter?.updateGames(addedGamesList)
-        updateCounter()
+        progressBar.visibility = View.VISIBLE
 
-        // Remove from search results
-        searchAdapter?.removeGame(game)
-
-        // Clear search
-        editSearch.setText("")
-
-        // Add to collection via API (uses numeric ID)
+        // Add to collection via API first
         val request = AddToCollectionRequest(boardgameId = game.id)
         ApiClient.retrofit.addToCollection(request)
             .enqueue(object : Callback<AddToCollectionResponse> {
@@ -294,12 +285,48 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                     call: Call<AddToCollectionResponse>,
                     response: Response<AddToCollectionResponse>
                 ) {
-                    if (!response.isSuccessful) {
-                        Log.e("OnboardingGames", "Failed to add game: ${response.code()}")
+                    progressBar.visibility = View.GONE
+                    val body = response.body()
+
+                    if (response.isSuccessful && body?.success == true) {
+                        // Add to local list only on success
+                        addedGamesList.add(game)
+                        addedAdapter?.updateGames(addedGamesList)
+                        updateCounter()
+
+                        // Remove from search results
+                        searchAdapter?.removeGame(game)
+
+                        // Clear search
+                        editSearch.setText("")
+
+                        if (body.alreadyExists == true) {
+                            Toast.makeText(
+                                requireContext(),
+                                "\"${game.name}\" ist bereits in deiner Sammlung",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "\"${game.name}\" hinzugefügt",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } else {
+                        val errorMsg = body?.error ?: body?.message ?: "Fehler beim Hinzufügen"
+                        Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
+                        Log.e("OnboardingGames", "Failed to add game: ${response.code()} - ${response.errorBody()?.string()}")
                     }
                 }
 
                 override fun onFailure(call: Call<AddToCollectionResponse>, t: Throwable) {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(
+                        requireContext(),
+                        "Netzwerkfehler: ${t.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     Log.e("OnboardingGames", "Failed to add game", t)
                 }
             })
