@@ -2,6 +2,9 @@ package de.meply.meply
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.InputFilter
+import android.text.TextWatcher
 import android.util.Log
 import android.util.Patterns
 import android.widget.Button
@@ -52,6 +55,9 @@ class RegisterActivity : AppCompatActivity() {
         successText = findViewById(R.id.successText)
         backToLoginLink = findViewById(R.id.backToLoginLink)
 
+        // Setup registration code formatting
+        setupRegistrationCodeInput()
+
         // Back to login link
         backToLoginLink.setOnClickListener {
             finish()
@@ -61,6 +67,57 @@ class RegisterActivity : AppCompatActivity() {
         registerButton.setOnClickListener {
             performRegistration()
         }
+    }
+
+    /**
+     * Setup the registration code input to:
+     * 1. Always convert to uppercase
+     * 2. Auto-insert hyphens after every 4 characters (XXXX-XXXX-XXXX)
+     * 3. Allow paste of complete codes with hyphens
+     */
+    private fun setupRegistrationCodeInput() {
+        // Uppercase filter
+        val uppercaseFilter = InputFilter { source, start, end, dest, dstart, dend ->
+            source.toString().uppercase()
+        }
+        registrationCodeInput.filters = arrayOf(uppercaseFilter)
+
+        var isFormatting = false
+
+        registrationCodeInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                if (isFormatting || s == null) return
+
+                isFormatting = true
+
+                // Remove all existing hyphens to get raw input
+                val rawText = s.toString().replace("-", "").uppercase()
+
+                // Format with hyphens: XXXX-XXXX-XXXX
+                val formatted = StringBuilder()
+                for (i in rawText.indices) {
+                    if (i > 0 && i % 4 == 0 && i < 12) {
+                        formatted.append('-')
+                    }
+                    if (formatted.length < 14) { // Max length: 12 chars + 2 hyphens = 14
+                        formatted.append(rawText[i])
+                    }
+                }
+
+                // Only update if different to avoid infinite loop
+                if (s.toString() != formatted.toString()) {
+                    s.replace(0, s.length, formatted.toString())
+                    // Move cursor to end
+                    registrationCodeInput.setSelection(formatted.length)
+                }
+
+                isFormatting = false
+            }
+        })
     }
 
     private fun performRegistration() {
