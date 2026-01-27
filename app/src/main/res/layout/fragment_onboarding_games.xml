@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deine Lieblingsspiele"
+        android:textColor="@color/text_primary"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Description -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Füge mindestens 10 Spiele hinzu, die du gerne spielst. So können wir dir passende Mitspieler vorschlagen."
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Counter -->
+    <TextView
+        android:id="@+id/games_counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0/10 Spiele hinzugefügt"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Added games (horizontal scroll) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/added_games_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginBottom="16dp"
+        android:clipToPadding="false" />
+
+    <!-- Hint -->
+    <TextView
+        android:id="@+id/games_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Noch 10 Spiele hinzufügen"
+        android:textColor="@color/warning"
+        android:textSize="12sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Search Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_game_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Spiel suchen..."
+            android:inputType="text"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Search Progress -->
+    <ProgressBar
+        android:id="@+id/search_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone" />
+
+    <!-- Search Results -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_results_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Marketplace hint -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:background="@color/surface"
+        android:text="💡 Tipp: Du kannst Spiele auch auf dem Marktplatz anbieten oder suchen!"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp" />
+
+</LinearLayout>
