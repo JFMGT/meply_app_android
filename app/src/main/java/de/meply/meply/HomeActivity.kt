@@ -44,6 +44,7 @@ import de.meply.meply.ui.locations.MyLocationsFragment
 import de.meply.meply.ui.events.MyEventsFragment
 import de.meply.meply.ui.players.PlayersFragment
 import de.meply.meply.ui.locations.LocationsOverviewFragment
+import de.meply.meply.ui.onboarding.OnboardingActivity
 import de.meply.meply.auth.AuthManager
 import de.meply.meply.network.ApiClient
 import de.meply.meply.data.profile.ProfileMeData
@@ -100,6 +101,12 @@ class HomeActivity : AppCompatActivity() {
         // (in case the process was killed and restarted)
         AuthManager.getJwt(this)?.let { jwt ->
             ApiClient.setJwt(jwt)
+        }
+
+        // Check if we should skip onboarding check (coming from OnboardingActivity)
+        val skipOnboardingCheck = intent.getBooleanExtra("skipOnboardingCheck", false)
+        if (!skipOnboardingCheck) {
+            checkOnboardingStatus()
         }
 
         if (savedInstanceState == null) {
@@ -809,5 +816,44 @@ class HomeActivity : AppCompatActivity() {
                 super.onBackPressed()
             }
         }
+    }
+
+    /**
+     * Check if user has completed onboarding
+     * If not, redirect to OnboardingActivity
+     */
+    private fun checkOnboardingStatus() {
+        ApiClient.retrofit.getMyProfile()
+            .enqueue(object : retrofit2.Callback<ProfileResponse<ProfileMeData>> {
+                override fun onResponse(
+                    call: retrofit2.Call<ProfileResponse<ProfileMeData>>,
+                    response: retrofit2.Response<ProfileResponse<ProfileMeData>>
+                ) {
+                    if (response.isSuccessful) {
+                        val profile = response.body()?.data
+                        val isOnboarded = profile?.isOnboarded
+
+                        if (isOnboarded.isNullOrEmpty()) {
+                            // User has not completed onboarding
+                            Log.d("HomeActivity", "User has not completed onboarding, redirecting...")
+                            startOnboarding()
+                        } else {
+                            Log.d("HomeActivity", "User already onboarded: $isOnboarded")
+                        }
+                    }
+                }
+
+                override fun onFailure(call: retrofit2.Call<ProfileResponse<ProfileMeData>>, t: Throwable) {
+                    Log.e("HomeActivity", "Failed to check onboarding status", t)
+                    // Don't block the user if we can't check
+                }
+            })
+    }
+
+    private fun startOnboarding() {
+        val intent = Intent(this, OnboardingActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

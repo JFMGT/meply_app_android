@@ -803,4 +803,13 @@ interface ApiService {
         @Body request: de.meply.meply.data.push.UnregisterPushDeviceRequest
     ): Call<de.meply.meply.data.push.PushDeviceResponse>
 
+    // ==================== ONBOARDING ====================
+
+    /**
+     * Complete the user onboarding
+     * POST /api/profiles/complete-onboarding
+     */
+    @POST("profiles/complete-onboarding")
+    fun completeOnboarding(): Call<de.meply.meply.data.onboarding.CompleteOnboardingResponse>
+
 }
