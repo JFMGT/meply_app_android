@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginEnd="8dp"
-    app:cardBackgroundColor="@color/surface"
+    app:cardBackgroundColor="@color/primary"
     app:cardCornerRadius="20dp"
     app:cardElevation="2dp">
 
@@ -19,17 +19,19 @@
             android:id="@+id/game_image"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:scaleType="centerCrop"
+            android:src="@drawable/ic_dice"
+            android:padding="4dp"
             android:contentDescription="Spielbild" />
 
         <TextView
             android:id="@+id/game_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/text_on_primary"
             android:textSize="12sp"
+            android:textStyle="bold"
             android:maxLines="1"
             android:maxWidth="100dp"
             android:ellipsize="end" />
@@ -39,6 +41,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_delete"
+            android:tint="@color/text_on_primary"
             android:padding="4dp"
             android:contentDescription="Entfernen" />
 

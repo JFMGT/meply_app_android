@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import de.meply.meply.R
 
 class OnboardingAddedGamesAdapter(
@@ -40,17 +39,8 @@ class OnboardingAddedGamesAdapter(
 
         fun bind(game: OnboardingGamesFragment.SimpleGame) {
             name.text = game.name
-
-            if (!game.imageUrl.isNullOrEmpty()) {
-                Glide.with(itemView.context)
-                    .load(game.imageUrl)
-                    .placeholder(R.drawable.ic_home)
-                    .circleCrop()
-                    .into(image)
-            } else {
-                image.setImageResource(R.drawable.ic_home)
-            }
-
+            // Always use dice icon
+            image.setImageResource(R.drawable.ic_dice)
             removeButton.setOnClickListener { onRemoveClick(game) }
         }
     }
