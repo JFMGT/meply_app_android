@@ -57,7 +57,6 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -70,6 +69,19 @@
             android:textColorHint="@color/text_secondary" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Create new game button (directly under search field, visible with keyboard) -->
+    <Button
+        android:id="@+id/btn_create_game"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Neues Spiel erstellen"
+        android:textColor="@color/text_primary"
+        android:backgroundTint="@color/surface"
+        android:visibility="gone"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
     <!-- Search Progress -->
     <ProgressBar
@@ -85,18 +97,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
-
-    <!-- Create new game button (shown when search has no results) -->
-    <Button
-        android:id="@+id/btn_create_game"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Neues Spiel erstellen"
-        android:textColor="@color/text_primary"
-        android:backgroundTint="@color/surface"
-        android:visibility="gone"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
     <!-- Web import hint -->
     <TextView
