@@ -6,6 +6,16 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Neues Spiel erstellen"
+        android:textColor="@color/text_on_light"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,7 +29,9 @@
         android:layout_height="wrap_content"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         app:boxStrokeColor="@color/primary"
-        app:hintTextColor="@color/text_secondary_on_light">
+        app:boxStrokeColorStateList="@color/text_input_box_stroke"
+        app:hintTextColor="@color/text_secondary_on_light"
+        android:textColorHint="@color/text_secondary_on_light">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edit_game_title"

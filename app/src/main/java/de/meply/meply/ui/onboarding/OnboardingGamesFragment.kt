@@ -120,7 +120,6 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
         editTitle.setText(currentSearchQuery)
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Neues Spiel erstellen")
             .setView(dialogView)
             .setPositiveButton("Erstellen") { _, _ ->
                 val title = editTitle.text.toString().trim()
