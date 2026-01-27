@@ -31,6 +31,9 @@
             android:name=".RegisterActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".RegisterSuccessActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".ui.events.EventDetailActivity"
             android:screenOrientation="portrait" />
         <activity

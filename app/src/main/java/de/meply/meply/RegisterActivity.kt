@@ -212,12 +212,9 @@ class RegisterActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.success == true) {
-                        // Success
+                        // Success - navigate to success screen
                         Log.d(TAG, "Registration successful for user: ${body.user?.id}")
-                        showSuccess("Registrierung erfolgreich! Bitte überprüfe dein E-Mail-Postfach (auch den Spam-Ordner), um deinen Account zu bestätigen.")
-
-                        // Clear form
-                        clearForm()
+                        goToSuccessScreen()
                     } else {
                         // API returned success=false
                         val errorMsg = body?.message ?: "Registrierung fehlgeschlagen."
@@ -250,10 +247,10 @@ class RegisterActivity : AppCompatActivity() {
         })
     }
 
-    private fun showSuccess(message: String) {
-        errorText.text = ""
-        successText.text = message
-        successText.visibility = android.view.View.VISIBLE
+    private fun goToSuccessScreen() {
+        val intent = Intent(this, RegisterSuccessActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun clearForm() {
