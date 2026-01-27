@@ -30,8 +30,8 @@
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/ic_person"
-                android:padding="8dp"
+                android:src="@drawable/logo_head"
+                android:padding="6dp"
                 android:background="@color/primary"
                 android:contentDescription="Matching" />
 
@@ -74,7 +74,7 @@
                 android:layout_height="48dp"
                 android:src="@drawable/ic_event"
                 android:padding="8dp"
-                android:background="@color/success"
+                android:background="@color/primary"
                 android:contentDescription="Spielbereit" />
 
             <LinearLayout
@@ -115,8 +115,9 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_star_filled"
+                android:tint="@color/text_on_primary"
                 android:padding="8dp"
-                android:background="@color/warning"
+                android:background="@color/primary"
                 android:contentDescription="Folgen" />
 
             <LinearLayout
@@ -156,9 +157,10 @@
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/ic_menu"
+                android:src="@drawable/ic_tag"
+                android:tint="@color/text_on_primary"
                 android:padding="8dp"
-                android:background="@color/primary_light"
+                android:background="@color/primary"
                 android:contentDescription="Marktplatz" />
 
             <LinearLayout
