@@ -217,11 +217,12 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                         body?.results?.forEach { item ->
                             val simpleGame = SimpleGame(
                                 id = item.id.toIntOrNull() ?: 0,
-                                documentId = item.documentId ?: "",
+                                documentId = item.documentId ?: item.id,
                                 name = item.title ?: "Unbekannt",
                                 imageUrl = null
                             )
-                            if (!displayedGamesList.any { it.id == simpleGame.id }) {
+                            // Use documentId for uniqueness check (id might be 0 for all)
+                            if (!displayedGamesList.any { it.documentId == simpleGame.documentId }) {
                                 displayedGamesList.add(simpleGame)
                             }
                         }
@@ -256,9 +257,9 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                             )
                         } ?: emptyList()
 
-                        // Filter out already added games
+                        // Filter out already added games (use documentId for comparison)
                         val filteredGames = games.filter { game ->
-                            !displayedGamesList.any { it.id == game.id }
+                            !displayedGamesList.any { it.documentId == game.documentId }
                         }
                         searchAdapter?.updateResults(filteredGames)
 
