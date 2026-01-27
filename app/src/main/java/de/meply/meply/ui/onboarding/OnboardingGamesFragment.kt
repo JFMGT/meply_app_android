@@ -42,10 +42,11 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     private lateinit var hintText: TextView
     private lateinit var btnCreateGame: Button
 
-    private val addedGamesList = mutableListOf<SimpleGame>()
+    private val displayedGamesList = mutableListOf<SimpleGame>()  // Games shown in horizontal list
     private var searchAdapter: OnboardingGameSearchAdapter? = null
     private var addedAdapter: OnboardingAddedGamesAdapter? = null
-    private var existingCollectionCount: Int = 0  // Track total games in collection
+    private var existingCollectionCount: Int = 0  // Total games in collection from backend
+    private var newlyAddedCount: Int = 0  // Games added in this session
 
     private val searchHandler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
@@ -198,17 +199,33 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     }
 
     private fun loadExistingCollection() {
-        // Just get the first page to get the total count from pagination
-        ApiClient.retrofit.getMyCollection(page = 1, pageSize = 1)
+        // Load first 10 games to display + get total count
+        ApiClient.retrofit.getMyCollection(page = 1, pageSize = 10)
             .enqueue(object : Callback<MyCollectionResponse> {
                 override fun onResponse(
                     call: Call<MyCollectionResponse>,
                     response: Response<MyCollectionResponse>
                 ) {
                     if (response.isSuccessful) {
+                        val body = response.body()
+
                         // Use the total count from pagination
-                        existingCollectionCount = response.body()?.pagination?.total ?: 0
+                        existingCollectionCount = body?.pagination?.total ?: 0
                         Log.d("OnboardingGames", "Existing collection count: $existingCollectionCount")
+
+                        // Load first 10 games into the display list
+                        body?.results?.forEach { item ->
+                            val simpleGame = SimpleGame(
+                                id = item.id.toIntOrNull() ?: 0,
+                                documentId = item.documentId ?: "",
+                                name = item.title ?: "Unbekannt",
+                                imageUrl = null
+                            )
+                            if (!displayedGamesList.any { it.id == simpleGame.id }) {
+                                displayedGamesList.add(simpleGame)
+                            }
+                        }
+                        addedAdapter?.updateGames(displayedGamesList)
                         updateCounter()
                     }
                 }
@@ -241,7 +258,7 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
 
                         // Filter out already added games
                         val filteredGames = games.filter { game ->
-                            !addedGamesList.any { it.id == game.id }
+                            !displayedGamesList.any { it.id == game.id }
                         }
                         searchAdapter?.updateResults(filteredGames)
 
@@ -296,9 +313,10 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            // New game added - increment counter
-                            addedGamesList.add(game)
-                            addedAdapter?.updateGames(addedGamesList)
+                            // New game added - increment counter and add to display
+                            newlyAddedCount++
+                            displayedGamesList.add(0, game)  // Add at beginning of list
+                            addedAdapter?.updateGames(displayedGamesList)
                             updateCounter()
                             Toast.makeText(
                                 requireContext(),
@@ -326,9 +344,17 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     }
 
     private fun removeGame(game: SimpleGame) {
-        addedGamesList.remove(game)
-        addedAdapter?.updateGames(addedGamesList)
-        updateCounter()
+        val index = displayedGamesList.indexOf(game)
+        if (index >= 0) {
+            displayedGamesList.removeAt(index)
+            addedAdapter?.updateGames(displayedGamesList)
+
+            // If this was a newly added game (in the first positions), decrement counter
+            if (index < newlyAddedCount) {
+                newlyAddedCount--
+                updateCounter()
+            }
+        }
 
         // Note: Removing from collection would require the user-boardgame entry ID
         // For onboarding simplicity, we just remove from the local list
@@ -336,7 +362,7 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
 
     private fun updateCounter() {
         // Total = existing collection + newly added in this session
-        val totalCount = existingCollectionCount + addedGamesList.size
+        val totalCount = existingCollectionCount + newlyAddedCount
 
         if (totalCount == 1) {
             counterText.text = "1 Spiel in deiner Sammlung"

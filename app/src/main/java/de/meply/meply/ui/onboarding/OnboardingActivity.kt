@@ -148,18 +148,29 @@ class OnboardingActivity : AppCompatActivity() {
                     response: Response<CompleteOnboardingResponse>
                 ) {
                     if (response.isSuccessful) {
-                        Log.d("Onboarding", "Onboarding completed: ${response.body()?.data?.isOnboarded}")
+                        val isOnboarded = response.body()?.data?.isOnboarded
+                        Log.d("Onboarding", "Onboarding completed successfully! isOnboarded=$isOnboarded")
                         goToHome()
                     } else {
-                        Log.e("Onboarding", "Error completing onboarding: ${response.code()}")
-                        // Still go to home even if API fails
+                        val errorBody = response.errorBody()?.string()
+                        Log.e("Onboarding", "Error completing onboarding: ${response.code()} - $errorBody")
+                        // Show error to user but still allow proceeding
+                        android.widget.Toast.makeText(
+                            this@OnboardingActivity,
+                            "Onboarding konnte nicht gespeichert werden (${response.code()})",
+                            android.widget.Toast.LENGTH_LONG
+                        ).show()
                         goToHome()
                     }
                 }
 
                 override fun onFailure(call: Call<CompleteOnboardingResponse>, t: Throwable) {
                     Log.e("Onboarding", "Network error completing onboarding", t)
-                    // Still go to home even if API fails
+                    android.widget.Toast.makeText(
+                        this@OnboardingActivity,
+                        "Netzwerkfehler: ${t.message}",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
                     goToHome()
                 }
             })
