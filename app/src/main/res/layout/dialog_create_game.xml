@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -9,14 +10,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Gib den Namen des Spiels ein, das du hinzufügen möchtest."
-        android:textColor="@color/text_secondary"
+        android:textColor="@color/text_secondary_on_light"
         android:textSize="14sp"
         android:layout_marginBottom="16dp" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxStrokeColor="@color/primary"
+        app:hintTextColor="@color/text_secondary_on_light">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edit_game_title"
@@ -24,8 +27,8 @@
             android:layout_height="wrap_content"
             android:hint="Spielname"
             android:inputType="text"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary" />
+            android:textColor="@color/text_on_light"
+            android:textColorHint="@color/text_secondary_on_light" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
