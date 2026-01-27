@@ -21,6 +21,7 @@ import de.meply.meply.data.collection.AddToCollectionRequest
 import de.meply.meply.data.collection.AddToCollectionResponse
 import de.meply.meply.data.collection.FindOrCreateBoardgameRequest
 import de.meply.meply.data.collection.FindOrCreateBoardgameResponse
+import de.meply.meply.data.collection.CollectionActionResponse
 import de.meply.meply.data.events.StrapiListResponse
 import retrofit2.Call
 import retrofit2.Callback
@@ -55,6 +56,7 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     data class SimpleGame(
         val id: Int,
         val documentId: String,
+        val entryId: String?,  // user-boardgame entry ID for deletion
         val name: String,
         val imageUrl: String?
     )
@@ -149,7 +151,8 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                         response.body()?.let { result ->
                             val newGame = SimpleGame(
                                 id = result.id,
-                                documentId = "", // Will be filled by backend
+                                documentId = "",
+                                entryId = null,  // New game, no entry ID yet
                                 name = title,
                                 imageUrl = null
                             )
@@ -218,6 +221,7 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                             val simpleGame = SimpleGame(
                                 id = item.id.toIntOrNull() ?: 0,
                                 documentId = item.documentId ?: item.id,
+                                entryId = item.id,  // Store entry ID for deletion
                                 name = item.title ?: "Unbekannt",
                                 imageUrl = null
                             )
@@ -252,8 +256,9 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                             SimpleGame(
                                 id = game.id,
                                 documentId = game.documentId ?: "",
+                                entryId = null,  // Search result, no entry ID
                                 name = game.title ?: "Unbekannt",
-                                imageUrl = null // Search results don't have thumbnail
+                                imageUrl = null
                             )
                         } ?: emptyList()
 
@@ -345,6 +350,55 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     }
 
     private fun removeGame(game: SimpleGame) {
+        val entryId = game.entryId
+        if (entryId == null) {
+            // No entry ID means this was just added and we don't have the ID yet
+            // Just remove from local list
+            removeGameFromLocalList(game)
+            return
+        }
+
+        // Call API to remove from collection
+        progressBar.visibility = View.VISIBLE
+        ApiClient.retrofit.removeFromCollection(entryId)
+            .enqueue(object : Callback<CollectionActionResponse> {
+                override fun onResponse(
+                    call: Call<CollectionActionResponse>,
+                    response: Response<CollectionActionResponse>
+                ) {
+                    progressBar.visibility = View.GONE
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        removeGameFromLocalList(game)
+                        existingCollectionCount--  // Decrement the backend count
+                        updateCounter()
+                        Toast.makeText(
+                            requireContext(),
+                            "\"${game.name}\" entfernt",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Fehler beim Entfernen",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        Log.e("OnboardingGames", "Failed to remove game: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<CollectionActionResponse>, t: Throwable) {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(
+                        requireContext(),
+                        "Netzwerkfehler: ${t.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e("OnboardingGames", "Failed to remove game", t)
+                }
+            })
+    }
+
+    private fun removeGameFromLocalList(game: SimpleGame) {
         val index = displayedGamesList.indexOf(game)
         if (index >= 0) {
             displayedGamesList.removeAt(index)
@@ -356,9 +410,6 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                 updateCounter()
             }
         }
-
-        // Note: Removing from collection would require the user-boardgame entry ID
-        // For onboarding simplicity, we just remove from the local list
     }
 
     private fun updateCounter() {
