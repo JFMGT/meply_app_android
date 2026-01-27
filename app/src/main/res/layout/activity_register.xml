@@ -106,8 +106,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:background="@color/background_card"
-            android:hint="Registrierungsschlüssel"
-            android:inputType="text"
+            android:hint="XXXX-XXXX-XXXX"
+            android:inputType="textCapCharacters"
+            android:maxLength="14"
             android:padding="16dp"
             android:textColor="@color/text_on_light"
             android:textColorHint="@color/text_disabled" />
