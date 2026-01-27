@@ -1144,6 +1144,7 @@ class ProfileFragment : Fragment() {
 fun ApiService.ProfileData.toAttributes(): de.meply.meply.data.profile.ProfileAttributes {
     return de.meply.meply.data.profile.ProfileAttributes(
         username = this.username,
+        userslug = null,  // Not available in ProfileData
         birthDate = this.birthDate,
         postalCode = this.postalCode,
         city = this.city,
