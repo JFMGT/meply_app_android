@@ -11,14 +11,14 @@
         android:padding="24dp"
         android:gravity="center_horizontal">
 
-        <!-- Icon/Image -->
+        <!-- App Logo -->
         <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="24dp"
-            android:src="@drawable/ic_location_default"
-            android:contentDescription="Standort" />
+            android:src="@drawable/logo"
+            android:contentDescription="Meply Logo" />
 
         <!-- Title -->
         <TextView
@@ -69,7 +69,7 @@
             android:textColor="@color/text_disabled"
             android:textSize="12sp"
             android:textAlignment="center"
-            android:drawableStart="@drawable/ic_person"
+            android:drawableStart="@drawable/logo_head"
             android:drawablePadding="8dp"
             android:gravity="center" />
 
