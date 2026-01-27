@@ -833,6 +833,8 @@ class HomeActivity : AppCompatActivity() {
                         val profile = response.body()?.data
                         val isOnboarded = profile?.isOnboarded
 
+                        Log.d("HomeActivity", "Profile check - isOnboarded value: '$isOnboarded' (null=${isOnboarded == null}, empty=${isOnboarded?.isEmpty()})")
+
                         if (isOnboarded.isNullOrEmpty()) {
                             // User has not completed onboarding
                             Log.d("HomeActivity", "User has not completed onboarding, redirecting...")
@@ -840,6 +842,8 @@ class HomeActivity : AppCompatActivity() {
                         } else {
                             Log.d("HomeActivity", "User already onboarded: $isOnboarded")
                         }
+                    } else {
+                        Log.e("HomeActivity", "Failed to get profile: ${response.code()}")
                     }
                 }
 
