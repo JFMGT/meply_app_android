@@ -14,7 +14,13 @@ import de.meply.meply.HomeActivity
 import de.meply.meply.LoginActivity
 import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
+import de.meply.meply.data.profile.ProfileItem
+import de.meply.meply.data.profile.ProfileResponse
+import de.meply.meply.network.ApiClient
 import de.meply.meply.ui.profile.UserProfileActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MeplyMessagingService : FirebaseMessagingService() {
 
@@ -90,23 +96,50 @@ class MeplyMessagingService : FirebaseMessagingService() {
 
     private fun handleAvailabilityNotification(data: Map<String, String>) {
         val subtype = data["subtype"]
-        val userSlug = data["userSlug"]
-        val username = data["username"]
+        val profileDocumentId = data["profileDocumentId"]
 
-        val (title, body) = when (subtype) {
-            "friend" -> {
-                val displayName = username ?: "Ein Freund"
-                "Spielpartner gesucht!" to "$displayName sucht kurzfristig Mitspieler! Bist du dabei?"
-            }
-            "match" -> {
-                "Spielpartner in der Nähe!" to "Jemand aus der Nähe mit einem guten Geschmack sucht spontan Mitspieler! Interessiert?"
-            }
-            else -> {
-                "Spielpartner gesucht!" to "Jemand möchte spielen!"
-            }
+        if (profileDocumentId.isNullOrEmpty()) {
+            Log.e(TAG, "No profileDocumentId in availability notification")
+            return
         }
 
-        showAvailabilityNotification(title, body, userSlug)
+        // Fetch profile data from API
+        ApiClient.retrofit.getProfile(profileDocumentId).enqueue(object : Callback<ProfileResponse<ProfileItem>> {
+            override fun onResponse(
+                call: Call<ProfileResponse<ProfileItem>>,
+                response: Response<ProfileResponse<ProfileItem>>
+            ) {
+                val profileData = response.body()?.data
+                val username = profileData?.attributes?.username
+                val userSlug = profileData?.attributes?.userslug
+
+                val (title, body) = when (subtype) {
+                    "friend" -> {
+                        val displayName = username ?: "Ein Freund"
+                        "Spielpartner gesucht!" to "$displayName sucht kurzfristig Mitspieler! Bist du dabei?"
+                    }
+                    "match" -> {
+                        "Spielpartner in der Nähe!" to "Jemand aus der Nähe mit einem guten Geschmack sucht spontan Mitspieler! Interessiert?"
+                    }
+                    else -> {
+                        "Spielpartner gesucht!" to "Jemand möchte spielen!"
+                    }
+                }
+
+                showAvailabilityNotification(title, body, userSlug)
+            }
+
+            override fun onFailure(call: Call<ProfileResponse<ProfileItem>>, t: Throwable) {
+                Log.e(TAG, "Failed to fetch profile for availability notification", t)
+                // Show generic notification as fallback
+                val (title, body) = when (subtype) {
+                    "friend" -> "Spielpartner gesucht!" to "Ein Freund sucht kurzfristig Mitspieler! Bist du dabei?"
+                    "match" -> "Spielpartner in der Nähe!" to "Jemand aus der Nähe mit einem guten Geschmack sucht spontan Mitspieler! Interessiert?"
+                    else -> "Spielpartner gesucht!" to "Jemand möchte spielen!"
+                }
+                showAvailabilityNotification(title, body, null)
+            }
+        })
     }
 
     private fun showAvailabilityNotification(title: String, body: String, userSlug: String?) {
