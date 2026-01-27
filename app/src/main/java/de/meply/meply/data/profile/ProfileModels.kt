@@ -111,6 +111,7 @@ data class ProfileMeData(
     fun toProfileAttributes(): ProfileAttributes {
         return ProfileAttributes(
             username = username,
+            userslug = userslug,
             birthDate = birthDate,
             postalCode = postalCode,
             city = city,
