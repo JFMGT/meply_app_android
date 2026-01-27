@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
@@ -34,11 +35,15 @@ class FeedFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var loadMoreProgressBar: ProgressBar
     private lateinit var feedAdapter: FeedAdapter
+    private lateinit var tabLayout: TabLayout
+    private lateinit var emptyState: View
 
     private val posts = mutableListOf<Post>()
     private var currentCursor: String? = null
     private var hasMore = true
     private var isLoading = false
+    private var isNearbyMode = false  // Track which tab is selected
+    private val NEARBY_RADIUS = 30  // 30km radius for nearby feed
 
     private val threadLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -73,14 +78,35 @@ class FeedFragment : Fragment() {
         swipeRefresh = view.findViewById(R.id.feedSwipeRefresh)
         progressBar = view.findViewById(R.id.feedProgressBar)
         loadMoreProgressBar = view.findViewById(R.id.feedLoadMoreProgressBar)
+        tabLayout = view.findViewById(R.id.feedTabLayout)
+        emptyState = view.findViewById(R.id.feedEmptyState)
 
         setupRecyclerView()
         setupSwipeRefresh()
+        setupTabs()
 
-        // Initial load
+        // Initial load (global feed by default)
         loadFeed(reset = true)
 
         return view
+    }
+
+    private fun setupTabs() {
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val newNearbyMode = tab?.position == 1
+                if (newNearbyMode != isNearbyMode) {
+                    isNearbyMode = newNearbyMode
+                    loadFeed(reset = true)
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // Refresh current tab
+                loadFeed(reset = true)
+            }
+        })
     }
 
     private fun setupRecyclerView() {
@@ -242,7 +268,8 @@ class FeedFragment : Fragment() {
             hasMore = true
             progressBar.visibility = View.VISIBLE
             loadMoreProgressBar.visibility = View.GONE
-            Log.d("FeedFragment", "Loading feed (reset)")
+            emptyState.visibility = View.GONE
+            Log.d("FeedFragment", "Loading feed (reset), nearby=$isNearbyMode")
         } else {
             // Loading more posts
             loadMoreProgressBar.visibility = View.VISIBLE
@@ -252,9 +279,11 @@ class FeedFragment : Fragment() {
         val api = ApiClient.retrofit
         val call = api.getFeed(
             limit = 10,
-            before = if (reset) null else currentCursor
+            before = if (reset) null else currentCursor,
+            nearby = if (isNearbyMode) true else null,
+            radius = if (isNearbyMode) NEARBY_RADIUS else null
         )
-        Log.d("FeedFragment", "API call created with before=${if (reset) "null" else currentCursor}")
+        Log.d("FeedFragment", "API call created with before=${if (reset) "null" else currentCursor}, nearby=$isNearbyMode")
 
         call.enqueue(object : Callback<FeedResponse> {
             override fun onResponse(call: Call<FeedResponse>, response: Response<FeedResponse>) {
@@ -277,6 +306,15 @@ class FeedFragment : Fragment() {
                         currentCursor = feedResponse.cursor?.oldestCreatedAt
                         // Use hasMore from cursor if available, otherwise from response
                         hasMore = feedResponse.cursor?.hasMore ?: feedResponse.hasMore
+
+                        // Show empty state for nearby feed when there are no posts
+                        if (reset && isNearbyMode && feedResponse.feed.isEmpty()) {
+                            emptyState.visibility = View.VISIBLE
+                            recyclerView.visibility = View.GONE
+                        } else {
+                            emptyState.visibility = View.GONE
+                            recyclerView.visibility = View.VISIBLE
+                        }
 
                         Log.d("FeedFragment", "State after load: currentCursor=$currentCursor, hasMore=$hasMore, totalPosts=${posts.size}")
                     } else {
