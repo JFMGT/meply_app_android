@@ -174,13 +174,17 @@ interface ApiService {
      * @param before Cursor for pagination (ISO 8601 timestamp)
      * @param since For newer posts
      * @param author Filter by author ID (optional)
+     * @param nearby If true, only return posts from nearby users
+     * @param radius Radius in km for nearby filter (default 30, max 200)
      */
     @GET("feed")
     fun getFeed(
         @Query("limit") limit: Int = 10,
         @Query("before") before: String? = null,
         @Query("since") since: String? = null,
-        @Query("author") author: String? = null
+        @Query("author") author: String? = null,
+        @Query("nearby") nearby: Boolean? = null,
+        @Query("radius") radius: Int? = null
     ): Call<FeedResponse>
 
     /**
