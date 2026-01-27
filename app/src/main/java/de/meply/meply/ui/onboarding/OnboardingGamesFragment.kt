@@ -19,6 +19,8 @@ import de.meply.meply.data.collection.MyCollectionResponse
 import de.meply.meply.data.collection.BoardgameSearchResult
 import de.meply.meply.data.collection.AddToCollectionRequest
 import de.meply.meply.data.collection.AddToCollectionResponse
+import de.meply.meply.data.collection.FindOrCreateBoardgameRequest
+import de.meply.meply.data.collection.FindOrCreateBoardgameResponse
 import de.meply.meply.data.events.StrapiListResponse
 import retrofit2.Call
 import retrofit2.Callback
@@ -26,6 +28,9 @@ import retrofit2.Response
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Button
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText as MaterialTextInputEditText
 
 class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
 
@@ -35,6 +40,7 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     private lateinit var progressBar: ProgressBar
     private lateinit var counterText: TextView
     private lateinit var hintText: TextView
+    private lateinit var btnCreateGame: Button
 
     private val addedGamesList = mutableListOf<SimpleGame>()
     private var searchAdapter: OnboardingGameSearchAdapter? = null
@@ -42,8 +48,7 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
 
     private val searchHandler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
-
-    private val MIN_GAMES = 10
+    private var currentSearchQuery: String = ""
 
     data class SimpleGame(
         val id: Int,
@@ -69,9 +74,11 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
         progressBar = view.findViewById(R.id.search_progress)
         counterText = view.findViewById(R.id.games_counter)
         hintText = view.findViewById(R.id.games_hint)
+        btnCreateGame = view.findViewById(R.id.btn_create_game)
 
         setupSearch()
         setupRecyclerViews()
+        setupCreateGameButton()
         loadExistingCollection()
         updateCounter()
     }
@@ -83,14 +90,94 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
             override fun afterTextChanged(s: Editable?) {
                 searchRunnable?.let { searchHandler.removeCallbacks(it) }
                 val query = s.toString().trim()
+                currentSearchQuery = query
                 if (query.length >= 2) {
                     searchRunnable = Runnable { searchGames(query) }
                     searchHandler.postDelayed(searchRunnable!!, 500)
                 } else {
                     searchAdapter?.updateResults(emptyList())
+                    btnCreateGame.visibility = View.GONE
                 }
             }
         })
+    }
+
+    private fun setupCreateGameButton() {
+        btnCreateGame.setOnClickListener {
+            showCreateGameDialog()
+        }
+    }
+
+    private fun showCreateGameDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_create_game, null)
+        val editTitle = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_game_title)
+
+        // Pre-fill with current search query
+        editTitle.setText(currentSearchQuery)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Neues Spiel erstellen")
+            .setView(dialogView)
+            .setPositiveButton("Erstellen") { _, _ ->
+                val title = editTitle.text.toString().trim()
+                if (title.isNotEmpty()) {
+                    createNewGame(title)
+                }
+            }
+            .setNegativeButton("Abbrechen", null)
+            .show()
+    }
+
+    private fun createNewGame(title: String) {
+        progressBar.visibility = View.VISIBLE
+
+        val request = FindOrCreateBoardgameRequest(
+            title = title,
+            isManualCreation = true
+        )
+
+        ApiClient.retrofit.findOrCreateBoardgame(request)
+            .enqueue(object : Callback<FindOrCreateBoardgameResponse> {
+                override fun onResponse(
+                    call: Call<FindOrCreateBoardgameResponse>,
+                    response: Response<FindOrCreateBoardgameResponse>
+                ) {
+                    progressBar.visibility = View.GONE
+                    if (response.isSuccessful) {
+                        response.body()?.let { result ->
+                            val newGame = SimpleGame(
+                                id = result.id,
+                                documentId = "", // Will be filled by backend
+                                name = title,
+                                imageUrl = null
+                            )
+                            addGame(newGame)
+                            Toast.makeText(
+                                requireContext(),
+                                if (result.existed) "Spiel gefunden und hinzugefügt" else "Spiel erstellt und hinzugefügt",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Fehler beim Erstellen des Spiels",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        Log.e("OnboardingGames", "Create game failed: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<FindOrCreateBoardgameResponse>, t: Throwable) {
+                    progressBar.visibility = View.GONE
+                    Toast.makeText(
+                        requireContext(),
+                        "Netzwerkfehler beim Erstellen",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e("OnboardingGames", "Create game failed", t)
+                }
+            })
     }
 
     private fun setupRecyclerViews() {
@@ -164,12 +251,25 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                             !addedGamesList.any { it.id == game.id }
                         }
                         searchAdapter?.updateResults(filteredGames)
+
+                        // Show create button if no results found
+                        btnCreateGame.visibility = if (filteredGames.isEmpty() && query.length >= 2) {
+                            btnCreateGame.text = "\"$query\" als neues Spiel erstellen"
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
                     }
                 }
 
                 override fun onFailure(call: Call<StrapiListResponse<BoardgameSearchResult>>, t: Throwable) {
                     progressBar.visibility = View.GONE
                     Log.e("OnboardingGames", "Search failed", t)
+                    // Show create button on error too
+                    if (query.length >= 2) {
+                        btnCreateGame.text = "\"$query\" als neues Spiel erstellen"
+                        btnCreateGame.visibility = View.VISIBLE
+                    }
                 }
             })
     }
@@ -216,28 +316,23 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
 
     private fun updateCounter() {
         val count = addedGamesList.size
-        counterText.text = "$count/$MIN_GAMES Spiele hinzugefügt"
+        counterText.text = "$count Spiele hinzugefügt"
 
-        if (count >= MIN_GAMES) {
+        if (count > 0) {
             counterText.setTextColor(resources.getColor(R.color.success, null))
             hintText.visibility = View.GONE
         } else {
             counterText.setTextColor(resources.getColor(R.color.text_secondary, null))
             hintText.visibility = View.VISIBLE
-            hintText.text = "Noch ${MIN_GAMES - count} Spiele hinzufügen"
         }
     }
 
     override fun canProceed(): Boolean {
-        return addedGamesList.size >= MIN_GAMES
+        // Games are optional - user can always proceed
+        return true
     }
 
     override fun showValidationError() {
-        val remaining = MIN_GAMES - addedGamesList.size
-        Toast.makeText(
-            requireContext(),
-            "Bitte füge noch $remaining Spiele hinzu",
-            Toast.LENGTH_SHORT
-        ).show()
+        // Not needed anymore - step is always valid
     }
 }

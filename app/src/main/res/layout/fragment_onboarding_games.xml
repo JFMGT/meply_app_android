@@ -19,7 +19,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Füge mindestens 10 Spiele hinzu, die du gerne spielst. So können wir dir passende Mitspieler vorschlagen."
+        android:text="Füge Spiele hinzu, die du gerne spielst. So können wir dir passende Mitspieler vorschlagen. Du kannst diesen Schritt auch überspringen."
         android:textColor="@color/text_secondary"
         android:textSize="14sp"
         android:layout_marginBottom="16dp" />
@@ -29,7 +29,7 @@
         android:id="@+id/games_counter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0/10 Spiele hinzugefügt"
+        android:text="0 Spiele hinzugefügt"
         android:textColor="@color/text_secondary"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -48,8 +48,8 @@
         android:id="@+id/games_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Noch 10 Spiele hinzufügen"
-        android:textColor="@color/warning"
+        android:text="Optional: Füge Spiele hinzu um passende Mitspieler zu finden"
+        android:textColor="@color/text_disabled"
         android:textSize="12sp"
         android:layout_marginBottom="16dp" />
 
@@ -86,14 +86,26 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Marketplace hint -->
+    <!-- Create new game button (shown when search has no results) -->
+    <Button
+        android:id="@+id/btn_create_game"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Neues Spiel erstellen"
+        android:textColor="@color/text_primary"
+        android:backgroundTint="@color/surface"
+        android:visibility="gone"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+    <!-- Web import hint -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:padding="12dp"
         android:background="@color/surface"
-        android:text="💡 Tipp: Du kannst Spiele auch auf dem Marktplatz anbieten oder suchen!"
+        android:text="Tipp: In der Web-Version kannst du deine Spiele von BoardGameGeek importieren!"
         android:textColor="@color/text_secondary"
         android:textSize="12sp" />
 
