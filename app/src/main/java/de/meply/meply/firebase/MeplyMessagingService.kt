@@ -14,6 +14,13 @@ import de.meply.meply.HomeActivity
 import de.meply.meply.LoginActivity
 import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
+import de.meply.meply.data.profile.ProfileItem
+import de.meply.meply.data.profile.ProfileResponse
+import de.meply.meply.network.ApiClient
+import de.meply.meply.ui.profile.UserProfileActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MeplyMessagingService : FirebaseMessagingService() {
 
@@ -72,12 +79,127 @@ class MeplyMessagingService : FirebaseMessagingService() {
     }
 
     private fun handleDataMessage(data: Map<String, String>) {
-        val title = data["title"] ?: "Meply"
-        val body = data["body"] ?: data["message"] ?: ""
-        val elementType = data["elementType"]
-        val elementId = data["elementId"]
+        val type = data["type"]
 
-        showNotification(title, body, elementType, elementId)
+        when (type) {
+            "availability" -> handleAvailabilityNotification(data)
+            else -> {
+                // Default handling for other notification types
+                val title = data["title"] ?: "Meply"
+                val body = data["body"] ?: data["message"] ?: ""
+                val elementType = data["elementType"]
+                val elementId = data["elementId"]
+                showNotification(title, body, elementType, elementId)
+            }
+        }
+    }
+
+    private fun handleAvailabilityNotification(data: Map<String, String>) {
+        val subtype = data["subtype"]
+        val profileDocumentId = data["profileDocumentId"]
+
+        if (profileDocumentId.isNullOrEmpty()) {
+            Log.e(TAG, "No profileDocumentId in availability notification")
+            return
+        }
+
+        // Fetch profile data from API
+        ApiClient.retrofit.getProfile(profileDocumentId).enqueue(object : Callback<ProfileResponse<ProfileItem>> {
+            override fun onResponse(
+                call: Call<ProfileResponse<ProfileItem>>,
+                response: Response<ProfileResponse<ProfileItem>>
+            ) {
+                val profileData = response.body()?.data
+                val username = profileData?.attributes?.username
+                val userSlug = profileData?.attributes?.userslug
+
+                val (title, body) = when (subtype) {
+                    "friend" -> {
+                        val displayName = username ?: "Ein Freund"
+                        "Spielpartner gesucht!" to "$displayName sucht kurzfristig Mitspieler! Bist du dabei?"
+                    }
+                    "match" -> {
+                        "Spielpartner in der Nähe!" to "Jemand aus der Nähe mit einem guten Geschmack sucht spontan Mitspieler! Interessiert?"
+                    }
+                    else -> {
+                        "Spielpartner gesucht!" to "Jemand möchte spielen!"
+                    }
+                }
+
+                showAvailabilityNotification(title, body, userSlug)
+            }
+
+            override fun onFailure(call: Call<ProfileResponse<ProfileItem>>, t: Throwable) {
+                Log.e(TAG, "Failed to fetch profile for availability notification", t)
+                // Show generic notification as fallback
+                val (title, body) = when (subtype) {
+                    "friend" -> "Spielpartner gesucht!" to "Ein Freund sucht kurzfristig Mitspieler! Bist du dabei?"
+                    "match" -> "Spielpartner in der Nähe!" to "Jemand aus der Nähe mit einem guten Geschmack sucht spontan Mitspieler! Interessiert?"
+                    else -> "Spielpartner gesucht!" to "Jemand möchte spielen!"
+                }
+                showAvailabilityNotification(title, body, null)
+            }
+        })
+    }
+
+    private fun showAvailabilityNotification(title: String, body: String, userSlug: String?) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // Create notification channel for Android O and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Benachrichtigungen von Meply"
+                enableVibration(true)
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // Determine target activity based on login state and userSlug availability
+        val isLoggedIn = AuthManager.getJwt(this) != null
+
+        val intent = if (isLoggedIn && !userSlug.isNullOrEmpty()) {
+            // Open user profile directly
+            Intent(this, UserProfileActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra("user_slug", userSlug)
+            }
+        } else if (isLoggedIn) {
+            // Open home activity if no userSlug
+            Intent(this, HomeActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+        } else {
+            // Open login if not logged in
+            Intent(this, LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            System.currentTimeMillis().toInt(),
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        // Build notification
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_dice)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .build()
+
+        // Show notification with unique ID
+        val notificationId = System.currentTimeMillis().toInt()
+        notificationManager.notify(notificationId, notification)
     }
 
     private fun showNotification(title: String?, body: String?, elementType: String? = null, elementId: String? = null) {

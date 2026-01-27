@@ -25,6 +25,7 @@ data class AvatarFormat(
  */
 data class ProfileAttributes(
     @SerializedName("username") val username: String?,
+    @SerializedName("userslug") val userslug: String?,
     @SerializedName("birthDate") val birthDate: String?,                 // Format: "YYYY-MM-DD"
     @SerializedName("postalCode") val postalCode: String?,
     @SerializedName("city") val city: String?,
