@@ -11,13 +11,14 @@
         android:padding="24dp"
         android:gravity="center_horizontal">
 
-        <!-- App Logo -->
+        <!-- App Logo (white tinted) -->
         <ImageView
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="24dp"
             android:src="@drawable/logo"
+            android:tint="@color/white"
             android:contentDescription="Meply Logo" />
 
         <!-- Title -->
@@ -61,17 +62,29 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Hint -->
-        <TextView
+        <!-- Hint with small logo -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Du kannst dies später jederzeit in deinem Profil ändern."
-            android:textColor="@color/text_disabled"
-            android:textSize="12sp"
-            android:textAlignment="center"
-            android:drawableStart="@drawable/logo_head"
-            android:drawablePadding="8dp"
-            android:gravity="center" />
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/logo_head"
+                android:tint="@color/white"
+                android:contentDescription="Logo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Du kannst dies später jederzeit in deinem Profil ändern."
+                android:textColor="@color/text_disabled"
+                android:textSize="12sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
