@@ -14,6 +14,7 @@ import de.meply.meply.HomeActivity
 import de.meply.meply.LoginActivity
 import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
+import de.meply.meply.ui.profile.UserProfileActivity
 
 class MeplyMessagingService : FirebaseMessagingService() {
 
@@ -72,12 +73,100 @@ class MeplyMessagingService : FirebaseMessagingService() {
     }
 
     private fun handleDataMessage(data: Map<String, String>) {
-        val title = data["title"] ?: "Meply"
-        val body = data["body"] ?: data["message"] ?: ""
-        val elementType = data["elementType"]
-        val elementId = data["elementId"]
+        val type = data["type"]
 
-        showNotification(title, body, elementType, elementId)
+        when (type) {
+            "availability" -> handleAvailabilityNotification(data)
+            else -> {
+                // Default handling for other notification types
+                val title = data["title"] ?: "Meply"
+                val body = data["body"] ?: data["message"] ?: ""
+                val elementType = data["elementType"]
+                val elementId = data["elementId"]
+                showNotification(title, body, elementType, elementId)
+            }
+        }
+    }
+
+    private fun handleAvailabilityNotification(data: Map<String, String>) {
+        val subtype = data["subtype"]
+        val userSlug = data["userSlug"]
+        val username = data["username"]
+
+        val (title, body) = when (subtype) {
+            "friend" -> {
+                val displayName = username ?: "Ein Freund"
+                "Spielpartner gesucht!" to "$displayName sucht kurzfristig Mitspieler! Bist du dabei?"
+            }
+            "match" -> {
+                "Spielpartner in der Nähe!" to "Jemand aus der Nähe mit einem guten Geschmack sucht spontan Mitspieler! Interessiert?"
+            }
+            else -> {
+                "Spielpartner gesucht!" to "Jemand möchte spielen!"
+            }
+        }
+
+        showAvailabilityNotification(title, body, userSlug)
+    }
+
+    private fun showAvailabilityNotification(title: String, body: String, userSlug: String?) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // Create notification channel for Android O and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Benachrichtigungen von Meply"
+                enableVibration(true)
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // Determine target activity based on login state and userSlug availability
+        val isLoggedIn = AuthManager.getJwt(this) != null
+
+        val intent = if (isLoggedIn && !userSlug.isNullOrEmpty()) {
+            // Open user profile directly
+            Intent(this, UserProfileActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra("user_slug", userSlug)
+            }
+        } else if (isLoggedIn) {
+            // Open home activity if no userSlug
+            Intent(this, HomeActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+        } else {
+            // Open login if not logged in
+            Intent(this, LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            System.currentTimeMillis().toInt(),
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        // Build notification
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_dice)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .build()
+
+        // Show notification with unique ID
+        val notificationId = System.currentTimeMillis().toInt()
+        notificationManager.notify(notificationId, notification)
     }
 
     private fun showNotification(title: String?, body: String?, elementType: String? = null, elementId: String? = null) {
