@@ -15,8 +15,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import de.meply.meply.HomeActivity
 import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
+import android.widget.Button
 import de.meply.meply.data.messages.Conversation
 import de.meply.meply.network.ApiClient
 import retrofit2.Call
@@ -28,7 +30,7 @@ class PmFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var progressBar: ProgressBar
-    private lateinit var emptyState: TextView
+    private lateinit var emptyState: View
     private lateinit var conversationAdapter: ConversationAdapter
 
     private val conversations = mutableListOf<Conversation>()
@@ -51,9 +53,17 @@ class PmFragment : Fragment() {
 
         setupRecyclerView()
         setupSwipeRefresh()
+        setupEmptyStateButton(view)
         loadConversations()
 
         return view
+    }
+
+    private fun setupEmptyStateButton(view: View) {
+        view.findViewById<Button>(R.id.btnFindPlayers)?.setOnClickListener {
+            // Navigate to Players fragment via HomeActivity
+            (activity as? HomeActivity)?.openPlayersFromPm()
+        }
     }
 
     private fun setupRecyclerView() {

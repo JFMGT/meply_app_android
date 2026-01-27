@@ -519,6 +519,13 @@ class HomeActivity : AppCompatActivity() {
         switchTo(players, "players")
     }
 
+    /**
+     * Public method to open Players from other fragments (e.g., PmFragment empty state)
+     */
+    fun openPlayersFromPm() {
+        openPlayers()
+    }
+
     private fun openLocationsOverview() {
         toolbarCreateButton.visibility = View.GONE
         toolbarFilterButton.visibility = View.GONE

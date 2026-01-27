@@ -28,14 +28,52 @@
         android:visibility="gone" />
 
     <!-- Empty State -->
-    <TextView
+    <LinearLayout
         android:id="@+id/pmEmptyState"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Keine Nachrichten vorhanden"
-        android:textSize="16sp"
-        android:textColor="?android:attr/textColorSecondary"
-        android:visibility="gone" />
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_mail"
+            android:tint="@color/text_disabled"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Keine Nachrichten" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Noch keine Nachrichten"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Entdecke Mitspieler in deiner Nähe und starte eine Unterhaltung!"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:textAlignment="center"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/btnFindPlayers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mitspieler entdecken"
+            android:textColor="@color/text_on_primary"
+            android:backgroundTint="@color/primary"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
