@@ -8,7 +8,15 @@ import com.google.gson.annotations.SerializedName
 data class FeedResponse(
     @SerializedName("feed") val feed: List<Post>,
     @SerializedName("cursor") val cursor: FeedCursor?,
-    @SerializedName("hasMore") val hasMore: Boolean = false
+    @SerializedName("hasMore") val hasMore: Boolean = false,
+    @SerializedName("nearby") val nearby: NearbyInfo? = null
+)
+
+/**
+ * Nearby info in feed response (when nearby=true)
+ */
+data class NearbyInfo(
+    @SerializedName("radius") val radius: Int?
 )
 
 data class FeedCursor(

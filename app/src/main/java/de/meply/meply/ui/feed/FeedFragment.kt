@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
 import de.meply.meply.R
 import de.meply.meply.auth.AuthManager
@@ -34,11 +35,16 @@ class FeedFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var loadMoreProgressBar: ProgressBar
     private lateinit var feedAdapter: FeedAdapter
+    private lateinit var tabLayout: TabLayout
 
     private val posts = mutableListOf<Post>()
     private var currentCursor: String? = null
     private var hasMore = true
     private var isLoading = false
+
+    // Feed filter mode: false = all posts, true = nearby posts
+    private var isNearbyMode = false
+    private val nearbyRadius = 30 // km
 
     private val threadLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -73,7 +79,9 @@ class FeedFragment : Fragment() {
         swipeRefresh = view.findViewById(R.id.feedSwipeRefresh)
         progressBar = view.findViewById(R.id.feedProgressBar)
         loadMoreProgressBar = view.findViewById(R.id.feedLoadMoreProgressBar)
+        tabLayout = view.findViewById(R.id.feedTabLayout)
 
+        setupTabs()
         setupRecyclerView()
         setupSwipeRefresh()
 
@@ -81,6 +89,31 @@ class FeedFragment : Fragment() {
         loadFeed(reset = true)
 
         return view
+    }
+
+    private fun setupTabs() {
+        // Add tabs: "Alles" (all) and "Lokal" (nearby)
+        tabLayout.addTab(tabLayout.newTab().setText("Alles"))
+        tabLayout.addTab(tabLayout.newTab().setText("Lokal"))
+
+        // Select "Alles" tab by default (index 0)
+        tabLayout.selectTab(tabLayout.getTabAt(0))
+
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val newNearbyMode = tab?.position == 1
+                if (newNearbyMode != isNearbyMode) {
+                    isNearbyMode = newNearbyMode
+                    loadFeed(reset = true)
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // Refresh on reselect
+                loadFeed(reset = true)
+            }
+        })
     }
 
     private fun setupRecyclerView() {
@@ -252,9 +285,11 @@ class FeedFragment : Fragment() {
         val api = ApiClient.retrofit
         val call = api.getFeed(
             limit = 10,
-            before = if (reset) null else currentCursor
+            before = if (reset) null else currentCursor,
+            nearby = if (isNearbyMode) true else null,
+            radius = if (isNearbyMode) nearbyRadius else null
         )
-        Log.d("FeedFragment", "API call created with before=${if (reset) "null" else currentCursor}")
+        Log.d("FeedFragment", "API call created with before=${if (reset) "null" else currentCursor}, nearby=$isNearbyMode, radius=${if (isNearbyMode) nearbyRadius else "null"}")
 
         call.enqueue(object : Callback<FeedResponse> {
             override fun onResponse(call: Call<FeedResponse>, response: Response<FeedResponse>) {
