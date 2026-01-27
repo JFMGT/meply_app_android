@@ -45,6 +45,7 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     private val addedGamesList = mutableListOf<SimpleGame>()
     private var searchAdapter: OnboardingGameSearchAdapter? = null
     private var addedAdapter: OnboardingAddedGamesAdapter? = null
+    private var existingCollectionCount: Int = 0  // Track total games in collection
 
     private val searchHandler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
@@ -197,31 +198,23 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     }
 
     private fun loadExistingCollection() {
-        ApiClient.retrofit.getMyCollection()
+        // Just get the first page to get the total count from pagination
+        ApiClient.retrofit.getMyCollection(page = 1, pageSize = 1)
             .enqueue(object : Callback<MyCollectionResponse> {
                 override fun onResponse(
                     call: Call<MyCollectionResponse>,
                     response: Response<MyCollectionResponse>
                 ) {
                     if (response.isSuccessful) {
-                        response.body()?.results?.forEach { item ->
-                            val simpleGame = SimpleGame(
-                                id = item.id.toIntOrNull() ?: 0,
-                                documentId = item.documentId ?: "",
-                                name = item.title ?: "Unbekannt",
-                                imageUrl = null // Collection items don't have thumbnail
-                            )
-                            if (!addedGamesList.any { it.documentId == simpleGame.documentId }) {
-                                addedGamesList.add(simpleGame)
-                            }
-                        }
-                        addedAdapter?.updateGames(addedGamesList)
+                        // Use the total count from pagination
+                        existingCollectionCount = response.body()?.pagination?.total ?: 0
+                        Log.d("OnboardingGames", "Existing collection count: $existingCollectionCount")
                         updateCounter()
                     }
                 }
 
                 override fun onFailure(call: Call<MyCollectionResponse>, t: Throwable) {
-                    Log.e("OnboardingGames", "Failed to load collection", t)
+                    Log.e("OnboardingGames", "Failed to load collection count", t)
                 }
             })
     }
@@ -289,11 +282,6 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                     val body = response.body()
 
                     if (response.isSuccessful && body?.success == true) {
-                        // Add to local list only on success
-                        addedGamesList.add(game)
-                        addedAdapter?.updateGames(addedGamesList)
-                        updateCounter()
-
                         // Remove from search results
                         searchAdapter?.removeGame(game)
 
@@ -301,12 +289,17 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
                         editSearch.setText("")
 
                         if (body.alreadyExists == true) {
+                            // Game was already in collection - don't add to counter
                             Toast.makeText(
                                 requireContext(),
                                 "\"${game.name}\" ist bereits in deiner Sammlung",
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
+                            // New game added - increment counter
+                            addedGamesList.add(game)
+                            addedAdapter?.updateGames(addedGamesList)
+                            updateCounter()
                             Toast.makeText(
                                 requireContext(),
                                 "\"${game.name}\" hinzugefügt",
@@ -342,10 +335,16 @@ class OnboardingGamesFragment : Fragment(), OnboardingStepValidator {
     }
 
     private fun updateCounter() {
-        val count = addedGamesList.size
-        counterText.text = "$count Spiele hinzugefügt"
+        // Total = existing collection + newly added in this session
+        val totalCount = existingCollectionCount + addedGamesList.size
 
-        if (count > 0) {
+        if (totalCount == 1) {
+            counterText.text = "1 Spiel in deiner Sammlung"
+        } else {
+            counterText.text = "$totalCount Spiele in deiner Sammlung"
+        }
+
+        if (totalCount > 0) {
             counterText.setTextColor(resources.getColor(R.color.success, null))
             hintText.visibility = View.GONE
         } else {
